@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useContent, planKind, type Plan } from "../context/content-context";
+import { useContent, planKind, sectionOn, type Plan } from "../context/content-context";
 import {
   Check,
   ArrowRight,
@@ -119,31 +119,41 @@ function PackageEffectBadge({ style, text }: { style: EffectStyle; text: string 
 
 function FloatingAdLogos() {
   const logos = [
-    { id: "google", left: "1%", size: 34, duration: 8.4, delay: 0, drift: 22, hideMobile: false },
-    { id: "instagram", left: "12%", size: 27, duration: 10.8, delay: 2.1, drift: -18, hideMobile: true },
-    { id: "meta", left: "24%", size: 31, duration: 9.6, delay: 4.4, drift: 16, hideMobile: false },
-    { id: "google", left: "37%", size: 24, duration: 11.3, delay: 1.1, drift: -14, hideMobile: true },
-    { id: "instagram", left: "49%", size: 36, duration: 9.1, delay: 5.2, drift: 20, hideMobile: false },
-    { id: "meta", left: "61%", size: 25, duration: 12.2, delay: 2.8, drift: -20, hideMobile: true },
-    { id: "google", left: "73%", size: 33, duration: 10.1, delay: 6.3, drift: 18, hideMobile: false },
-    { id: "instagram", left: "84%", size: 25, duration: 8.9, delay: 3.7, drift: -16, hideMobile: true },
-    { id: "meta", left: "96%", size: 35, duration: 11.6, delay: 0.8, drift: 14, hideMobile: false },
+    { id: "google", left: "3%", size: 44, duration: 10.2, delay: 0, drift: 16, hideMobile: false, label: "Ads" },
+    { id: "meta", left: "16%", size: 34, duration: 12.4, delay: 1.6, drift: -14, hideMobile: false, label: "" },
+    { id: "google", left: "28%", size: 38, duration: 9.6, delay: 3.1, drift: 12, hideMobile: true, label: "AdWords" },
+    { id: "instagram", left: "41%", size: 32, duration: 11.8, delay: 0.8, drift: -18, hideMobile: true, label: "" },
+    { id: "google", left: "54%", size: 48, duration: 10.8, delay: 2.4, drift: 10, hideMobile: false, label: "Ads" },
+    { id: "facebook", left: "67%", size: 30, duration: 13.2, delay: 4.2, drift: -12, hideMobile: true, label: "" },
+    { id: "google", left: "78%", size: 36, duration: 9.4, delay: 1.2, drift: 14, hideMobile: false, label: "" },
+    { id: "meta", left: "90%", size: 40, duration: 12.1, delay: 2.9, drift: -10, hideMobile: false, label: "Ads" },
   ];
 
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute -inset-x-7 -bottom-12 -top-16 z-0 overflow-hidden rounded-[42px]">
+    <div aria-hidden="true" className="pointer-events-none absolute -inset-x-4 -bottom-8 -top-10 z-0 overflow-hidden rounded-[42px]">
       {logos.map((logo, index) => (
         <motion.div
           key={`${logo.id}-${index}`}
-          initial={{ y: 150, x: 0, opacity: 0 }}
-          animate={{ y: [150, -110], x: [0, logo.drift, -logo.drift / 2, 0], opacity: [0, 0.42, 0.3, 0] }}
+          initial={{ y: 160, opacity: 0 }}
+          animate={{ y: [160, -90], x: [0, logo.drift, 0], opacity: [0, 0.85, 0.55, 0] }}
           transition={{ duration: logo.duration, delay: logo.delay, repeat: Infinity, ease: "easeInOut" }}
           className={`absolute bottom-0 ${logo.hideMobile ? "hidden sm:block" : "block"}`}
           style={{ left: logo.left }}
         >
-          <motion.div animate={{ rotate: [-7, 7, -7], scale: [0.9, 1.08, 0.9] }} transition={{ duration: 2.8 + index * 0.14, repeat: Infinity, ease: "easeInOut" }} className="relative rounded-full border border-[#7ee7f0]/35 bg-white/75 p-1.5 shadow-[0_10px_30px_rgba(0,168,196,.28)] backdrop-blur-sm">
-            <i className="absolute inset-0 -z-10 rounded-full bg-[#67e8f9]/30 blur-lg" />
-            <BrandLogo id={logo.id} size={logo.size} className="rounded-full" />
+          <motion.div
+            animate={{ y: [0, -10, 0], scale: [1, 1.06, 1] }}
+            transition={{ duration: 2.6 + index * 0.12, repeat: Infinity, ease: "easeInOut" }}
+            className="relative flex flex-col items-center"
+          >
+            <span className="flex items-center justify-center rounded-full border border-white/80 bg-white p-2.5 shadow-[0_12px_28px_rgba(66,133,244,0.22)]">
+              <i className="absolute inset-1 -z-10 rounded-full bg-[#4285f4]/18 blur-md" />
+              <BrandLogo id={logo.id} size={logo.size} className="rounded-full" />
+            </span>
+            {logo.label ? (
+              <span className="mt-1 rounded-full bg-white/90 px-2 py-0.5 text-[8px] font-black uppercase tracking-wide text-[#1a73e8] shadow-sm">
+                {logo.label}
+              </span>
+            ) : null}
           </motion.div>
         </motion.div>
       ))}
@@ -151,54 +161,15 @@ function FloatingAdLogos() {
   );
 }
 
-function PackageBottomFire() {
-  const flames = [30, 48, 38, 58, 44, 64, 42, 55, 36, 50, 29];
-
-  return (
-    <div aria-hidden="true" className="pointer-events-none absolute -bottom-10 left-2 right-2 z-20 h-20 motion-reduce:hidden">
-      <motion.span
-        animate={{ opacity: [0.45, 1, 0.45], scaleX: [0.92, 1.05, 0.92] }}
-        transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-7 left-3 right-3 h-3 rounded-full bg-gradient-to-r from-transparent via-orange-500 to-transparent blur-md"
-      />
-      <div className="absolute inset-x-0 bottom-0 flex h-full items-end justify-around overflow-visible px-1">
-        {flames.map((height, index) => (
-          <motion.i
-            key={`${height}-${index}`}
-            animate={{
-              y: [8, -10 - (index % 3) * 4, 8],
-              x: [0, index % 2 ? 5 : -5, 0],
-              scaleX: [0.65, 1.08, 0.65],
-              scaleY: [0.72, 1.12, 0.72],
-              opacity: [0.55, 1, 0.55],
-            }}
-            transition={{ duration: 0.72 + (index % 4) * 0.12, repeat: Infinity, delay: index * 0.055, ease: "easeInOut" }}
-            className="origin-bottom rounded-[72%_28%_64%_36%] bg-gradient-to-t from-red-700 via-orange-500 to-yellow-100 shadow-[0_0_16px_rgba(249,115,22,.85)]"
-            style={{ height, width: index % 3 === 0 ? 17 : 13 }}
-          />
-        ))}
-      </div>
-      {[0, 1, 2, 3, 4, 5].map((spark) => (
-        <motion.i
-          key={`spark-${spark}`}
-          animate={{ y: [20, -34 - spark * 3], x: [0, spark % 2 ? 12 : -12], opacity: [0, 1, 0], scale: [0.5, 1.2, 0.3] }}
-          transition={{ duration: 1.05 + spark * 0.08, repeat: Infinity, delay: spark * 0.16 }}
-          className="absolute bottom-4 h-2 w-2 rounded-full bg-yellow-200 shadow-[0_0_10px_#facc15]"
-          style={{ left: `${12 + spark * 15}%` }}
-        />
-      ))}
-    </div>
-  );
-}
-
 function PlanCard({ plan }: { plan: Plan }) {
-  const effectStyle = (plan.effectStyle || (plan.id === "scale" ? "fire" : plan.id === "enterprise" ? "ice" : "none")) as EffectStyle;
-  const effectText = plan.effectText || (effectStyle === "fire" ? "Alev alan yerel fırsat" : effectStyle === "ice" ? "Özel teklif fırsatı" : plan.badge);
+  const rawStyle = (plan.effectStyle || (plan.id === "enterprise" ? "ice" : "none")) as EffectStyle;
+  const effectStyle = rawStyle === "fire" ? "none" : rawStyle;
+  const effectText = plan.effectText || (effectStyle === "ice" ? "Özel teklif fırsatı" : plan.badge);
 
   return (
     <motion.div
       whileHover={{ y: -8, boxShadow: "0px 20px 45px rgba(0,168,196,0.15)" }}
-      className={`relative z-10 flex flex-col justify-between rounded-3xl p-7 transition-all ${effectStyle === "fire" ? "pb-16" : ""} ${
+      className={`relative z-10 flex flex-col justify-between rounded-3xl p-7 transition-all ${
         plan.featured
           ? "bg-gradient-to-b from-[#18181f] via-[#0f2428] to-[#0f0f12] text-white shadow-2xl border-2 border-[#00a8c4] ring-4 ring-[#b3e5ee]"
           : "border-2 border-[#ecebf5] bg-white text-[#1a1a1a] shadow-sm hover:border-[#b3e5ee]"
@@ -275,13 +246,13 @@ function PlanCard({ plan }: { plan: Plan }) {
           ))}
         </ul>
       </div>
-      {effectStyle === "fire" && <PackageBottomFire />}
     </motion.div>
   );
 }
 
 export function Pricing({ hideHeader = false }: { hideHeader?: boolean }) {
-  const { plans } = useContent();
+  const { plans, settings } = useContent();
+  const showBuilder = sectionOn(settings, "packageBuilder");
   const [viewMode, setViewMode] = useState<"hazir" | "yapilandirici">("hazir");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
@@ -322,7 +293,7 @@ export function Pricing({ hideHeader = false }: { hideHeader?: boolean }) {
       </Reveal>
       )}
 
-      {/* MOD SEÇİMİ: HAZIR PAKETLER VS AKILLI YAPILANDIRICI */}
+      {showBuilder && (
       <div className="mt-10 flex justify-center">
         <div className="inline-flex items-center rounded-2xl border-2 border-[#b3e5ee] bg-white p-2 shadow-lg">
           {VIEW_MODES.map((mode) => {
@@ -345,9 +316,10 @@ export function Pricing({ hideHeader = false }: { hideHeader?: boolean }) {
           })}
         </div>
       </div>
+      )}
 
       <AnimatePresence mode="wait">
-        {viewMode === "hazir" ? (
+        {(showBuilder ? viewMode : "hazir") === "hazir" ? (
           /* --- MOD 1: AVCI HAZIR PAKETLER GRID --- */
           <motion.div
             key="hazir-mode"

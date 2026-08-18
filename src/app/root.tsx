@@ -8,9 +8,12 @@ import { SiteGlow } from "./components/site-glow";
 import { SeoHead } from "./components/seo-head";
 import { AnalyticsTracker } from "./components/analytics-tracker";
 import { AvcFloatingLock } from "./components/avc-floating-lock";
+import { SiteProtect } from "./components/site-protect";
+import { sectionOn, useContent } from "./context/content-context";
 
 export default function Root() {
   const { pathname } = useLocation();
+  const { settings } = useContent();
   const isPanel = pathname.startsWith("/panel") || pathname.startsWith("/musteri");
   const isLiveDemo = pathname.startsWith("/demo/");
 
@@ -22,6 +25,7 @@ export default function Root() {
     return (
       <>
         <SeoHead />
+        <SiteProtect />
         <Outlet />
       </>
     );
@@ -46,9 +50,10 @@ export default function Root() {
         <Outlet />
       </main>
       <SiteFooter />
-      <MascotBot />
-      <AvcFloatingLock />
-      <StickyCta />
+      {sectionOn(settings, "mascot") && <MascotBot />}
+      {sectionOn(settings, "floatingLock") && <AvcFloatingLock />}
+      {sectionOn(settings, "stickyCta") && <StickyCta />}
+      <SiteProtect />
     </div>
   );
 }

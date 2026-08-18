@@ -3,7 +3,9 @@ import { ArrowRight, BadgeCheck, Clock3, Megaphone, MessageSquareText, Stethosco
 import { motion } from "motion/react";
 import { PageHero } from "../components/page-hero";
 import { CallbackForm } from "../components/callback-form";
+import { AvclabsShowcase } from "../components/avclabs-showcase";
 import { useContent, type SectorItem } from "../context/content-context";
+import { ADS_SITE_DEMOS } from "../lib/avclabs";
 import { toTelHref } from "../lib/contact";
 
 const iconMap = {
@@ -19,99 +21,47 @@ const iconMap = {
 
 const DEFAULT_DEMO_IMAGE = "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1400&q=82";
 
-const LEGACY_DEMO_CATALOG = [
-  { slug: "taxi", title: "Hatay Taksi Demo", subtitle: "Google Ads + WhatsApp + yerel görünürlük", accent: "#00a8c4", badge: "Demo" },
-  { slug: "nakliyat", title: "Nakliyat Demo", subtitle: "Fiyat netliği + güven + çağrı odaklı satış", accent: "#0ea5e9", badge: "Demo" },
-  { slug: "klinik", title: "Klinik Demo", subtitle: "Randevu, güven ve yerel arama görünürlüğü", accent: "#14b8a6", badge: "Demo" },
-  { slug: "servis", title: "Servis & Tamirat Demo", subtitle: "Anında çağrı, hızlı çözüm ve WhatsApp dönüşümü", accent: "#f97316", badge: "Demo" },
-] as const;
-
 export function DemoOverviewPage() {
-  const { sectors } = useContent();
-
-  const demoCatalog = sectors.length
-    ? sectors.map((sector) => ({
-        slug: sector.slug || "demo",
-        title: sector.title || "Demo",
-        subtitle: sector.description || "Google Ads + WhatsApp + yerel görünürlük",
-        accent: sector.demoAccent || sector.theme.primary || "#00a8c4",
-        badge: sector.demoBadge || "Demo",
-        image: sector.demoImage || DEFAULT_DEMO_IMAGE,
-      }))
-    : LEGACY_DEMO_CATALOG.map((sector) => ({
-        ...sector,
-        image: DEFAULT_DEMO_IMAGE,
-      }));
-
   return (
     <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(0,168,196,0.10),_transparent_28%),linear-gradient(180deg,#f8fafc_0%,#eef5f8_100%)]">
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
-        <div className="mx-auto max-w-4xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#dbeaf2] bg-white/80 px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em] text-[#0ea5c9] shadow-[0_14px_30px_rgba(14,165,201,0.08)]">
-            <span className="h-2 w-2 rounded-full bg-[#00a8c4]" />
-            Luxury demo portfolio
+        <div className="mx-auto max-w-3xl text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#dbeaf2] bg-white/80 px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em] text-[#0ea5c9]">
+            Demo vitrin · AVC ailesi
           </span>
-          <h1 className="mt-5 text-[34px] font-black text-[#0f172a] sm:text-[48px]">
-            Gerçek müşteri akışı gibi, premium demo siteleri
+          <h1 className="mt-5 text-[34px] font-black text-[#0f172a] sm:text-[46px]">
+            Hatay360 demoları ve AvcNova lisanslı yazılımlar
           </h1>
           <p className="mt-4 text-[17px] leading-relaxed text-[#4b5c71]">
-            Her sektör için tek sayfa değil, satışa hazır bir kurumsal görünüm, güçlü söz alma yapısı ve net çağrı akışı oluşturuyoruz.
+            Hatay360 web tasarım, reklam ve görünürlük işini yapar. Araç kiralama, bungalov, yat gibi operasyon yazılımlarını ise AVC ailesinin AvcNova markası üretir: BUNG lisanslı sistemler, kurumsal ve büyük projeler içindir.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
-          {demoCatalog.map((item) => (
-            <motion.div
+        <h2 className="mt-14 text-[22px] font-black text-[#0f172a]">Hatay360 — web tasarım ve reklam örnekleri</h2>
+        <p className="mt-2 text-[14px] text-[#64748b]">Siteniz, reklamınız ve çağrı akışınız. Teknik servis, klinik, taksi, nakliyat vitrinleri.</p>
+        <div className="mt-6 grid gap-5 md:grid-cols-2">
+          {ADS_SITE_DEMOS.map((item) => (
+            <Link
               key={item.slug}
-              whileHover={{ y: -8 }}
-              className="group overflow-hidden rounded-[30px] border border-[#e7edf3] bg-white p-4 shadow-[0px_22px_55px_rgba(15,23,42,0.07)]"
+              to={`/demo/${item.slug}`}
+              className="group overflow-hidden rounded-[28px] border border-[#e7edf3] bg-white shadow-[0_18px_40px_rgba(15,23,42,0.06)]"
             >
-              <div className="relative overflow-hidden rounded-[24px]" style={{ background: `linear-gradient(135deg, ${item.accent}, rgba(15,23,42,0.96))` }}>
-                <img
-                  src={item.image || DEFAULT_DEMO_IMAGE}
-                  alt={item.title}
-                  width="1200"
-                  height="675"
-                  loading="lazy"
-                  className="aspect-video w-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#07111d]/90 via-[#07111d]/20 to-transparent" />
-                <div className="absolute inset-x-4 top-4 flex items-center justify-between">
-                  <span className="rounded-full border border-white/15 bg-black/20 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white/90">
-                    {item.badge}
-                  </span>
-                  <span className="rounded-full bg-white/10 px-2 py-1 text-[9px] font-bold text-white/90 backdrop-blur-sm">
-                    Premium lead page
-                  </span>
-                </div>
-                <div className="absolute inset-x-4 bottom-4">
-                  <h2 className="text-[22px] font-black text-white">{item.title}</h2>
-                  <p className="mt-1 text-[12px] font-medium text-white/80">{item.subtitle}</p>
+              <div className="relative h-48">
+                <img src={item.image} alt={item.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4 text-white">
+                  <h3 className="text-[20px] font-black">{item.title}</h3>
+                  <p className="text-[13px] text-white/80">{item.subtitle}</p>
                 </div>
               </div>
-
-              <div className="mt-5 grid gap-2.5">
-                {[
-                  "Google arama görünürlüğü",
-                  "WhatsApp / telefon dönüşümü",
-                  "Net fiyat ve CTA yapısı",
-                ].map((feature) => (
-                  <div key={feature} className="rounded-2xl bg-[#f8fafc] px-3 py-2.5 text-[13px] font-bold text-[#1e293b] ring-1 ring-[#edf2f7]">
-                    {feature}
-                  </div>
-                ))}
+              <div className="flex items-center justify-between px-5 py-4 text-[13px] font-black text-[#0ea5c9]">
+                Hatay360 site örneği <ArrowRight className="h-4 w-4" />
               </div>
-
-              <Link
-                to={`/demo/${item.slug === "taxi" ? "taksi" : item.slug}`}
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-[14px] font-black text-white shadow-[0_16px_30px_rgba(15,23,42,0.18)] transition-all hover:-translate-y-0.5"
-                style={{ background: item.accent }}
-              >
-                Demo aç <ArrowRight className="h-4 w-4" />
-              </Link>
-            </motion.div>
+            </Link>
           ))}
         </div>
+
+        <AvclabsShowcase />
       </div>
     </section>
   );

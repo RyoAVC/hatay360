@@ -173,6 +173,65 @@ export type ReferenceItem = {
   logoPng?: string;
 };
 
+export type HomeSectionId =
+  | "pillars"
+  | "maps"
+  | "sectors"
+  | "howItWorks"
+  | "features"
+  | "specialDesign"
+  | "integrations"
+  | "pricing"
+  | "districts"
+  | "callback"
+  | "bottomCta"
+  | "supportCta"
+  | "mascot"
+  | "stickyCta"
+  | "floatingLock"
+  | "packageBuilder"
+  | "siteProtect";
+
+export const DEFAULT_HOME_SECTIONS: Record<HomeSectionId, boolean> = {
+  pillars: true,
+  maps: false,
+  sectors: true,
+  howItWorks: false,
+  features: false,
+  specialDesign: false,
+  integrations: false,
+  pricing: true,
+  districts: true,
+  callback: true,
+  bottomCta: false,
+  supportCta: true,
+  mascot: false,
+  stickyCta: true,
+  floatingLock: true,
+  packageBuilder: false,
+  siteProtect: true,
+};
+
+export const HOME_SECTION_OPTIONS: { id: HomeSectionId; label: string }[] = [
+  { id: "pillars", label: "Hizmet sütunları" },
+  { id: "maps", label: "Google Maps bloğu" },
+  { id: "sectors", label: "Sektör çözümleri" },
+  { id: "howItWorks", label: "Nasıl çalışır" },
+  { id: "features", label: "Özellikler bloğu" },
+  { id: "specialDesign", label: "Özel tasarım stüdyosu" },
+  { id: "integrations", label: "Entegrasyon vitrini" },
+  { id: "pricing", label: "Paketler" },
+  { id: "districts", label: "Hatay ilçeleri" },
+  { id: "callback", label: "Sizi arayalım formu" },
+  { id: "bottomCta", label: "Alt renkli çağrı bandı" },
+  { id: "supportCta", label: "Destek / iletişim şeridi" },
+  { id: "mascot", label: "Asistan bot" },
+  { id: "stickyCta", label: "Mobil alt bar" },
+  { id: "floatingLock", label: "AVC sahiplik kilidi" },
+  { id: "packageBuilder", label: "Paket yapılandırıcı" },
+  { id: "siteProtect", label: "Sağ tık ve kopya uyarısı" },
+];
+
 export type SiteSettings = {
   siteTitle: string;
   phone: string;
@@ -197,7 +256,13 @@ export type SiteSettings = {
   aiProvider: "gemini" | "openai" | "none";
   aiApiKey: string;
   aiModel: string;
+  homeSections: Record<HomeSectionId, boolean>;
 };
+
+export function sectionOn(settings: SiteSettings, id: HomeSectionId): boolean {
+  const value = settings.homeSections?.[id];
+  return typeof value === "boolean" ? value : DEFAULT_HOME_SECTIONS[id];
+}
 
 const INITIAL_PLANS: Plan[] = [
   {
@@ -259,8 +324,8 @@ const INITIAL_PLANS: Plan[] = [
     desc: "Taksi, nakliyat, klinik, servis ve yerel hizmet sektörlerinde telefon ve başvuru artışı hedefleyen reklam paketi.",
     cta: "Sektöre Özel Teklif Al",
     kind: "ads",
-    effectStyle: "fire",
-    effectText: "Alev alan yerel fırsat",
+    effectStyle: "none",
+    effectText: "",
     features: [
       { text: "Google yerel arama ve yakınımda hedeflemesi" },
       { text: "Reklam çağrısı ve WhatsApp dönüşüm optimizasyonu" },
@@ -706,7 +771,7 @@ const INITIAL_SETTINGS: SiteSettings = {
   address: "Antakya / Hatay",
   avciLabsUrl: "/pazarla",
   mascotName: "360 Bot",
-  mascotActive: true,
+  mascotActive: false,
   headerCtaText: "Sizi Arayalım",
   headerCtaHref: "/iletisim",
   logoUrl: "",
@@ -723,6 +788,7 @@ const INITIAL_SETTINGS: SiteSettings = {
   aiProvider: "gemini",
   aiApiKey: "",
   aiModel: "gemini-2.0-flash",
+  homeSections: DEFAULT_HOME_SECTIONS,
 };
 
 export type ContentSnapshot = {
@@ -820,6 +886,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
         aiApiKey: "",
         seoPages: { ...INITIAL_SETTINGS.seoPages, ...(parsed.seoPages || {}) },
         districts: Array.isArray(parsed.districts) && parsed.districts.length ? parsed.districts : INITIAL_SETTINGS.districts,
+        homeSections: { ...DEFAULT_HOME_SECTIONS, ...(parsed.homeSections || {}) },
       };
     } catch {
       return INITIAL_SETTINGS;
@@ -850,6 +917,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
               Array.isArray(content.settings.districts) && content.settings.districts.length
                 ? content.settings.districts
                 : INITIAL_SETTINGS.districts,
+            homeSections: { ...DEFAULT_HOME_SECTIONS, ...(content.settings.homeSections || {}) },
           });
         }
         setDatabaseStatus("connected");

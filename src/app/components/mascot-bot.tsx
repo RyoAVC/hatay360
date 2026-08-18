@@ -42,8 +42,6 @@ export function MascotBot() {
     return () => clearInterval(blinkTimer);
   }, []);
 
-  if (!settings.mascotActive) return null;
-
   const botName = settings.mascotName || "Hatay360 Bot";
 
   return (

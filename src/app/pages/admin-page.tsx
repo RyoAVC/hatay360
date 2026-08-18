@@ -10,6 +10,9 @@ import {
   SiteSettings,
   slugifySector,
   normalizeSector,
+  HOME_SECTION_OPTIONS,
+  DEFAULT_HOME_SECTIONS,
+  sectionOn,
 } from "../context/content-context";
 import {
   Save,
@@ -1494,12 +1497,48 @@ export function AdminPage() {
               <label className="mt-6 flex items-center gap-2 rounded-xl border border-white/15 bg-black/40 px-3 py-2.5 text-[13px] font-bold text-white cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={settingsState.mascotActive}
-                  onChange={(e) => setSettingsState({ ...settingsState, mascotActive: e.target.checked })}
+                  checked={sectionOn(settingsState, "mascot")}
+                  onChange={(e) =>
+                    setSettingsState({
+                      ...settingsState,
+                      mascotActive: e.target.checked,
+                      homeSections: { ...DEFAULT_HOME_SECTIONS, ...settingsState.homeSections, mascot: e.target.checked },
+                    })
+                  }
                   className="h-4 w-4 accent-[#00a8c4]"
                 />
                 Sitede botu göster
               </label>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+              <p className="text-[12px] font-black uppercase tracking-[0.16em] text-[#70dce9]">Anasayfa / site blokları</p>
+              <p className="mt-2 text-[12px] leading-relaxed text-white/50">
+                Fazla bloklar gizlenir, silinmez. Kapalı olanı buradan tekrar açabilirsiniz.
+              </p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {HOME_SECTION_OPTIONS.map((item) => (
+                  <label key={item.id} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/4 px-3 py-2 text-[12px] font-bold text-white/90 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={sectionOn(settingsState, item.id)}
+                      onChange={(e) =>
+                        setSettingsState({
+                          ...settingsState,
+                          mascotActive: item.id === "mascot" ? e.target.checked : settingsState.mascotActive,
+                          homeSections: {
+                            ...DEFAULT_HOME_SECTIONS,
+                            ...settingsState.homeSections,
+                            [item.id]: e.target.checked,
+                          },
+                        })
+                      }
+                      className="h-4 w-4 accent-[#00a8c4]"
+                    />
+                    {item.label}
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
         )}

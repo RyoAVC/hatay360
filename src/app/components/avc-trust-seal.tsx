@@ -1,6 +1,6 @@
 import { BadgeCheck, ExternalLink, Fingerprint, Network, ShieldCheck } from "lucide-react";
 
-const AVC_BRANDS = ["Avcı E-Ticaret", "Dijivio", "Adana360", "Hatay360", "AvcLabs"];
+const AVC_BRANDS = ["Avcı E-Ticaret", "AvcNova", "AvcLabs", "Hatay360", "Adana360", "Dijivio"];
 type AvcTrustSealProps = { mobile?: boolean; siteName?: string; hubUrl?: string };
 
 export function AvcTrustSeal({ mobile = false, siteName = "Bu dijital proje", hubUrl = "https://hub.avcieticaret.com" }: AvcTrustSealProps) {

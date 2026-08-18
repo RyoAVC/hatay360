@@ -32,6 +32,13 @@ export function KosullarPage() {
           </p>
         </div>
         <div>
+          <h2 className="text-[20px] font-bold text-[#1a1a1a]">Telif ve fikri mülkiyet</h2>
+          <p className="mt-2">
+            hatay360.com üzerindeki tasarım, arayüz, metin, yazılım, demo siteleri, paket görünümü ve ticari sunum Mahir Avcı / Avcı E-Ticaret’e aittir.
+            5846 sayılı Fikir ve Sanat Eserleri Kanunu ile 6102 sayılı Türk Ticaret Kanunu kapsamında korunur. İzinsiz kopyalama, çoğaltma, kaynak kodunu çıkarma, yapay zeka ile türetme veya başka bir markada kullanma yasaktır; tespit halinde yasal yollara başvurulur.
+          </p>
+        </div>
+        <div>
           <h2 className="text-[20px] font-bold text-[#1a1a1a]">İletişim</h2>
           <p className="mt-2">
             Koşullarla ilgili sorularınız için iletişim sayfasını kullanın. Sözleşme imzalandığında o metin bu

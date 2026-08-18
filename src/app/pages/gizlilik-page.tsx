@@ -44,6 +44,12 @@ export function GizlilikPage() {
             eklenirse burada ayrıca duyurulur. Form gönderimi, aranma talebiniz için açık rızanızdır.
           </p>
         </div>
+        <div>
+          <h2 className="text-[20px] font-bold text-[#1a1a1a]">Telif hakkı</h2>
+          <p className="mt-2">
+            Site tasarımı ve yazılımı Mahir Avcı / Avcı E-Ticaret’e aittir. Görseller, arayüz ve metinler izinsiz kopyalanamaz. Hakkınızı ihlal eden kullanım görürsek yasal yükümlülük doğar.
+          </p>
+        </div>
       </section>
     </>
   );

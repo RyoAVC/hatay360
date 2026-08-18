@@ -1,4 +1,4 @@
-import { ArrowRight, Boxes, Check, CreditCard, MonitorSmartphone, Palette, ShoppingBag, Store } from "lucide-react";
+import { ArrowRight, Banknote, Boxes, Check, Coins, CreditCard, MonitorSmartphone, Palette, ShoppingBag, Store } from "lucide-react";
 import { motion } from "motion/react";
 import { BrandLogo, BrandLogoRow, MARKETPLACE_BRANDS, resolveBrandId } from "./brand-logo";
 import { planKind, type Plan } from "../context/content-context";
@@ -17,6 +17,43 @@ const COMPARE = [
   ["Pazaryeri", "Sonra eklenebilir", "Trendyol · HB · N11"],
   ["Reklam", "Ayrı paket", "Ayrı paket"],
 ];
+
+function CommerceBubbles() {
+  const items = [
+    { icon: ShoppingBag, left: "6%", delay: 0, duration: 10.4 },
+    { icon: Banknote, left: "24%", delay: 1.8, duration: 12.1 },
+    { icon: Coins, left: "43%", delay: 0.7, duration: 9.8 },
+    { icon: CreditCard, left: "62%", delay: 2.4, duration: 11.6 },
+    { icon: ShoppingBag, left: "80%", delay: 1.2, duration: 10.9 },
+    { icon: Banknote, left: "92%", delay: 3.1, duration: 13 },
+  ];
+
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+      {items.map((item, index) => {
+        const Icon = item.icon;
+        return (
+          <motion.div
+            key={`${item.left}-${index}`}
+            initial={{ y: 220, opacity: 0 }}
+            animate={{ y: [220, -80], opacity: [0, 0.55, 0] }}
+            transition={{ duration: item.duration, delay: item.delay, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute bottom-0"
+            style={{ left: item.left }}
+          >
+            <motion.span
+              animate={{ y: [0, -8, 0], scale: [1, 1.08, 1] }}
+              transition={{ duration: 2.4 + index * 0.1, repeat: Infinity, ease: "easeInOut" }}
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-white/10 text-[#f3d27a] shadow-[0_10px_24px_rgba(0,0,0,0.25)] backdrop-blur-sm"
+            >
+              <Icon className="h-5 w-5" />
+            </motion.span>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
 
 function isMarketplacePlan(plan: Plan) {
   const hay = `${plan.id} ${plan.name} ${plan.badge} ${plan.desc}`.toLocaleLowerCase("tr-TR");
@@ -191,6 +228,7 @@ export function StorePackages({ plans }: { plans: Plan[] }) {
     <div id="magaza-paketleri" className="relative overflow-hidden rounded-[36px] bg-[#0c1620] px-5 py-10 text-white sm:px-10 sm:py-14">
       <div className="pointer-events-none absolute -left-16 top-0 h-56 w-56 rounded-full bg-[#0ea5b7]/18 blur-3xl" />
       <div className="pointer-events-none absolute -right-10 bottom-0 h-64 w-64 rounded-full bg-[#c9a227]/16 blur-3xl" />
+      <CommerceBubbles />
 
       <div className="relative">
         <div className="flex flex-wrap items-center gap-2">
