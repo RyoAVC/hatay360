@@ -1,0 +1,38 @@
+# Bağımlılıklar
+node_modules
+
+# Build çıktısı
+dist
+dist-ssr
+*.local
+
+# Loglar
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Yerel veritabanı
+data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Editör / sistem
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Ortam değişkenleri (gizli bilgiler)
+.env
+.env.*
+!.env.example

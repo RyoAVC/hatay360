@@ -1,0 +1,92 @@
+import { Link } from "react-router";
+import { motion } from "motion/react";
+import { ArrowRight, RefreshCw, Layers, Globe, Target, Smartphone, Code2, MapPinned } from "lucide-react";
+import { PageHero } from "../components/page-hero";
+import { Marketplace } from "../components/marketplace";
+import { Reveal, staggerItem } from "../components/motion-primitives";
+import { ExtraModules } from "../components/extra-modules";
+import { ServiceAreas } from "../components/service-areas";
+import { GoogleMapsPromo } from "../components/google-maps-promo";
+
+const BENEFITS = [
+  { icon: Layers, title: "Pazarla entegrasyon", desc: "Trendyol, Hepsiburada, N11 ve Amazon stok–sipariş senkronu. Hatay e-ticaret mağazaları için tek panel." },
+  { icon: Globe, title: "Hatay web tasarım", desc: "Antakya ve İskenderun işletmelerine özel, mobil uyumlu kurumsal site ve e-ticaret arayüzü." },
+  { icon: Target, title: "Hatay reklam ajansı", desc: "Google Ads ve Meta reklam. Hatay’da reklam bütçesini satışa çeviren ajans yönetimi." },
+  { icon: MapPinned, title: "Google Maps & harita SEO", desc: "Harita kaydı, yerel sıralama, profil optimizasyonu ve gerçek müşteri yorum yönetimi." },
+  { icon: Smartphone, title: "Mobil uygulama", desc: "iOS ve Android mağaza yayını. Hatay markanızın cebindeki uygulaması." },
+  { icon: Code2, title: "Özel yazılım", desc: "Stok botu, e-fatura, API. Hatay yazılım ekibiyle işletmenize özel otomasyon." },
+  { icon: RefreshCw, title: "Anlık senkron", desc: "Fiyat ve stok tüm kanallara saniyeler içinde yansır." },
+];
+
+export function PazarlaPage() {
+  return (
+    <>
+      <PageHero
+        eyebrow="Hatay reklam ajansı"
+        title="Google Ads, sosyal medya ve yerel görünürlük"
+        desc="İskenderun’dan Dörtyol’a: Google reklamları, Meta kampanyaları, yerel SEO ve satış odaklı web sayfaları. Hatay360 — Antakya merkezli tek ekip."
+      >
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <Link to="/paketler">
+            <motion.span
+              whileHover={{ y: -3 }}
+              className="inline-flex items-center gap-2 rounded-xl bg-[#00a8c4] px-6 py-3.5 text-[16px] font-bold text-white shadow-[0px_10px_28px_rgba(0,168,196,0.35)]"
+            >
+              Paketleri İnceleyin <ArrowRight className="h-[18px] w-[18px]" />
+            </motion.span>
+          </Link>
+          <Link
+            to="/iletisim"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#d9dbe9] bg-white/90 px-6 py-3.5 text-[16px] font-bold text-[#1a1a1a] hover:border-[#00a8c4] hover:text-[#00a8c4]"
+          >
+            Sizi arayalım
+          </Link>
+        </div>
+      </PageHero>
+
+      <Marketplace hideIntro />
+
+      <div className="mx-auto max-w-6xl px-5 pt-8 sm:px-8"><GoogleMapsPromo compact /></div>
+
+      <section className="mx-auto max-w-6xl px-5 py-24 sm:px-8">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <span className="text-[14px] font-semibold uppercase tracking-wider text-[#00a8c4]">
+            Neden Hatay360?
+          </span>
+          <h2 className="mt-3 text-[32px] font-bold tracking-tight text-[#1a1a1a] sm:text-[40px]">
+            Hatay reklam ajansı ve görünürlük ekibi, tek çatıda
+          </h2>
+          <p className="mt-3 text-[16px] text-[#514f6e]">
+            Ayrı ajans, ayrı içerik, ayrı kampanya yönetimi yok. Google reklamları, Meta, yerel SEO ve satış sayfaları aynı ekiple yürür.
+          </p>
+        </Reveal>
+
+        <motion.div
+          className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-60px" }}
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
+        >
+          {BENEFITS.map((b) => (
+            <motion.div
+              key={b.title}
+              variants={staggerItem}
+              whileHover={{ y: -6 }}
+              className="rounded-2xl border border-[#ecebf5] bg-white/85 p-6 shadow-sm backdrop-blur-sm hover:border-[#b3e5ee] hover:shadow-md transition-all"
+            >
+              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#e8f8fb] text-[#00a8c4]">
+                <b.icon className="h-6 w-6" />
+              </span>
+              <h3 className="mt-5 text-[18px] font-bold text-[#1a1a1a]">{b.title}</h3>
+              <p className="mt-2 text-[15px] leading-relaxed text-[#6f6c8f]">{b.desc}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      <ExtraModules />
+      <ServiceAreas mode="chips" />
+    </>
+  );
+}

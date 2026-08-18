@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /panel
+Disallow: /panel/giris
+Disallow: /admin
+
+Sitemap: https://hatay360.com/sitemap.xml
