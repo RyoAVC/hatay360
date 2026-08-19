@@ -47,8 +47,9 @@ export function SeoHead() {
       return;
     }
 
-    if (pathname.startsWith("/panel") || pathname.startsWith("/musteri") || pathname === "/admin") {
-      document.title = `${pathname.startsWith("/musteri") ? "Müşteri Paneli" : "Yönetim Paneli"} | ${brand}`;
+    if (pathname.startsWith("/panel") || pathname.startsWith("/musteri") || pathname.startsWith("/firma") || pathname === "/admin") {
+      const label = pathname.startsWith("/musteri") ? "Müşteri Paneli" : pathname.startsWith("/firma") ? "Firma Paneli" : "Yönetim Paneli";
+      document.title = `${label} | ${brand}`;
       upsertMeta("name", "description", "Hatay360 güvenli hesap paneli.");
       upsertMeta("name", "robots", "noindex, nofollow, noarchive");
       document.head.querySelector('link[rel="canonical"]')?.remove();
@@ -123,6 +124,11 @@ export function SeoHead() {
         title: `Google Maps Harita Kaydı ve Yerel Görünürlük | ${brand}`,
         description: "Hatay işletmeleri için Google Business Profile kurulumu, harita SEO'su, yerel görünürlük ve gerçek müşteri yorumu yönetimi.",
         keywords: "google maps harita kaydı, hatay harita seo, google işletme profili, haritada üst sıralar, yorum yönetimi",
+      },
+      "/hesap": {
+        title: `Müşteri Girişi, Yeni Kayıt ve Firma Bayiliği | ${brand}`,
+        description: "Hatay360 müşteri girişi, yeni müşteri kaydı ve web tasarım firmaları için bayilik başvurusu.",
+        keywords: "hatay360 giriş, müşteri paneli, yeni müşteri kaydı, hatay360 bayi, firma girişi",
       },
       "/hatay-kesfet": {
         title: `Hatay Keşif Planlayıcı - İlçeye Göre Öneriler | ${brand}`,

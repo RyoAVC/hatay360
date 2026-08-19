@@ -18,6 +18,8 @@ const HatayHubPage = lazy(() => import("./pages/hatay-hub-page").then((module) =
 const DistrictPage = lazy(() => import("./pages/district-page").then((module) => ({ default: module.DistrictPage })));
 const SectorPage = lazy(() => import("./pages/sector-page").then((module) => ({ default: module.SectorPage })));
 const DemoPage = lazy(() => import("./pages/live-demo-page").then((module) => ({ default: module.LiveDemoPage })));
+const DemoAdminPage = lazy(() => import("./pages/demo-admin-page").then((module) => ({ default: module.DemoAdminPage })));
+const DemoAdminLoginPage = lazy(() => import("./pages/demo-admin-page").then((module) => ({ default: module.DemoAdminLoginPage })));
 const DemoOverviewPage = lazy(() => import("./pages/sector-page").then((module) => ({ default: module.DemoOverviewPage })));
 const SeoToolsOverviewPage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.SeoToolsOverviewPage })));
 const GoogleRankFinderPage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.GoogleRankFinderPage })));
@@ -27,7 +29,12 @@ const GoogleMapsPage = lazy(() => import("./pages/google-maps-page").then((modul
 const HatayDiscoveryPage = lazy(() => import("./pages/hatay-discovery-page").then((module) => ({ default: module.HatayDiscoveryPage })));
 const HatayBreakfastGuidePage = lazy(() => import("./pages/hatay-discovery-page").then((module) => ({ default: module.HatayBreakfastGuidePage })));
 const CustomerLoginPage = lazy(() => import("./pages/customer-login-page").then((module) => ({ default: module.CustomerLoginPage })));
+const CustomerSignupPage = lazy(() => import("./pages/customer-signup-page").then((module) => ({ default: module.CustomerSignupPage })));
+const AccountHubPage = lazy(() => import("./pages/account-hub-page").then((module) => ({ default: module.AccountHubPage })));
+const PartnerLoginPage = lazy(() => import("./pages/partner-login-page").then((module) => ({ default: module.PartnerLoginPage })));
+const PartnerSignupPage = lazy(() => import("./pages/partner-signup-page").then((module) => ({ default: module.PartnerSignupPage })));
 const RequireCustomer = lazy(() => import("./components/require-customer").then((module) => ({ default: module.RequireCustomer })));
+const RequirePartner = lazy(() => import("./components/require-partner").then((module) => ({ default: module.RequirePartner })));
 
 export const router = createBrowserRouter([
   {
@@ -46,6 +53,8 @@ export const router = createBrowserRouter([
       { path: "hatay", Component: HatayHubPage },
       { path: "hatay/:slug", Component: DistrictPage },
       { path: "demolar", Component: DemoOverviewPage },
+      { path: "demo/:slug/panel/giris", Component: DemoAdminLoginPage },
+      { path: "demo/:slug/panel", Component: DemoAdminPage },
       { path: "demo/:slug", Component: DemoPage },
       { path: "sektor/:slug", Component: SectorPage },
       { path: "araclar", Component: SeoToolsOverviewPage },
@@ -57,8 +66,13 @@ export const router = createBrowserRouter([
       { path: "hatayda-nerede-kahvalti-yapilir", Component: HatayBreakfastGuidePage },
       { path: "panel/giris", Component: LoginPage },
       { path: "panel", Component: RequireAuth },
+      { path: "hesap", Component: AccountHubPage },
       { path: "musteri/giris", Component: CustomerLoginPage },
+      { path: "musteri/kayit", Component: CustomerSignupPage },
       { path: "musteri", Component: RequireCustomer },
+      { path: "firma/giris", Component: PartnerLoginPage },
+      { path: "firma/kayit", Component: PartnerSignupPage },
+      { path: "firma", Component: RequirePartner },
       { path: "admin", element: <Navigate to="/panel" replace /> },
       { path: "*", Component: NotFoundPage },
     ],

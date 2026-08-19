@@ -14,7 +14,7 @@ import { sectionOn, useContent } from "./context/content-context";
 export default function Root() {
   const { pathname } = useLocation();
   const { settings } = useContent();
-  const isPanel = pathname.startsWith("/panel") || pathname.startsWith("/musteri");
+  const isPanel = pathname.startsWith("/panel") || pathname.startsWith("/musteri") || pathname.startsWith("/firma");
   const isLiveDemo = pathname.startsWith("/demo/");
 
   useEffect(() => {

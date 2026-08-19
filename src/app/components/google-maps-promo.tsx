@@ -24,7 +24,7 @@ export function GoogleMapsPromo({ compact = false }: { compact?: boolean }) {
               {["Profil kurulumu", "Yerel sıralama", "Yorum yönetimi", "15 ilçe hedefleme"].map((item) => <span key={item} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.055] px-3 py-2.5 text-[10px] font-black text-white/80"><CheckCircle2 className="h-3.5 w-3.5 text-[#42d99a]" />{item}</span>)}
             </div>
             <div className="mt-7 flex flex-wrap gap-2.5">
-              <Link to="/google-maps-harita-kaydi" className="inline-flex items-center gap-2 rounded-xl bg-[#1aa877] px-5 py-3 text-[12px] font-black text-white shadow-[0_12px_30px_rgba(26,168,119,0.30)]">Harita hizmetini incele <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/google-maps-harita-kaydi#harita-kaydi" className="inline-flex items-center gap-2 rounded-xl bg-[#1aa877] px-5 py-3 text-[12px] font-black text-white shadow-[0_12px_30px_rgba(26,168,119,0.30)]">Harita kaydı başlat <ArrowRight className="h-4 w-4" /></Link>
               <a href={toTelHref(phone)} className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-[12px] font-black text-white"><PhoneCall className="h-4 w-4 text-[#82f0c2]" /> {phone}</a>
             </div>
           </div>

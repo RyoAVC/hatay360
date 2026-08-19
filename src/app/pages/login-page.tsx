@@ -3,6 +3,8 @@ import { Navigate, useNavigate } from "react-router";
 import { Lock, User } from "lucide-react";
 import { useAuth } from "../context/auth-context";
 import { SiteLogo } from "../components/site-logo";
+import { FormError } from "../components/form-error";
+import { turkishFormProps } from "../lib/form-validation";
 
 export function LoginPage() {
   const { isLoggedIn, isConfigured, isChecking, login } = useAuth();
@@ -36,7 +38,7 @@ export function LoginPage() {
           <p className="mt-4 text-[14px] font-medium text-white/60">Yönetim paneli girişi</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} {...turkishFormProps} className="space-y-4">
           {!isChecking && !isConfigured && (
             <p className="rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-[13px] font-medium text-amber-200">
               Veritabanı sunucusu veya yönetici hesabı henüz hazır değil. Sunucuyu başlatıp yönetici bilgilerini ortam değişkenlerine ekleyin.
@@ -49,6 +51,7 @@ export function LoginPage() {
             <input
               type="text"
               autoComplete="username"
+              placeholder="mahir"
               value={username}
               onChange={(e) => {
                 setUsername(e.target.value);
@@ -74,11 +77,7 @@ export function LoginPage() {
             />
           </label>
 
-          {error && (
-            <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-[13px] font-medium text-red-300">
-              {error}
-            </p>
-          )}
+          {error && <FormError tone="dark">{error}</FormError>}
 
           <button
             type="submit"

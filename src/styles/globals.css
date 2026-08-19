@@ -1,4 +1,4 @@
 @keyframes avc-peek {
-  0%, 58%, 100% { transform: translateX(-28px); }
-  66%, 82% { transform: translateX(0); }
+  0%, 52%, 100% { transform: translateX(-10px); }
+  60%, 88% { transform: translateX(0); }
 }

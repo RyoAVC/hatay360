@@ -10,7 +10,7 @@ export function SiteProtect() {
   const { settings } = useContent();
   const [toast, setToast] = useState("");
   const enabled = sectionOn(settings, "siteProtect");
-  const skip = pathname.startsWith("/panel") || pathname.startsWith("/musteri");
+  const skip = pathname.startsWith("/panel") || pathname.startsWith("/musteri") || pathname.startsWith("/firma");
 
   useEffect(() => {
     if (!enabled || skip) return;

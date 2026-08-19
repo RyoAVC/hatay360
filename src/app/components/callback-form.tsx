@@ -1,11 +1,13 @@
 import { FormEvent, useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { motion } from "motion/react";
 import { PhoneCall, Send, CheckCircle2 } from "lucide-react";
 import { useContent } from "../context/content-context";
-import { toWhatsAppHref } from "../lib/contact";
+import { isValidTrPhone, PHONE_ERROR, toWhatsAppHref } from "../lib/contact";
+import { turkishFormProps } from "../lib/form-validation";
 import { apiRequest } from "../lib/api";
-import { useLocation } from "react-router";
+import { FormError } from "./form-error";
+import { PhoneField } from "./phone-field";
 
 const SERVICES = [
   "E-Ticaret altyapısı",
@@ -26,14 +28,22 @@ export function CallbackForm({ compact = false }: CallbackFormProps) {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [phone, setPhone] = useState("");
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!isValidTrPhone(phone)) {
+      setError(PHONE_ERROR);
+      return;
+    }
     const formElement = e.currentTarget;
     const form = new FormData(formElement);
     const name = String(form.get("name") || "").trim();
-    const phone = String(form.get("phone") || "").trim();
     const service = String(form.get("service") || "Genel bilgi").trim();
+    if (name.length < 2) {
+      setError("Adınızı ve soyadınızı yazın.");
+      return;
+    }
     const message = [
       "Merhaba Hatay360, web sitenizden teklif almak istiyorum.",
       `Ad Soyad: ${name}`,
@@ -58,6 +68,7 @@ export function CallbackForm({ compact = false }: CallbackFormProps) {
       }
       setSent(true);
       formElement.reset();
+      setPhone("");
     } catch (submitError) {
       whatsappWindow?.close();
       setError(submitError instanceof Error ? submitError.message : "Talep kaydedilemedi. Lütfen tekrar deneyin.");
@@ -86,7 +97,7 @@ export function CallbackForm({ compact = false }: CallbackFormProps) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} {...turkishFormProps} className="space-y-4">
       {!compact && (
         <div className="flex items-center gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#00a8c4] text-white">
@@ -102,24 +113,19 @@ export function CallbackForm({ compact = false }: CallbackFormProps) {
         <p className="text-[15px] font-semibold text-[#1a1a1a]">Numaranızı bırakın, sizi arayalım</p>
       )}
 
+      {error && <FormError>{error}</FormError>}
+
       <div className={compact ? "grid gap-3 sm:grid-cols-2" : "grid gap-4 sm:grid-cols-2"}>
         <input
           required
           name="name"
           autoComplete="name"
+          minLength={2}
+          maxLength={80}
           placeholder="Adınız Soyadınız"
           className="w-full rounded-xl border border-[#ecebf5] bg-white px-4 py-3 text-[15px] text-[#1a1a1a] outline-none transition focus:border-[#00a8c4]"
         />
-        <input
-          required
-          name="phone"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          minLength={10}
-          placeholder="Telefon"
-          className="w-full rounded-xl border border-[#ecebf5] bg-white px-4 py-3 text-[15px] text-[#1a1a1a] outline-none transition focus:border-[#00a8c4]"
-        />
+        <PhoneField value={phone} onChange={setPhone} />
       </div>
 
       <select
@@ -147,12 +153,6 @@ export function CallbackForm({ compact = false }: CallbackFormProps) {
           ve KVKK metnini okudum, aranmayı kabul ediyorum.
         </span>
       </label>
-
-      {error && (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-[13px] font-semibold text-red-700">
-          {error}
-        </p>
-      )}
 
       <motion.button
         type="submit"

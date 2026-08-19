@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { BarChart3, Eye, Globe2, RefreshCw, TrendingUp, UserRoundCheck, Users } from "lucide-react";
 import { apiRequest } from "../lib/api";
+import { FormError } from "../components/form-error";
 
 type Summary = {
   totals: { totalViews: number; todayViews: number; uniqueToday: number; unique30d: number };
@@ -99,7 +100,7 @@ export function AdminInsightsPanel() {
         </button>
       </div>
 
-      {error && <p className="rounded-2xl border border-red-400/25 bg-red-950/60 px-4 py-3 text-[13px] font-bold text-red-100">{error}</p>}
+      {error && <FormError tone="dark">{error}</FormError>}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
         {[

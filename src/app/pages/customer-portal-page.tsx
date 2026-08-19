@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { BarChart3, CircleDollarSign, Download, ExternalLink, Globe2, HelpCircle, KeyRound, LayoutDashboard, LogOut, Megaphone, MessageSquareText, PlusCircle, RefreshCw, Search, Send, ShieldCheck, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router";
 import { SiteLogo } from "../components/site-logo";
+import { FormError } from "../components/form-error";
 import { useCustomerAuth, type CustomerIdentity } from "../context/customer-auth-context";
 import { apiRequest } from "../lib/api";
 
@@ -111,7 +112,7 @@ export function CustomerPortalPage() {
 
       <main className="min-w-0 p-4 sm:p-7 lg:p-9">
         <header className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#00a8c4]">Hatay360 reklam kontrol merkezi</p><h1 className="mt-2 text-[28px] font-black tracking-[-0.04em]">Merhaba, {dashboard.customer.contact_name}</h1><p className="mt-1 text-[11px] text-[#6c7c84]">Bütçenizi, reklam sonuçlarınızı ve taleplerinizi tek ekrandan izleyin.</p></div><div className="flex gap-2"><button onClick={downloadReport} disabled={!dashboard.stats.length} className="inline-flex items-center gap-2 rounded-xl border border-[#bfe1e6] bg-[#edf9fa] px-3 py-2 text-[10px] font-black text-[#007f98] disabled:cursor-not-allowed disabled:opacity-45"><Download className="h-3.5 w-3.5" /> CSV raporu</button><button onClick={() => void load()} className="inline-flex items-center gap-2 rounded-xl border border-[#d7e4e7] bg-white px-3 py-2 text-[10px] font-black text-[#49616b]"><RefreshCw className="h-3.5 w-3.5" /> Yenile</button></div></header>
-        {error && <p className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[11px] font-bold text-red-700">{error}</p>}
+        {error && <div className="mt-5"><FormError>{error}</FormError></div>}
 
         {(activeTab === "overview" || activeTab === "campaigns") && <>
           <section className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{[

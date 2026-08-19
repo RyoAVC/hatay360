@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { toTelHref, toWhatsAppHref } from "../src/app/lib/contact.ts";
+import { toTelHref, toWhatsAppHref, sanitizePhoneInput, isValidTrPhone } from "../src/app/lib/contact.ts";
 import {
   DEFAULT_DISTRICTS,
   districtPath,
@@ -12,6 +12,15 @@ import {
 
 test("telefon numarası arama bağlantısına dönüştürülür", () => {
   assert.equal(toTelHref("+90 (850) 888 00 00"), "tel:+908508880000");
+});
+
+test("telefon alanına harf ve fazla rakam yazılamaz", () => {
+  assert.equal(sanitizePhoneInput("054444444444444444"), "0544 444 44 44");
+  assert.equal(sanitizePhoneInput("0544abcxyz99"), "0544 99");
+  assert.equal(sanitizePhoneInput("merhaba"), "");
+  assert.equal(isValidTrPhone("0544 444 44 44"), true);
+  assert.equal(isValidTrPhone("0544"), false);
+  assert.equal(isValidTrPhone("abc"), false);
 });
 
 test("WhatsApp bağlantısı Türkçe mesajı güvenli biçimde kodlar", () => {

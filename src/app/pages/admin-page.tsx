@@ -35,6 +35,7 @@ import {
   Upload,
   ShieldAlert,
   UserRoundCog,
+  ClipboardList,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../context/auth-context";
@@ -42,7 +43,9 @@ import { SiteLogo } from "../components/site-logo";
 import { AdminSeoPanel } from "./admin-seo-panel";
 import { AdminInsightsPanel } from "./admin-insights-panel";
 import { AdminCustomerPanel } from "./admin-customer-panel";
+import { AdminSignupsPanel } from "./admin-signups-panel";
 import { MAX_LOGO_FILE_BYTES, processLogoFile } from "../lib/logo-image";
+import { sanitizePhoneInput } from "../lib/contact";
 
 export function AdminPage() {
   const { logout } = useAuth();
@@ -61,7 +64,7 @@ export function AdminPage() {
     resetAll,
   } = useContent();
 
-  const [activeTab, setActiveTab] = useState<"insights" | "customers" | "plans" | "slides" | "services" | "sectors" | "references" | "settings" | "seo">("insights");
+  const [activeTab, setActiveTab] = useState<"insights" | "signups" | "customers" | "plans" | "slides" | "services" | "sectors" | "references" | "settings" | "seo">("insights");
 
   const [plansState, setPlansState] = useState<Plan[]>(plans);
   const [slidesState, setSlidesState] = useState<Slide[]>(slides);
@@ -538,6 +541,14 @@ export function AdminPage() {
             <BarChart3 className="h-4 w-4" /> Metrikler & Müşteriler
           </button>
           <button
+            onClick={() => setActiveTab("signups")}
+            className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-[14px] font-extrabold transition-all cursor-pointer ${
+              activeTab === "signups" ? "bg-[#00a8c4] text-white shadow-md" : "bg-white/5 text-white/70 hover:bg-white/10"
+            }`}
+          >
+            <ClipboardList className="h-4 w-4" /> Kayıtlar & SMS
+          </button>
+          <button
             onClick={() => setActiveTab("customers")}
             className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-[14px] font-extrabold transition-all cursor-pointer ${
               activeTab === "customers" ? "bg-[#00a8c4] text-white shadow-md" : "bg-white/5 text-white/70 hover:bg-white/10"
@@ -610,6 +621,7 @@ export function AdminPage() {
         </div>
 
         {activeTab === "insights" && <AdminInsightsPanel />}
+        {activeTab === "signups" && <AdminSignupsPanel />}
         {activeTab === "customers" && <AdminCustomerPanel />}
 
         {/* --- TAB 1: PAKETLER VE FİYATLAR --- */}
@@ -1426,9 +1438,11 @@ export function AdminPage() {
               <div>
                 <label className="text-[12px] font-bold text-white/70">Telefon Numarası</label>
                 <input
-                  type="text"
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={14}
                   value={settingsState.phone}
-                  onChange={(e) => setSettingsState({ ...settingsState, phone: e.target.value })}
+                  onChange={(e) => setSettingsState({ ...settingsState, phone: sanitizePhoneInput(e.target.value) })}
                   className="mt-1 w-full rounded-xl border border-white/15 bg-black/40 px-3 py-2.5 text-[14px] font-bold text-white"
                 />
               </div>

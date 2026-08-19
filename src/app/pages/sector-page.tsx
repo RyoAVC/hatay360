@@ -6,6 +6,7 @@ import { CallbackForm } from "../components/callback-form";
 import { AvclabsShowcase } from "../components/avclabs-showcase";
 import { useContent, type SectorItem } from "../context/content-context";
 import { ADS_SITE_DEMOS } from "../lib/avclabs";
+import { EXTRA_DEMOS, EXTRA_GROUPS } from "../lib/extra-demos";
 import { toTelHref } from "../lib/contact";
 
 const iconMap = {
@@ -33,12 +34,12 @@ export function DemoOverviewPage() {
             Hatay360 demoları ve AvcNova lisanslı yazılımlar
           </h1>
           <p className="mt-4 text-[17px] leading-relaxed text-[#4b5c71]">
-            Hatay360 web tasarım, reklam ve görünürlük işini yapar. Araç kiralama, bungalov, yat gibi operasyon yazılımlarını ise AVC ailesinin AvcNova markası üretir: BUNG lisanslı sistemler, kurumsal ve büyük projeler içindir.
+            Hatay360 web tasarım, reklam ve görünürlük işini yapar. Her örnek sitede <strong>yönetim paneli</strong> vardır; işletme sahibi randevu, sipariş ve içeriği kendisi görür. Araç kiralama, bungalov, yat gibi operasyon yazılımlarını AVC ailesinin AvcNova markası üretir.
           </p>
         </div>
 
-        <h2 className="mt-14 text-[22px] font-black text-[#0f172a]">Hatay360 — web tasarım ve reklam örnekleri</h2>
-        <p className="mt-2 text-[14px] text-[#64748b]">Siteniz, reklamınız ve çağrı akışınız. Teknik servis, klinik, taksi, nakliyat vitrinleri.</p>
+        <h2 className="mt-14 text-[22px] font-black text-[#0f172a]">Öne çıkan Hatay360 siteleri</h2>
+        <p className="mt-2 text-[14px] text-[#64748b]">Taksi, nakliyat, klinik, teknik servis — dolu örnekler.</p>
         <div className="mt-6 grid gap-5 md:grid-cols-2">
           {ADS_SITE_DEMOS.map((item) => (
             <Link
@@ -60,6 +61,29 @@ export function DemoOverviewPage() {
             </Link>
           ))}
         </div>
+
+        {EXTRA_GROUPS.map((group) => (
+          <div key={group.id} className="mt-14">
+            <h2 className="text-[22px] font-black text-[#0f172a]">{group.title}</h2>
+            <p className="mt-2 text-[14px] text-[#64748b]">{group.text}</p>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {EXTRA_DEMOS.filter((item) => item.kind === group.id).map((item) => (
+                <Link
+                  key={item.slug}
+                  to={`/demo/${item.slug}`}
+                  className="group overflow-hidden rounded-[24px] border border-[#e7edf3] bg-white shadow-[0_12px_28px_rgba(15,23,42,0.05)]"
+                >
+                  <div className="relative h-36">
+                    <img src={item.hero} alt={item.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
+                    <h3 className="absolute bottom-3 left-3 right-3 text-[16px] font-black text-white">{item.title}</h3>
+                  </div>
+                  <p className="px-4 py-3 text-[12px] font-bold text-[#64748b]">{item.subtitle}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
 
         <AvclabsShowcase />
       </div>

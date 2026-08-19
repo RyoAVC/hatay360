@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { ArrowRight, Building2, Camera, CircleCheck, Flag, MapPinned, MessageSquareText, Navigation, Search, ShieldAlert, Star } from "lucide-react";
 import { GoogleMapsPromo } from "../components/google-maps-promo";
+import { MapsListingWizard } from "../components/maps-listing-wizard";
 import { CallbackForm } from "../components/callback-form";
 
 const SERVICES = [
@@ -16,6 +17,7 @@ export function GoogleMapsPage() {
   return (
     <>
       <div className="pt-4"><GoogleMapsPromo /></div>
+      <MapsListingWizard />
 
       <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
         <div className="mx-auto max-w-3xl text-center"><span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#12865f]">Hatay yerel görünürlük</span><h1 className="mt-3 text-[34px] font-black tracking-[-0.045em] text-[#0f2d24] sm:text-[46px]">Google Maps harita kaydı ve harita yükseltme hizmeti</h1><p className="mt-4 text-[16px] leading-relaxed text-[#5d716a]">Antakya, Defne, İskenderun ve tüm Hatay ilçelerinde işletmenizin doğru aramada, doğru kategoriyle ve güven veren profille görünmesi için uçtan uca yönetim.</p></div>

@@ -62,6 +62,9 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 xl:flex">
+          <Link to="/hesap" className="text-[14px] font-semibold text-[#1f2937] transition-colors hover:text-[#0fa9c3]">
+            Giriş
+          </Link>
           <Link to="/iletisim" className="text-[14px] font-semibold text-[#1f2937] transition-colors hover:text-[#0fa9c3]">
             İletişim
           </Link>
@@ -103,6 +106,13 @@ export function SiteHeader() {
                 {item.label}
               </NavLink>
             ))}
+            <Link
+              to="/hesap"
+              onClick={() => setOpen(false)}
+              className="mt-2 rounded-xl px-3 py-2.5 text-[15px] font-medium text-[#4b586b] hover:bg-[#f4f7fa]"
+            >
+              Giriş / Kayıt
+            </Link>
             <Link
               to="/iletisim"
               onClick={() => setOpen(false)}

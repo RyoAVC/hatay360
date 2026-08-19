@@ -198,4 +198,74 @@ test("SQLite API giriş, içerik, hit ve başvuru akışını çalıştırır", 
   assert.equal(adminCustomers.customers[0].company_name, "A Firması");
   assert.equal(adminCustomers.tickets[0].subject, "Reklam sorusu");
   assert.equal(adminCustomers.serviceRequests[0].service, "Meta reklam yönetimi");
+
+  const mapsLead = await fetch(`${base}/api/leads`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: "Harita Yetkili",
+      phone: "0555 333 44 55",
+      email: "harita@example.com",
+      kind: "maps",
+      sector: "Klinik",
+      district: "Defne",
+      address: "Atatürk Cad. No:10",
+      hours: "Pazartesi 09:00–18:00",
+      smsOk: true,
+    }),
+  });
+  assert.equal(mapsLead.status, 201);
+
+  const mapsLeads = await fetch(`${base}/api/leads`, { headers: { Cookie: cookie } }).then((response) => response.json());
+  assert.equal(mapsLeads.leads[0].kind, "maps");
+  assert.equal(mapsLeads.leads[0].district, "Defne");
+
+  const partnerRegister = await fetch(`${base}/api/partners/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      companyName: "Örnek Web Tasarım",
+      contactName: "Ali Bayi",
+      email: "bayi@example.com",
+      phone: "0555 444 55 66",
+      city: "Antakya",
+      password: "partner-test-123",
+    }),
+  });
+  assert.equal(partnerRegister.status, 201);
+
+  const pendingLogin = await fetch(`${base}/api/partners/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: "bayi@example.com", password: "partner-test-123" }),
+  });
+  assert.equal(pendingLogin.status, 403);
+
+  const partners = await fetch(`${base}/api/admin/partners`, { headers: { Cookie: cookie } }).then((response) => response.json());
+  assert.equal(partners.partners[0].company_name, "Örnek Web Tasarım");
+  const partnerId = partners.partners[0].id;
+
+  const activatePartner = await fetch(`${base}/api/admin/partners/${partnerId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ status: "active", commissionRate: 18 }),
+  });
+  assert.equal(activatePartner.status, 200);
+
+  const partnerLogin = await fetch(`${base}/api/partners/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: "bayi@example.com", password: "partner-test-123" }),
+  });
+  assert.equal(partnerLogin.status, 200);
+  const partnerCookie = partnerLogin.headers.get("set-cookie")?.split(";")[0];
+  assert.ok(partnerCookie?.startsWith("hatay360_partner_session="));
+
+  const partnerDashboard = await fetch(`${base}/api/partners/dashboard`, { headers: { Cookie: partnerCookie } }).then((response) => response.json());
+  assert.equal(partnerDashboard.partner.commission_rate, 18);
+
+  const smsCsv = await fetch(`${base}/api/leads/sms.csv`, { headers: { Cookie: cookie } });
+  assert.equal(smsCsv.status, 200);
+  const csvText = await smsCsv.text();
+  assert.ok(csvText.includes("0555 333 44 55"));
 });

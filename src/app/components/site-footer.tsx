@@ -8,7 +8,7 @@ import { toTelHref, toWhatsAppHref } from "../lib/contact";
 
 const GOOGLE_MAPS_URL = "https://www.google.com/maps/search/?api=1&query=Hatay%20Web%20Tasar%C4%B1m%20ve%20Reklam%20Yaz%C4%B1l%C4%B1m%20Ajans%C4%B1";
 const TRUST_NOTES = ["İşletme profilimizi Google Maps üzerinde doğrulayın.", "Güncel yıldızları ve müşteri yorumlarını kaynağında inceleyin.", "Kıbrıs Caddesi No:13 için yol tarifi alın."];
-const SERVICE_LINKS = [{ label: "Web tasarım", to: "/pazarla" }, { label: "Google & Meta reklam", to: "/pazarla" }, { label: "Paketler", to: "/paketler" }, { label: "Google Maps hizmetleri", to: "/google-maps-harita-kaydi" }, { label: "Hatay ilçeleri", to: "/hatay" }, { label: "Referanslar", to: "/referanslar" }, { label: "Müşteri paneli", to: "/musteri/giris" }];
+const SERVICE_LINKS = [{ label: "Web tasarım", to: "/pazarla" }, { label: "Google & Meta reklam", to: "/pazarla" }, { label: "Paketler", to: "/paketler" }, { label: "Google Maps hizmetleri", to: "/google-maps-harita-kaydi" }, { label: "Hatay ilçeleri", to: "/hatay" }, { label: "Referanslar", to: "/referanslar" }, { label: "Giriş / kayıt", to: "/hesap" }, { label: "Müşteri paneli", to: "/musteri/giris" }, { label: "Firma girişi", to: "/firma/giris" }];
 
 export function SiteFooter() {
   const { settings } = useContent();

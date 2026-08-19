@@ -13,7 +13,9 @@ const PORT = Number(process.env.PORT || 3601);
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 const SESSION_COOKIE = "hatay360_session";
 const CUSTOMER_SESSION_COOKIE = "hatay360_customer_session";
+const PARTNER_SESSION_COOKIE = "hatay360_partner_session";
 const SESSION_HOURS = 12;
+const LEAD_KINDS = new Set(["callback", "maps", "new_customer", "partner"]);
 const CONTENT_KEYS = ["plans", "slides", "services", "sectors", "references", "settings"];
 
 mkdirSync(DATA_DIR, { recursive: true });
@@ -146,7 +148,46 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS ad_campaigns_customer_idx ON ad_campaigns(customer_id);
   CREATE INDEX IF NOT EXISTS campaign_stats_campaign_idx ON campaign_stats(campaign_id);
   CREATE INDEX IF NOT EXISTS customer_tickets_customer_idx ON customer_tickets(customer_id);
+  CREATE TABLE IF NOT EXISTS partner_accounts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_name TEXT NOT NULL,
+    contact_name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    phone TEXT NOT NULL DEFAULT '',
+    city TEXT NOT NULL DEFAULT '',
+    website TEXT NOT NULL DEFAULT '',
+    notes TEXT NOT NULL DEFAULT '',
+    commission_rate REAL NOT NULL DEFAULT 20,
+    password_hash TEXT NOT NULL,
+    password_salt TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS partner_sessions (
+    token_hash TEXT PRIMARY KEY,
+    partner_id INTEGER NOT NULL REFERENCES partner_accounts(id) ON DELETE CASCADE,
+    expires_at TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
 `);
+
+function ensureColumn(table, name, definition) {
+  const columns = db.prepare(`PRAGMA table_info(${table})`).all();
+  if (!columns.some((column) => column.name === name)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${definition}`);
+  }
+}
+
+ensureColumn("leads", "kind", "TEXT NOT NULL DEFAULT 'callback'");
+ensureColumn("leads", "email", "TEXT NOT NULL DEFAULT ''");
+ensureColumn("leads", "sector", "TEXT NOT NULL DEFAULT ''");
+ensureColumn("leads", "district", "TEXT NOT NULL DEFAULT ''");
+ensureColumn("leads", "address", "TEXT NOT NULL DEFAULT ''");
+ensureColumn("leads", "hours", "TEXT NOT NULL DEFAULT ''");
+ensureColumn("leads", "website", "TEXT NOT NULL DEFAULT ''");
+ensureColumn("leads", "notes", "TEXT NOT NULL DEFAULT ''");
+ensureColumn("leads", "sms_ok", "INTEGER NOT NULL DEFAULT 1");
 
 function nowIso() {
   return new Date().toISOString();
@@ -279,6 +320,85 @@ function requireCustomer(req, res) {
   return customer;
 }
 
+function currentPartner(req) {
+  const token = cookies(req)[PARTNER_SESSION_COOKIE];
+  if (!token) return null;
+  return (
+    db
+      .prepare(
+        `SELECT partner_accounts.id, partner_accounts.company_name, partner_accounts.contact_name,
+                partner_accounts.email, partner_accounts.phone, partner_accounts.city,
+                partner_accounts.website, partner_accounts.commission_rate, partner_accounts.status
+         FROM partner_sessions
+         JOIN partner_accounts ON partner_accounts.id = partner_sessions.partner_id
+         WHERE partner_sessions.token_hash = ? AND partner_sessions.expires_at > ?
+           AND partner_accounts.status = 'active'`,
+      )
+      .get(sha256(token), nowIso()) || null
+  );
+}
+
+function requirePartner(req, res) {
+  const partner = currentPartner(req);
+  if (!partner) json(res, 401, { error: "Firma oturumu gerekli." });
+  return partner;
+}
+
+function csvEscape(value) {
+  return `"${String(value || "").replace(/"/g, '""')}"`;
+}
+
+function validTrPhone(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("0")) return true;
+  if (digits.length === 10 && digits.startsWith("5")) return true;
+  if (digits.length === 12 && digits.startsWith("90")) return true;
+  if (digits.length === 13 && digits.startsWith("90")) return true;
+  return false;
+}
+
+function insertLead({
+  name,
+  phone,
+  service,
+  sourcePath,
+  kind = "callback",
+  email = "",
+  sector = "",
+  district = "",
+  address = "",
+  hours = "",
+  website = "",
+  notes = "",
+  smsOk = 1,
+}) {
+  const createdAt = nowIso();
+  return db
+    .prepare(
+      `INSERT INTO leads (
+        name, phone, service, source_path, status, kind, email, sector, district,
+        address, hours, website, notes, sms_ok, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, 'new', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .run(
+      name,
+      phone,
+      service,
+      sourcePath,
+      kind,
+      email,
+      sector,
+      district,
+      address,
+      hours,
+      website,
+      notes,
+      smsOk,
+      createdAt,
+      createdAt,
+    );
+}
+
 function numberValue(value, max = 1_000_000_000) {
   const number = Number(value || 0);
   if (!Number.isFinite(number)) return 0;
@@ -330,6 +450,7 @@ function rateLimited(req, key, limit, windowMs) {
 setInterval(() => {
   db.prepare("DELETE FROM admin_sessions WHERE expires_at <= ?").run(nowIso());
   db.prepare("DELETE FROM customer_sessions WHERE expires_at <= ?").run(nowIso());
+  db.prepare("DELETE FROM partner_sessions WHERE expires_at <= ?").run(nowIso());
   const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
   db.prepare("DELETE FROM pageviews WHERE created_at < ?").run(cutoff);
 }, 60 * 60 * 1000).unref();
@@ -475,6 +596,155 @@ async function handleApi(req, res, url) {
     );
     const cookie = `${CUSTOMER_SESSION_COOKIE}=${encodeURIComponent(token)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${SESSION_HOURS * 3600}${IS_PRODUCTION ? "; Secure" : ""}`;
     return json(res, 200, { ok: true, customer: { id: account.id, company_name: account.company_name, contact_name: account.contact_name, email: account.email, phone: account.phone } }, { "Set-Cookie": cookie });
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/partners/session") {
+    const partner = currentPartner(req);
+    return json(res, 200, { authenticated: Boolean(partner), partner });
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/partners/register") {
+    if (rateLimited(req, "partner-register", 5, 60 * 60 * 1000)) {
+      return json(res, 429, { error: "Çok fazla başvuru gönderildi. Lütfen daha sonra tekrar deneyin." });
+    }
+    const body = await readJson(req, 30_000);
+    const companyName = cleanText(body.companyName, 160);
+    const contactName = cleanText(body.contactName, 120);
+    const email = cleanText(body.email, 160).toLowerCase();
+    const phone = cleanText(body.phone, 40);
+    const city = cleanText(body.city, 80);
+    const website = cleanText(body.website, 200);
+    const notes = cleanText(body.notes, 800);
+    const password = String(body.password || "");
+    if (companyName.length < 2 || contactName.length < 2 || !email.includes("@") || !validTrPhone(phone)) {
+      return json(res, 400, { error: "Firma, yetkili, e-posta ve telefon bilgilerini kontrol edin. Telefon 05xx xxx xx xx olmalı." });
+    }
+    if (password.length < 10 || password.length > 128) {
+      return json(res, 400, { error: "Şifre en az 10, en fazla 128 karakter olmalıdır." });
+    }
+    const existing = db.prepare("SELECT id FROM partner_accounts WHERE email = ?").get(email);
+    if (existing) return json(res, 409, { error: "Bu e-posta ile bayi başvurusu zaten var." });
+    const credentials = hashPassword(password);
+    const createdAt = nowIso();
+    db.exec("BEGIN IMMEDIATE");
+    try {
+      const partnerResult = db
+        .prepare(
+          `INSERT INTO partner_accounts (
+            company_name, contact_name, email, phone, city, website, notes,
+            commission_rate, password_hash, password_salt, status, created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, 20, ?, ?, 'pending', ?, ?)`,
+        )
+        .run(companyName, contactName, email, phone, city, website, notes, credentials.hash, credentials.salt, createdAt, createdAt);
+      insertLead({
+        name: contactName,
+        phone,
+        service: `Bayi başvurusu · ${companyName}`,
+        sourcePath: "/firma/kayit",
+        kind: "partner",
+        email,
+        district: city,
+        website,
+        notes,
+        smsOk: body.smsOk === false ? 0 : 1,
+      });
+      db.exec("COMMIT");
+      return json(res, 201, { ok: true, id: Number(partnerResult.lastInsertRowid) });
+    } catch (error) {
+      db.exec("ROLLBACK");
+      throw error;
+    }
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/partners/login") {
+    if (rateLimited(req, "partner-login", 10, 15 * 60 * 1000)) {
+      return json(res, 429, { error: "Çok fazla giriş denemesi. Bir süre sonra tekrar deneyin." });
+    }
+    const body = await readJson(req, 20_000);
+    const email = cleanText(body.email, 160).toLowerCase();
+    const password = String(body.password || "");
+    const account = db.prepare("SELECT * FROM partner_accounts WHERE email = ?").get(email);
+    if (!account || !verifyPassword(password, account.password_salt, account.password_hash)) {
+      return json(res, 401, { error: "E-posta veya şifre hatalı." });
+    }
+    if (account.status === "pending") {
+      return json(res, 403, { error: "Bayilik başvurunuz inceleniyor. Onay sonrası giriş açılır." });
+    }
+    if (account.status !== "active") {
+      return json(res, 403, { error: "Bayi hesabınız duraklatıldı. Hatay360 ile iletişime geçin." });
+    }
+    const token = randomBytes(32).toString("base64url");
+    const expiresAt = new Date(Date.now() + SESSION_HOURS * 60 * 60 * 1000);
+    db.prepare("INSERT INTO partner_sessions (token_hash, partner_id, expires_at, created_at) VALUES (?, ?, ?, ?)").run(
+      sha256(token),
+      account.id,
+      expiresAt.toISOString(),
+      nowIso(),
+    );
+    const cookie = `${PARTNER_SESSION_COOKIE}=${encodeURIComponent(token)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${SESSION_HOURS * 3600}${IS_PRODUCTION ? "; Secure" : ""}`;
+    return json(
+      res,
+      200,
+      {
+        ok: true,
+        partner: {
+          id: account.id,
+          company_name: account.company_name,
+          contact_name: account.contact_name,
+          email: account.email,
+          phone: account.phone,
+          city: account.city,
+          website: account.website,
+          commission_rate: account.commission_rate,
+          status: account.status,
+        },
+      },
+      { "Set-Cookie": cookie },
+    );
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/partners/logout") {
+    const token = cookies(req)[PARTNER_SESSION_COOKIE];
+    if (token) db.prepare("DELETE FROM partner_sessions WHERE token_hash = ?").run(sha256(token));
+    const cookie = `${PARTNER_SESSION_COOKIE}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${IS_PRODUCTION ? "; Secure" : ""}`;
+    return json(res, 200, { ok: true }, { "Set-Cookie": cookie });
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/partners/dashboard") {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    return json(res, 200, { partner });
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/admin/partners") {
+    if (!requireUser(req, res)) return;
+    const partners = db
+      .prepare(
+        "SELECT id, company_name, contact_name, email, phone, city, website, notes, commission_rate, status, created_at, updated_at FROM partner_accounts ORDER BY created_at DESC",
+      )
+      .all();
+    return json(res, 200, { partners });
+  }
+
+  const partnerMatch = url.pathname.match(/^\/api\/admin\/partners\/(\d+)$/);
+  if (req.method === "PATCH" && partnerMatch) {
+    if (!requireUser(req, res)) return;
+    const body = await readJson(req, 10_000);
+    const status = cleanText(body.status, 20);
+    const commissionRate = body.commissionRate === undefined ? null : numberValue(body.commissionRate, 100);
+    if (status && !["pending", "active", "paused"].includes(status)) {
+      return json(res, 400, { error: "Geçersiz bayi durumu." });
+    }
+    const current = db.prepare("SELECT id FROM partner_accounts WHERE id = ?").get(Number(partnerMatch[1]));
+    if (!current) return json(res, 404, { error: "Bayi bulunamadı." });
+    db.prepare(
+      `UPDATE partner_accounts
+       SET status = COALESCE(?, status),
+           commission_rate = COALESCE(?, commission_rate),
+           updated_at = ?
+       WHERE id = ?`,
+    ).run(status || null, commissionRate, nowIso(), Number(partnerMatch[1]));
+    return json(res, 200, { ok: true });
   }
 
   if (req.method === "POST" && url.pathname === "/api/customer/logout") {
@@ -732,24 +1002,83 @@ async function handleApi(req, res, url) {
     const body = await readJson(req, 30_000);
     const name = cleanText(body.name, 120);
     const phone = cleanText(body.phone, 40);
-    const service = cleanText(body.service, 160) || "Genel bilgi";
+    const kind = LEAD_KINDS.has(cleanText(body.kind, 20)) ? cleanText(body.kind, 20) : "callback";
+    const service =
+      cleanText(body.service, 160) ||
+      (kind === "maps"
+        ? "Google harita kaydı"
+        : kind === "partner"
+          ? "Bayi başvurusu"
+          : kind === "new_customer"
+            ? "Yeni müşteri kaydı"
+            : "Genel bilgi");
     const sourcePath = cleanText(body.sourcePath, 200) || "/";
-    if (name.length < 2 || phone.replace(/\D/g, "").length < 10) {
-      return json(res, 400, { error: "Ad ve telefon bilgilerini kontrol edin." });
+    if (name.length < 2 || !validTrPhone(phone)) {
+      return json(res, 400, { error: "Adı ve telefonu kontrol edin. Telefonu 05xx xxx xx xx şeklinde, yalnızca rakam yazın." });
     }
-    const createdAt = nowIso();
-    const result = db
-      .prepare(
-        "INSERT INTO leads (name, phone, service, source_path, status, created_at, updated_at) VALUES (?, ?, ?, ?, 'new', ?, ?)",
-      )
-      .run(name, phone, service, sourcePath, createdAt, createdAt);
+    const result = insertLead({
+      name,
+      phone,
+      service,
+      sourcePath,
+      kind,
+      email: cleanText(body.email, 160).toLowerCase(),
+      sector: cleanText(body.sector, 120),
+      district: cleanText(body.district, 80),
+      address: cleanText(body.address, 240),
+      hours: cleanText(body.hours, 400),
+      website: cleanText(body.website, 200),
+      notes: cleanText(body.notes, 800),
+      smsOk: body.smsOk === false ? 0 : 1,
+    });
     return json(res, 201, { ok: true, id: Number(result.lastInsertRowid) });
   }
 
   if (req.method === "GET" && url.pathname === "/api/leads") {
     if (!requireUser(req, res)) return;
-    const leads = db.prepare("SELECT * FROM leads ORDER BY created_at DESC LIMIT 200").all();
+    const leads = db.prepare("SELECT * FROM leads ORDER BY created_at DESC LIMIT 400").all();
     return json(res, 200, { leads });
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/leads/phones") {
+    if (!requireUser(req, res)) return;
+    const rows = db
+      .prepare(
+        "SELECT name, phone, kind, district, sector FROM leads WHERE sms_ok = 1 AND phone != '' ORDER BY created_at DESC LIMIT 2000",
+      )
+      .all();
+    const seen = new Set();
+    const phones = [];
+    for (const row of rows) {
+      const digits = String(row.phone).replace(/\D/g, "");
+      if (!digits || seen.has(digits)) continue;
+      seen.add(digits);
+      phones.push(row);
+    }
+    return json(res, 200, { phones, count: phones.length });
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/leads/sms.csv") {
+    if (!requireUser(req, res)) return;
+    const rows = db
+      .prepare(
+        "SELECT name, phone, kind, district, sector, created_at FROM leads WHERE sms_ok = 1 AND phone != '' ORDER BY created_at DESC LIMIT 2000",
+      )
+      .all();
+    const csv = [
+      "ad,telefon,kaynak,ilce,sektor,tarih",
+      ...rows.map((row) =>
+        [row.name, row.phone, row.kind, row.district, row.sector, row.created_at].map(csvEscape).join(","),
+      ),
+    ].join("\r\n");
+    res.writeHead(200, {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": 'attachment; filename="hatay360-sms.csv"',
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
+    });
+    res.end(`\uFEFF${csv}`);
+    return;
   }
 
   const leadMatch = url.pathname.match(/^\/api\/leads\/(\d+)$/);
