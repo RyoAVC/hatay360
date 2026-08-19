@@ -42,11 +42,14 @@ export default function Root() {
 
   return (
     <div className="relative min-h-screen bg-[#f7fbfd] pb-20 font-[Inter,sans-serif] antialiased md:pb-0">
+      <a href="#icerik" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[90] focus:rounded-xl focus:bg-[#00a8c4] focus:px-4 focus:py-2 focus:text-[13px] focus:font-black focus:text-white print:hidden">
+        İçeriğe geç
+      </a>
       <SiteGlow />
       <SeoHead />
       <AnalyticsTracker />
       <SiteHeader />
-      <main>
+      <main id="icerik">
         <Outlet />
       </main>
       <SiteFooter />

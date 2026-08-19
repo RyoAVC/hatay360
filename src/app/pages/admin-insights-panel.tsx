@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { BarChart3, Eye, Globe2, RefreshCw, TrendingUp, UserRoundCheck, Users } from "lucide-react";
+import { BarChart3, Eye, Globe2, RefreshCw, ShieldAlert, TrendingUp, UserRoundCheck, Users } from "lucide-react";
 import { apiRequest } from "../lib/api";
 import { FormError } from "../components/form-error";
 
@@ -102,7 +102,7 @@ export function AdminInsightsPanel() {
 
       {error && <FormError tone="dark">{error}</FormError>}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
           { label: "Bugünkü hit", value: summary?.totals.todayViews, icon: Eye, tone: "text-cyan-300" },
           { label: "Bugün tekil", value: summary?.totals.uniqueToday, icon: Users, tone: "text-emerald-300" },
@@ -110,6 +110,7 @@ export function AdminInsightsPanel() {
           { label: "Toplam hit", value: summary?.totals.totalViews, icon: BarChart3, tone: "text-blue-300" },
           { label: "Yeni başvuru", value: summary?.leadStats.newCount, icon: UserRoundCheck, tone: "text-amber-300" },
           { label: "7 gün giriş", value: summary?.loginStats.successes, icon: Globe2, tone: "text-pink-300" },
+          { label: "7 gün hatalı giriş", value: Math.max(0, Number(summary?.loginStats.attempts || 0) - Number(summary?.loginStats.successes || 0)), icon: ShieldAlert, tone: "text-rose-300" },
         ].map((item) => (
           <div key={item.label} className="rounded-2xl border border-white/10 bg-[#18181f] p-4 shadow-lg">
             <item.icon className={`h-5 w-5 ${item.tone}`} />

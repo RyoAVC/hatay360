@@ -204,11 +204,11 @@ export function DemoAdminLoginPage() {
         </p>
         <label className="mt-5 block text-[12px] font-black text-white/70">
           Kullanıcı adı
-          <input value={user} onChange={(e) => { setUser(e.target.value); setError(""); }} className="mt-2 w-full rounded-xl border border-white/15 bg-black px-4 py-3 text-[14px] outline-none focus:border-[#00a8c4]" />
+          <input required autoComplete="username" value={user} onChange={(e) => { setUser(e.target.value); setError(""); }} className="mt-2 w-full rounded-xl border border-white/15 bg-black px-4 py-3 text-[14px] outline-none focus:border-[#00a8c4]" />
         </label>
         <label className="mt-4 block text-[12px] font-black text-white/70">
           Şifre
-          <input type="password" value={pass} onChange={(e) => { setPass(e.target.value); setError(""); }} className="mt-2 w-full rounded-xl border border-white/15 bg-black px-4 py-3 text-[14px] outline-none focus:border-[#00a8c4]" />
+          <input required type="password" autoComplete="current-password" value={pass} onChange={(e) => { setPass(e.target.value); setError(""); }} className="mt-2 w-full rounded-xl border border-white/15 bg-black px-4 py-3 text-[14px] outline-none focus:border-[#00a8c4]" />
         </label>
         {error && <div className="mt-3"><FormError tone="dark">{error}</FormError></div>}
         <button type="submit" className="mt-6 w-full rounded-xl bg-[#00a8c4] py-3 text-[15px] font-black">Panele gir</button>

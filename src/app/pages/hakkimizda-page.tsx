@@ -1,8 +1,10 @@
 import { motion } from "motion/react";
 import { MapPin, Target, Heart, Rocket, Store, Palette, Megaphone, Code2 } from "lucide-react";
+import { PageCrumbs } from "../components/page-crumbs";
 import { PageHero } from "../components/page-hero";
 import { Reveal, staggerItem } from "../components/motion-primitives";
 import { CallbackForm } from "../components/callback-form";
+import { ABOUT_FAQS } from "../lib/seo";
 import { ServiceAreas } from "../components/service-areas";
 
 const VALUES = [
@@ -28,6 +30,9 @@ const LINES = [
 export function HakkimizdaPage() {
   return (
     <>
+      <div className="mx-auto max-w-6xl px-5 pt-6 sm:px-8">
+        <PageCrumbs items={[{ label: "Ana sayfa", to: "/" }, { label: "Hakkımızda" }]} />
+      </div>
       <PageHero
         eyebrow="Hakkımızda"
         title="Hatay’dan, işletmenizi dijitale taşıyan ajans ve yazılım"
@@ -116,6 +121,19 @@ export function HakkimizdaPage() {
       </section>
 
       <ServiceAreas mode="chips" />
+
+      <section className="mx-auto max-w-3xl px-5 pb-10 sm:px-8">
+        <h2 className="text-[24px] font-bold text-[#1a1a1a]">Sık sorulanlar</h2>
+        <p className="mt-2 text-[15px] text-[#6f6c8f]">Marka, yazılım ailesi ve hizmet bölgesi — kısa cevaplar.</p>
+        <div className="mt-5 space-y-2">
+          {ABOUT_FAQS.map((faq) => (
+            <details key={faq.q} className="rounded-2xl border border-[#ecebf5] bg-white p-4 open:border-[#b3e5ee]">
+              <summary className="cursor-pointer text-[15px] font-semibold text-[#1a1a1a]">{faq.q}</summary>
+              <p className="mt-2 text-[14px] leading-relaxed text-[#6f6c8f]">{faq.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
 
       <section className="mx-auto max-w-3xl px-5 pb-24 sm:px-8">
         <div className="rounded-[28px] border border-[#ecebf5] bg-white p-8 shadow-[0px_16px_40px_rgba(25,33,61,0.06)]">

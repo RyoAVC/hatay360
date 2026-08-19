@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { motion, useScroll, useSpring } from "motion/react";
 import { Link, NavLink } from "react-router";
@@ -9,6 +9,7 @@ import { AvcTrustSeal } from "./avc-trust-seal";
 const NAV = [
   { label: "Ana Sayfa", to: "/" },
   { label: "Demolar", to: "/demolar" },
+  { label: "Araçlar", to: "/araclar" },
   { label: "Hizmetler", to: "/pazarla" },
   { label: "Özellikler", to: "/ozellikler" },
   { label: "Paketler", to: "/paketler" },
@@ -21,8 +22,17 @@ export function SiteHeader() {
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.3 });
 
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   return (
-    <header className="sticky top-0 z-50 border-b border-[#edf2f7] bg-white/85 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 border-b border-[#edf2f7] bg-white/85 backdrop-blur-sm print:hidden">
       <motion.div
         style={{ scaleX: progress }}
         className="absolute bottom-0 left-0 h-0.5 w-full origin-left bg-[#00a8c4]"
@@ -36,8 +46,8 @@ export function SiteHeader() {
             <SiteLogo variant="header" />
           </Link>
 
-          <div className="hidden items-center sm:flex">
-            <AvcTrustSeal siteName={settings.siteTitle} />
+          <div className="flex items-center">
+            <AvcTrustSeal compact siteName={settings.siteTitle} />
           </div>
         </div>
 
@@ -80,18 +90,20 @@ export function SiteHeader() {
         </div>
 
         <button
+          type="button"
           onClick={() => setOpen((v) => !v)}
           className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#edf2f7] bg-white text-[#1a1a1a] shadow-sm xl:hidden"
-          aria-label="Menü"
+          aria-label={open ? "Menüyü kapat" : "Menüyü aç"}
+          aria-expanded={open}
+          aria-controls="site-menu"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-[#edf2f7] bg-white px-5 py-4 xl:hidden">
+        <div id="site-menu" className="border-t border-[#edf2f7] bg-white px-5 py-4 xl:hidden">
           <nav className="flex flex-col gap-1">
-            <div className="mb-2"><AvcTrustSeal mobile siteName={settings.siteTitle} /></div>
             {NAV.map((item) => (
               <NavLink
                 key={item.to}

@@ -11,8 +11,14 @@ function validityMessage(el: HTMLInputElement | HTMLSelectElement | HTMLTextArea
     if (el.type === "url") return "Geçerli bir web adresi yazın. Örnek: https://site.com";
     return "Bu bilgi biçimi hatalı.";
   }
-  if (el.validity.tooShort) return `En az ${el.minLength} karakter yazın.`;
-  if (el.validity.tooLong) return `En fazla ${el.maxLength} karakter yazabilirsiniz.`;
+  if (el.validity.tooShort) {
+    const min = "minLength" in el ? el.minLength : 1;
+    return `En az ${min} karakter yazın.`;
+  }
+  if (el.validity.tooLong) {
+    const max = "maxLength" in el ? el.maxLength : 0;
+    return `En fazla ${max} karakter yazabilirsiniz.`;
+  }
   if (el.validity.patternMismatch) return el.dataset.errorTr || "Bu bilgiyi doğru biçimde yazın.";
   if (el.validity.rangeUnderflow || el.validity.rangeOverflow) return "Sayıyı verilen aralıkta yazın.";
   return "Bu bilgi hatalı. Lütfen kontrol edin.";

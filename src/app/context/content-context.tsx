@@ -834,7 +834,7 @@ export function planKind(plan: Plan): "ads" | "store" {
 function mergePlans(saved: Plan[]): Plan[] {
   const next = saved.map((plan) => ({ ...plan, kind: planKind(plan) }));
   for (const extra of INITIAL_PLANS) {
-    if (!next.some((plan) => plan.id === extra.id)) next.push(extra);
+    if (!next.some((plan) => plan.id === extra.id)) next.push({ ...extra, kind: planKind(extra) });
   }
   return next;
 }

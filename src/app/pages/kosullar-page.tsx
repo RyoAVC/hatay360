@@ -1,8 +1,13 @@
+import { PageCrumbs } from "../components/page-crumbs";
 import { PageHero } from "../components/page-hero";
+import { TERMS_FAQS } from "../lib/seo";
 
 export function KosullarPage() {
   return (
     <>
+      <div className="mx-auto max-w-6xl px-5 pt-6 sm:px-8">
+        <PageCrumbs items={[{ label: "Ana sayfa", to: "/" }, { label: "Kullanım koşulları" }]} />
+      </div>
       <PageHero
         eyebrow="Yasal"
         title="Kullanım koşulları"
@@ -44,6 +49,18 @@ export function KosullarPage() {
             Koşullarla ilgili sorularınız için iletişim sayfasını kullanın. Sözleşme imzalandığında o metin bu
             sayfadaki genel koşulların önüne geçer.
           </p>
+        </div>
+        <div>
+          <h2 className="text-[20px] font-bold text-[#1a1a1a]">Sık sorulanlar</h2>
+          <p className="mt-2 text-[15px]">Kopya, fiyat ve deneme — kısa cevaplar.</p>
+          <div className="mt-4 space-y-2">
+            {TERMS_FAQS.map((faq) => (
+              <details key={faq.q} className="rounded-2xl border border-[#ecebf5] bg-white p-4 text-[#1a1a1a] open:border-[#b3e5ee]">
+                <summary className="cursor-pointer text-[15px] font-semibold">{faq.q}</summary>
+                <p className="mt-2 text-[14px] font-normal leading-relaxed text-[#6f6c8f]">{faq.a}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
     </>

@@ -2,7 +2,7 @@ import { BadgeCheck, Check, ExternalLink, ShieldCheck } from "lucide-react";
 
 export function AvcFloatingLock() {
   return (
-    <details className="group fixed bottom-28 left-0 z-40 md:bottom-16">
+    <details className="group fixed bottom-28 left-0 z-40 hidden print:hidden md:bottom-16 md:block">
       <summary
         aria-label="AVC güven ve sahiplik bilgisini aç"
         className="relative flex h-[148px] w-[56px] -translate-x-[10px] animate-[avc-peek_8s_ease-in-out_infinite] cursor-pointer list-none flex-col items-center justify-center gap-2.5 rounded-r-2xl border border-l-0 border-[#7ee0ec] bg-[#06242c] text-white shadow-[0_0_0_1px_rgba(126,224,236,0.35),0_16px_40px_rgba(0,168,196,0.42)] transition hover:translate-x-0 group-open:animate-none group-open:translate-x-0 [&::-webkit-details-marker]:hidden"

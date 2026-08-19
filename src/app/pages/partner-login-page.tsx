@@ -59,11 +59,11 @@ export function PartnerLoginPage() {
           {error && <div className="mt-4"><FormError>{error}</FormError></div>}
           <label className="mt-6 block text-[11px] font-black text-[#425965]">
             E-posta
-            <input type="email" required maxLength={80} value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full rounded-xl border border-[#dbe6ea] px-4 py-3 text-[13px] outline-none focus:border-[#3b4fd4]" />
+            <input type="email" required maxLength={80} autoComplete="username" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full rounded-xl border border-[#dbe6ea] px-4 py-3 text-[13px] outline-none focus:border-[#3b4fd4]" />
           </label>
           <label className="mt-4 block text-[11px] font-black text-[#425965]">
             Şifre
-            <input type="password" required minLength={6} value={password} onChange={(event) => setPassword(event.target.value)} className="mt-2 w-full rounded-xl border border-[#dbe6ea] px-4 py-3 text-[13px] outline-none focus:border-[#3b4fd4]" />
+            <input type="password" required minLength={6} autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-2 w-full rounded-xl border border-[#dbe6ea] px-4 py-3 text-[13px] outline-none focus:border-[#3b4fd4]" />
           </label>
           <button disabled={busy} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#3b4fd4] px-5 py-3.5 text-[13px] font-black text-white disabled:opacity-60">
             {busy ? "Giriş yapılıyor…" : "Firma paneli"} <ArrowRight className="h-4 w-4" />

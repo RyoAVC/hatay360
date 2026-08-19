@@ -21,6 +21,10 @@ export function MascotBot() {
 
   // Otomatik ipucu değiştirme
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce), (hover: none)").matches) {
+      setShowSpeech(false);
+      return;
+    }
     const timer = setInterval(() => {
       setTipIndex((prev) => (prev + 1) % TIPS.length);
       if (window.matchMedia("(min-width: 768px)").matches) {
@@ -32,6 +36,7 @@ export function MascotBot() {
 
   // Göz ifadeleri & kırpma döngüsü
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const blinkTimer = setInterval(() => {
       setEyeState("blink");
       setTimeout(() => {
@@ -45,7 +50,7 @@ export function MascotBot() {
   const botName = settings.mascotName || "Hatay360 Bot";
 
   return (
-    <div className="fixed bottom-24 right-4 z-50 flex flex-col items-end md:bottom-6 md:right-6">
+    <div className="fixed bottom-24 right-4 z-50 flex flex-col items-end print:hidden md:bottom-6 md:right-6">
       {/* Konuşma Balonu (Speech Bubble) */}
       <AnimatePresence>
         {showSpeech && !isOpen && (

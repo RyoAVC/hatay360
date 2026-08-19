@@ -13,6 +13,7 @@ import { ServiceAreas } from "../components/service-areas";
 import { CallbackForm } from "../components/callback-form";
 import { SupportCta } from "../components/support-cta";
 import { GoogleMapsPromo } from "../components/google-maps-promo";
+import { CONTACT_FAQS } from "../lib/seo";
 import { sectionOn, useContent } from "../context/content-context";
 
 export function HomePage() {
@@ -32,6 +33,24 @@ export function HomePage() {
 
       {on("pricing") && <Pricing />}
       {on("districts") && <ServiceAreas mode="featured" />}
+
+      <section className="mx-auto max-w-6xl px-5 pb-8 sm:px-8">
+        <div className="rounded-[28px] border border-[#ecebf5] bg-white p-6 shadow-[0px_16px_40px_rgba(25,33,61,0.05)] sm:p-8">
+          <h2 className="text-[22px] font-bold tracking-tight text-[#1a1a1a] sm:text-[26px]">Sık sorulanlar</h2>
+          <p className="mt-1 text-[14px] text-[#6f6c8f]">Süre, ofis ve reklam bütçesi — kısa cevaplar.</p>
+          <div className="mt-5 space-y-2">
+            {CONTACT_FAQS.map((faq) => (
+              <details key={faq.q} className="rounded-2xl border border-[#ecebf5] bg-[#f8fbfd] p-4 open:border-[#b3e5ee]">
+                <summary className="cursor-pointer text-[15px] font-semibold text-[#1a1a1a]">{faq.q}</summary>
+                <p className="mt-2 text-[14px] leading-relaxed text-[#6f6c8f]">{faq.a}</p>
+              </details>
+            ))}
+          </div>
+          <Link to="/iletisim" className="mt-4 inline-flex items-center gap-2 text-[14px] font-semibold text-[#00a8c4]">
+            İletişim ve teklif <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
 
       {on("callback") && (
         <section className="mx-auto max-w-6xl px-5 pb-8 sm:px-8">

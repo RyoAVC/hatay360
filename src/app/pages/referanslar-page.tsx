@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { motion } from "motion/react";
 import { ArrowRight, ExternalLink, Globe2, Search, ShieldCheck, Sparkles } from "lucide-react";
+import { PageCrumbs } from "../components/page-crumbs";
 import { PageHero } from "../components/page-hero";
 import { INITIAL_REFERENCES, useContent } from "../context/content-context";
 import kuyumcuDoganImage from "../../assets/references/kuyumcu-dogan.webp";
@@ -125,6 +126,9 @@ export function ReferanslarPage() {
 
   return (
     <>
+      <div className="mx-auto max-w-6xl px-5 pt-6 sm:px-8">
+        <PageCrumbs items={[{ label: "Ana sayfa", to: "/" }, { label: "Referanslar" }]} />
+      </div>
       <PageHero
         compact
         eyebrow="AVC Ekosistemi · Seçili Çalışmalar"
@@ -172,8 +176,8 @@ export function ReferanslarPage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div><span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-[#00a8c4]"><Sparkles className="h-3.5 w-3.5" /> Portföy vitrini</span><h2 className="mt-2 text-[30px] font-black tracking-[-0.04em] text-[#0f172a]">Projenin amacı, yapısı ve canlı adresi</h2></div>
             <div className="flex flex-col gap-2 sm:flex-row">
-              <div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#93a4af]" /><input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Marka veya sektör ara" className="w-full rounded-xl border border-[#d8e6e9] bg-white py-2.5 pl-9 pr-3 text-[12px] outline-none focus:border-[#00a8c4] sm:w-52" /></div>
-              <div className="flex gap-1 rounded-xl border border-[#d8e6e9] bg-white p-1">{CATEGORIES.map((category) => <button key={category.id} type="button" onClick={() => setActiveCategory(category.id)} className={`rounded-lg px-3 py-2 text-[10px] font-black transition ${activeCategory === category.id ? "bg-[#082430] text-white" : "text-[#667985] hover:bg-[#eef7f8]"}`}>{category.label}</button>)}</div>
+              <div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#93a4af]" /><input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Marka veya sektör ara" aria-label="Referans ara" className="w-full rounded-xl border border-[#d8e6e9] bg-white py-2.5 pl-9 pr-3 text-[12px] outline-none focus:border-[#00a8c4] sm:w-52" /></div>
+              <div className="flex gap-1 rounded-xl border border-[#d8e6e9] bg-white p-1" role="group" aria-label="Referans kategorisi">{CATEGORIES.map((category) => <button key={category.id} type="button" onClick={() => setActiveCategory(category.id)} aria-pressed={activeCategory === category.id} className={`rounded-lg px-3 py-2 text-[10px] font-black transition ${activeCategory === category.id ? "bg-[#082430] text-white" : "text-[#667985] hover:bg-[#eef7f8]"}`}>{category.label}</button>)}</div>
             </div>
           </div>
 

@@ -42,12 +42,13 @@ export function CatalogDemo({ demo, phone }: { demo: ExtraDemo; phone: string })
         <div className={`rounded-[28px] p-6 shadow-[0_18px_40px_rgba(15,23,42,0.08)] sm:p-8 ${light ? "bg-white" : "bg-white/5 ring-1 ring-white/10"}`}>
           <p className="text-[12px] font-black uppercase tracking-wider" style={{ color: demo.accent }}>Bu demoya özel</p>
           <h2 className="mt-2 text-[24px] font-black">{demo.title}</h2>
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Hizmet seçimi">
             {demo.choices.map((c) => (
               <button
                 key={c}
                 type="button"
                 onClick={() => setPick(c)}
+                aria-pressed={pick === c}
                 className="rounded-full px-4 py-2 text-[13px] font-black"
                 style={pick === c ? { background: demo.accent, color: "#0f172a" } : { background: light ? "#f1f5f9" : "rgba(255,255,255,0.08)" }}
               >
@@ -68,7 +69,7 @@ export function CatalogDemo({ demo, phone }: { demo: ExtraDemo; phone: string })
             {demo.products.map((p) => (
               <article key={p.name} className={`overflow-hidden rounded-[24px] ${light ? "bg-white shadow-sm" : "bg-white/5 ring-1 ring-white/10"}`}>
                 <div className="relative h-40">
-                  <img src={p.img} alt={p.name} className="h-full w-full object-cover" />
+                  <img src={p.img} alt={p.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   {p.tag && <span className="absolute left-3 top-3 rounded-full px-2 py-1 text-[10px] font-black text-black" style={{ background: demo.accent }}>{p.tag}</span>}
                 </div>
                 <div className="p-4">
@@ -88,7 +89,7 @@ export function CatalogDemo({ demo, phone }: { demo: ExtraDemo; phone: string })
           <div className="mt-6 grid gap-5 md:grid-cols-2">
             {demo.listings.map((l) => (
               <article key={l.name} className="overflow-hidden rounded-[24px] bg-white text-[#0f172a] shadow-sm">
-                <img src={l.img} alt={l.name} className="h-48 w-full object-cover" />
+                <img src={l.img} alt={l.name} loading="lazy" decoding="async" className="h-48 w-full object-cover" />
                 <div className="p-5">
                   <p className="text-[18px] font-black">{l.name}</p>
                   <p className="mt-1 text-[13px] text-[#64748b]">{l.meta}</p>
@@ -141,7 +142,7 @@ export function CatalogDemo({ demo, phone }: { demo: ExtraDemo; phone: string })
                 <span className="rounded-xl bg-white px-4 py-2 text-[12px] font-black text-black">App Store</span>
               </div>
             </div>
-            <img src={demo.slides[0].src} alt="Uygulama" className="h-72 w-full rounded-[24px] object-cover" />
+            <img src={demo.slides[0].src} alt="Uygulama" loading="lazy" decoding="async" className="h-72 w-full rounded-[24px] object-cover" />
           </div>
         </section>
       )}

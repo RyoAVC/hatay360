@@ -5,10 +5,23 @@ import {
   DEFAULT_SEO_PAGES,
   FEATURED_DISTRICT_NAMES,
   SEO_PATH_MAP,
+  CONTACT_FAQS,
+  PACKAGE_FAQS,
+  SERVICE_FAQS,
+  MAPS_FAQS,
+  ABOUT_FAQS,
+  FEATURE_FAQS,
+  PRIVACY_FAQS,
+  TERMS_FAQS,
+  buildFaqJsonLd,
+  buildBreadcrumbJsonLd,
+  attachJsonLdGraph,
+  districtFaqs,
   findDistrictBySlug,
   resolveDistricts,
   type SeoPageId,
 } from "../lib/seo";
+import { districtAngle } from "../lib/district-copy";
 
 function upsertMeta(attr: "name" | "property", key: string, content: string) {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
@@ -120,6 +133,66 @@ export function SeoHead() {
         description: "Sektör ve ilçeye göre satın alma niyetli yerel SEO anahtar kelimelerini ücretsiz üretin.",
         keywords: "anahtar kelime oluşturucu, yerel seo kelime, hatay anahtar kelime, seo kelime üretici",
       },
+      "/araclar/yorum-mesaji": {
+        title: `Google Yorum Davet Mesajı | ${brand}`,
+        description: "Hatay işletmeleri için Google yorum davet WhatsApp ve SMS metni. Sahte puan yok; müşteriye gönderilecek dürüst metin.",
+        keywords: "google yorum mesajı, yorum daveti, hatay google maps yorum, whatsapp yorum metni",
+      },
+      "/araclar/yorum-cevabi": {
+        title: `Google Yorum Cevap Şablonu | ${brand}`,
+        description: "Hatay işletmeleri için Google yorum yanıtı. Düşük puanda herkese açık tartışma yok; sahte yorum yazılmaz.",
+        keywords: "google yorum cevap, işletme yorum yanıtı, hatay maps yorum, yorum şablonu",
+      },
+      "/araclar/randevu-hatirlatma": {
+        title: `Randevu Hatırlatma Metni | ${brand}`,
+        description: "Hatay işletmeleri için WhatsApp ve SMS randevu hatırlatması. Toplu spam yok; iptalde saati başkasına açın.",
+        keywords: "randevu hatırlatma, whatsapp randevu, sms hatırlatma, hatay diş randevu mesajı",
+      },
+      "/araclar/qr-menu": {
+        title: `QR Menü ve WhatsApp Sipariş Karesi | ${brand}`,
+        description: "Restoran ve kafe için masaya konacak QR menü. Müşteri WhatsApp’tan sipariş verir; sahte menü uygulaması yok.",
+        keywords: "qr menü, hatay restoran qr, whatsapp sipariş, kafe menü karesi",
+      },
+      "/araclar/nap-kontrol": {
+        title: `NAP Tutarlılık Kontrolü | ${brand}`,
+        description: "Google, web sitesi ve kartvizitteki işletme adı, adres ve telefon aynı mı kontrol edin. Yerel SEO için NAP uyumu.",
+        keywords: "nap tutarlılık, google işletme adı, hatay yerel seo, adres telefon uyumu",
+      },
+      "/araclar/utm-link": {
+        title: `Reklam UTM Link Oluşturucu | ${brand}`,
+        description: "Google Ads ve Instagram kampanyaları için UTM bağlantısı üretin. Tıklamanın hangi ilandan geldiğini ölçün.",
+        keywords: "utm oluşturucu, google ads utm, instagram kampanya linki, hatay reklam ölçüm",
+      },
+      "/araclar/schema": {
+        title: `Yerel İşletme Şema Kodu | ${brand}`,
+        description: "Hatay işletmeleri için LocalBusiness JSON-LD üretin. Google’a göndermez; kopyalayıp sitenize yapıştırırsınız.",
+        keywords: "localbusiness schema, json-ld üretici, hatay seo şema, işletme structured data",
+      },
+      "/araclar/musteri-linki": {
+        title: `WhatsApp Sipariş ve Google Yorum Linki | ${brand}`,
+        description: "Hatay işletmeleri için WhatsApp sipariş bağlantısı ve Google yorum yazma linki. 05xx numara 90’a çevrilir; sahte puan basılmaz.",
+        keywords: "whatsapp sipariş linki, google yorum linki, hatay whatsapp, place id yorum",
+      },
+      "/araclar/kartvizit": {
+        title: `Dijital Kartvizit (vCard) | ${brand}`,
+        description: "Hatay işletmeleri için telefona kaydedilecek vCard. Sunucuya yazılmaz; .vcf dosyasını indirip WhatsApp’tan gönderirsiniz.",
+        keywords: "dijital kartvizit, vcard indir, hatay işletme rehber, vcf kartvizit",
+      },
+      "/araclar/harita-linki": {
+        title: `Google Harita ve Yol Tarifi Linki | ${brand}`,
+        description: "Hatay işletmeleri için Google Maps arama ve yol tarifi bağlantısı. Konum kaydı oluşturmaz; mevcut haritayı açar.",
+        keywords: "google yol tarifi linki, hatay harita bağlantısı, işletme maps linki, yol tarifi whatsapp",
+      },
+      "/araclar/calisma-saati": {
+        title: `Çalışma Saati Metni ve Şema | ${brand}`,
+        description: "Hatay işletmeleri için haftalık çalışma saati metni ve Google openingHours satırları. Kapalı günler metinde yazılır.",
+        keywords: "çalışma saati metni, openingHours schema, hatay işletme saatleri, google çalışma günleri",
+      },
+      "/araclar/kapaliyiz": {
+        title: `Kapalıyız / Tatil Notu | ${brand}`,
+        description: "Hatay işletmeleri için WhatsApp ve Google Maps kapalıyız metni. Sahte açık yazılmaz; tarih ve dönüş net.",
+        keywords: "kapalıyız notu, bayram tatil mesajı, google maps kapalı, hatay işletme tatil",
+      },
       "/google-maps-harita-kaydi": {
         title: `Google Maps Harita Kaydı ve Yerel Görünürlük | ${brand}`,
         description: "Hatay işletmeleri için Google Business Profile kurulumu, harita SEO'su, yerel görünürlük ve gerçek müşteri yorumu yönetimi.",
@@ -163,24 +236,29 @@ export function SeoHead() {
       areaServed = ["Hatay", district.name];
       json = {
         "@context": "https://schema.org",
-        "@type": "Service",
-        name: `${district.name} web tasarım ve reklam`,
-        description,
-        url,
-        areaServed: district.name,
-        provider: {
-          "@type": "ProfessionalService",
-          name: brand,
-          telephone: settings.phone,
-          email: settings.email,
-          address: {
-            "@type": "PostalAddress",
-            streetAddress: settings.address,
-            addressLocality: "Antakya",
-            addressRegion: "Hatay",
-            addressCountry: "TR",
+        "@graph": [
+          {
+            "@type": "Service",
+            name: `${district.name} web tasarım ve reklam`,
+            description,
+            url,
+            areaServed: district.name,
+            provider: {
+              "@type": "ProfessionalService",
+              name: brand,
+              telephone: settings.phone,
+              email: settings.email,
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: settings.address,
+                addressLocality: "Antakya",
+                addressRegion: "Hatay",
+                addressCountry: "TR",
+              },
+            },
           },
-        },
+          buildFaqJsonLd(districtFaqs(district.name, districtAngle(district.name).hook)),
+        ],
       };
     } else if (sectorMeta) {
       title = sectorMeta.title;
@@ -222,6 +300,67 @@ export function SeoHead() {
         operatingSystem: "Web",
         offers: { "@type": "Offer", price: "0", priceCurrency: "TRY" },
       };
+      if (pathname === "/google-maps-harita-kaydi") json = attachJsonLdGraph(json, [buildFaqJsonLd(MAPS_FAQS)]);
+    } else if (pathname === "/iletisim") {
+      const page = settings.seoPages?.iletisim || DEFAULT_SEO_PAGES.iletisim;
+      title = page.title || brand;
+      description = page.description || "";
+      json = {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "ProfessionalService",
+            name: brand,
+            description,
+            url: origin,
+            telephone: settings.phone,
+            email: settings.email,
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: settings.address,
+              addressLocality: "Antakya",
+              addressRegion: "Hatay",
+              addressCountry: "TR",
+            },
+            areaServed,
+          },
+          buildFaqJsonLd(CONTACT_FAQS),
+        ],
+      };
+    } else if (pathname === "/paketler") {
+      const page = settings.seoPages?.paketler || DEFAULT_SEO_PAGES.paketler;
+      title = page.title || brand;
+      description = page.description || "";
+      json = {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "OfferCatalog",
+            name: title,
+            description,
+            url,
+          },
+          buildFaqJsonLd(PACKAGE_FAQS),
+        ],
+      };
+    } else if (pathname === "/pazarla") {
+      const page = settings.seoPages?.hizmetler || DEFAULT_SEO_PAGES.hizmetler;
+      title = page.title || brand;
+      description = page.description || "";
+      json = {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Service",
+            name: title,
+            description,
+            url,
+            areaServed,
+            provider: { "@type": "ProfessionalService", name: brand },
+          },
+          buildFaqJsonLd(SERVICE_FAQS),
+        ],
+      };
     } else {
       const id: SeoPageId = SEO_PATH_MAP[pathname] || "home";
       const page = settings.seoPages?.[id] || DEFAULT_SEO_PAGES[id];
@@ -245,7 +384,32 @@ export function SeoHead() {
         areaServed,
         knowsAbout: ["Hatay web tasarım", "Hatay reklam ajansı", "Hatay e-ticaret", "Google Ads"],
       };
+      if (pathname === "/") json = attachJsonLdGraph(json, [buildFaqJsonLd(CONTACT_FAQS)]);
+      if (pathname === "/hakkimizda") json = attachJsonLdGraph(json, [buildFaqJsonLd(ABOUT_FAQS)]);
+      if (pathname === "/ozellikler") json = attachJsonLdGraph(json, [buildFaqJsonLd(FEATURE_FAQS)]);
+      if (pathname === "/gizlilik") json = attachJsonLdGraph(json, [buildFaqJsonLd(PRIVACY_FAQS)]);
+      if (pathname === "/kosullar") json = attachJsonLdGraph(json, [buildFaqJsonLd(TERMS_FAQS)]);
     }
+
+    const crumbs: { name: string; path: string }[] = [{ name: "Ana sayfa", path: "/" }];
+    if (pathname === "/hatay") crumbs.push({ name: "Hatay ilçeleri", path: "/hatay" });
+    else if (district) crumbs.push({ name: "Hatay ilçeleri", path: "/hatay" }, { name: district.name, path: pathname });
+    else if (pathname === "/araclar") crumbs.push({ name: "Araçlar", path: "/araclar" });
+    else if (pathname.startsWith("/araclar/") && toolMeta) crumbs.push({ name: "Araçlar", path: "/araclar" }, { name: title.split("|")[0].trim(), path: pathname });
+    else if (pathname === "/demolar") crumbs.push({ name: "Demolar", path: "/demolar" });
+    else if (pathname === "/iletisim") crumbs.push({ name: "İletişim", path: "/iletisim" });
+    else if (pathname === "/paketler") crumbs.push({ name: "Paketler", path: "/paketler" });
+    else if (pathname === "/pazarla") crumbs.push({ name: "Hizmetler", path: "/pazarla" });
+    else if (pathname === "/hakkimizda") crumbs.push({ name: "Hakkımızda", path: "/hakkimizda" });
+    else if (pathname === "/referanslar") crumbs.push({ name: "Referanslar", path: "/referanslar" });
+    else if (pathname === "/ozellikler") crumbs.push({ name: "Özellikler", path: "/ozellikler" });
+    else if (pathname === "/gizlilik") crumbs.push({ name: "Gizlilik", path: "/gizlilik" });
+    else if (pathname === "/kosullar") crumbs.push({ name: "Kullanım koşulları", path: "/kosullar" });
+    else if (pathname === "/google-maps-harita-kaydi") crumbs.push({ name: "Google Maps kaydı", path: "/google-maps-harita-kaydi" });
+    else if (pathname === "/hatay-kesfet") crumbs.push({ name: "Hatay keşif", path: "/hatay-kesfet" });
+    else if (pathname === "/hatayda-nerede-kahvalti-yapilir") crumbs.push({ name: "Hatay keşif", path: "/hatay-kesfet" }, { name: "Kahvaltı rehberi", path: "/hatayda-nerede-kahvalti-yapilir" });
+    else if (pathname === "/hesap") crumbs.push({ name: "Giriş / kayıt", path: "/hesap" });
+    if (crumbs.length > 1) json = attachJsonLdGraph(json, [buildBreadcrumbJsonLd(origin, crumbs)]);
 
     document.title = title;
     upsertMeta("name", "description", description);

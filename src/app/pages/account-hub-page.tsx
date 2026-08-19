@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { ArrowRight, Building2, Handshake, UserPlus, UserRound } from "lucide-react";
+import { PageCrumbs } from "../components/page-crumbs";
 
 const CARDS = [
   {
@@ -31,7 +32,8 @@ const CARDS = [
 export function AccountHubPage() {
   return (
     <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
-      <div className="mx-auto max-w-3xl text-center">
+      <PageCrumbs items={[{ label: "Ana sayfa", to: "/" }, { label: "Giriş / kayıt" }]} />
+      <div className="mx-auto mt-6 max-w-3xl text-center">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0fa9c3]">Hatay360 hesapları</p>
         <h1 className="mt-3 text-[34px] font-black tracking-[-0.045em] text-[#102b35] sm:text-[46px]">Giriş ve kayıt</h1>
         <p className="mt-4 text-[16px] leading-relaxed text-[#5b6b75]">

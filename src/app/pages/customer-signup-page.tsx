@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2, MapPinned, ShieldCheck } from "lucide-react";
 import { SiteLogo } from "../components/site-logo";
 import { FormError } from "../components/form-error";
 import { PhoneField } from "../components/phone-field";
+import { HoneypotField } from "../components/honeypot-field";
 import { apiRequest } from "../lib/api";
 import { isValidTrPhone, PHONE_ERROR, sanitizePhoneInput } from "../lib/contact";
 import { turkishFormProps } from "../lib/form-validation";
@@ -43,6 +44,8 @@ export function CustomerSignupPage() {
       setBusy(false);
       return;
     }
+    const formElement = event.currentTarget as HTMLFormElement;
+    const companyFax = String(new FormData(formElement).get("company_fax") || "").trim();
     setBusy(true);
     setError("");
     try {
@@ -62,6 +65,7 @@ export function CustomerSignupPage() {
           website: mapsDraft?.website || "",
           notes: [mapsDraft?.businessName && `İşletme: ${mapsDraft.businessName}`, mapsDraft?.description].filter(Boolean).join("\n"),
           smsOk,
+          company_fax: companyFax,
         }),
       });
       clearMapsDraft();
@@ -131,6 +135,7 @@ export function CustomerSignupPage() {
               </p>
             </div>
             {error && <div className="mt-4"><FormError>{error}</FormError></div>}
+            <HoneypotField />
             <label className="mt-6 block text-[11px] font-black text-[#425965]">
               Ad soyad
               <input required minLength={2} maxLength={80} value={name} onChange={(event) => setName(event.target.value)} className="mt-2 w-full rounded-xl border border-[#dbe6ea] px-4 py-3 text-[13px] outline-none focus:border-[#00a8c4]" />

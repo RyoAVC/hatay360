@@ -25,6 +25,18 @@ const SeoToolsOverviewPage = lazy(() => import("./pages/seo-tools-page").then((m
 const GoogleRankFinderPage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.GoogleRankFinderPage })));
 const MetaTagGeneratorPage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.MetaTagGeneratorPage })));
 const LocalKeywordGeneratorPage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.LocalKeywordGeneratorPage })));
+const ReviewInvitePage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.ReviewInvitePage })));
+const QrMenuPage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.QrMenuPage })));
+const NapCheckPage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.NapCheckPage })));
+const UtmLinkPage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.UtmLinkPage })));
+const SchemaJsonLdPage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.SchemaJsonLdPage })));
+const CustomerLinksPage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.CustomerLinksPage })));
+const VCardPage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.VCardPage })));
+const MapsLinksPage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.MapsLinksPage })));
+const HoursPage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.HoursPage })));
+const ReviewReplyPage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.ReviewReplyPage })));
+const AppointmentReminderPage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.AppointmentReminderPage })));
+const ClosedNoticePage = lazy(() => import("./pages/seo-tools-page").then((module) => ({ default: module.ClosedNoticePage })));
 const GoogleMapsPage = lazy(() => import("./pages/google-maps-page").then((module) => ({ default: module.GoogleMapsPage })));
 const HatayDiscoveryPage = lazy(() => import("./pages/hatay-discovery-page").then((module) => ({ default: module.HatayDiscoveryPage })));
 const HatayBreakfastGuidePage = lazy(() => import("./pages/hatay-discovery-page").then((module) => ({ default: module.HatayBreakfastGuidePage })));
@@ -61,6 +73,18 @@ export const router = createBrowserRouter([
       { path: "araclar/google-sira-bulucu", Component: GoogleRankFinderPage },
       { path: "araclar/meta-etiket-olusturucu", Component: MetaTagGeneratorPage },
       { path: "araclar/yerel-anahtar-kelime-olusturucu", Component: LocalKeywordGeneratorPage },
+      { path: "araclar/yorum-mesaji", Component: ReviewInvitePage },
+      { path: "araclar/qr-menu", Component: QrMenuPage },
+      { path: "araclar/nap-kontrol", Component: NapCheckPage },
+      { path: "araclar/utm-link", Component: UtmLinkPage },
+      { path: "araclar/schema", Component: SchemaJsonLdPage },
+      { path: "araclar/musteri-linki", Component: CustomerLinksPage },
+      { path: "araclar/kartvizit", Component: VCardPage },
+      { path: "araclar/harita-linki", Component: MapsLinksPage },
+      { path: "araclar/calisma-saati", Component: HoursPage },
+      { path: "araclar/yorum-cevabi", Component: ReviewReplyPage },
+      { path: "araclar/randevu-hatirlatma", Component: AppointmentReminderPage },
+      { path: "araclar/kapaliyiz", Component: ClosedNoticePage },
       { path: "google-maps-harita-kaydi", Component: GoogleMapsPage },
       { path: "hatay-kesfet", Component: HatayDiscoveryPage },
       { path: "hatayda-nerede-kahvalti-yapilir", Component: HatayBreakfastGuidePage },

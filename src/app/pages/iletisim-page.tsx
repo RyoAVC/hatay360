@@ -5,26 +5,14 @@ import { PageHero } from "../components/page-hero";
 import { Reveal, staggerItem } from "../components/motion-primitives";
 import { useContent } from "../context/content-context";
 import { toTelHref, toWhatsAppHref } from "../lib/contact";
+import { CONTACT_FAQS } from "../lib/seo";
+import { PageCrumbs } from "../components/page-crumbs";
 import { CallbackForm } from "../components/callback-form";
 import { ServiceAreas } from "../components/service-areas";
 
 export function IletisimPage() {
   const { settings } = useContent();
-
-  const faqs = [
-    {
-      q: "Hatay’da web tasarım ne kadar sürer?",
-      a: "Kurumsal site genelde 7–14 gün, e-ticaret altyapısı aynı gün kurulup içeriğe göre yayına alınır. İskenderun ve diğer ilçelerde uzaktan ilerleriz.",
-    },
-    {
-      q: "Reklam için ofise gelmem gerekir mi?",
-      a: "Hayır. Keşif görüşmesi telefon veya video ile yapılır. Antakya’daysanız ofise de uğrayabilirsiniz.",
-    },
-    {
-      q: "Hangi ilçelere hizmet veriyorsunuz?",
-      a: "Hatay’ın tamamı. Antakya, Defne, İskenderun öne çıkar; diğer ilçelerin kendi sayfası /hatay altında.",
-    },
-  ];
+  const faqs = CONTACT_FAQS;
 
   const channels = [
     { icon: Phone, title: "Telefon", value: settings.phone, href: toTelHref(settings.phone), hint: "Hafta içi 09:00–18:00" },
@@ -34,6 +22,9 @@ export function IletisimPage() {
 
   return (
     <>
+      <div className="mx-auto max-w-6xl px-5 pt-6 sm:px-8">
+        <PageCrumbs items={[{ label: "Ana sayfa", to: "/" }, { label: "İletişim" }]} />
+      </div>
       <PageHero
         eyebrow="Hatay iletişim"
         title="Hatay web tasarım ve reklam teklifi"

@@ -10,6 +10,8 @@ import {
   emptyMapsDraft,
   formatHours,
   saveMapsDraft,
+  suggestGbpCategories,
+  buildGbpDescription,
   type MapsDraft,
   type WeekDayId,
 } from "../lib/maps-signup";
@@ -35,6 +37,10 @@ export function MapsListingWizard() {
     if (!term) return GOOGLE_CATEGORIES;
     return GOOGLE_CATEGORIES.filter((item) => item.toLocaleLowerCase("tr-TR").includes(term));
   }, [query]);
+  const hints = useMemo(
+    () => suggestGbpCategories(`${draft.businessName} ${query}`),
+    [draft.businessName, query],
+  );
 
   useEffect(() => {
     if (hash === "#harita-kaydi") {
@@ -78,6 +84,7 @@ export function MapsListingWizard() {
                 <button
                   type="button"
                   onClick={() => setStep(item.id)}
+                  aria-current={step === item.id ? "step" : undefined}
                   className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[12px] font-bold ${
                     step === item.id ? "bg-white text-[#1a73e8] shadow-sm" : "text-[#5f6368] hover:bg-white/70"
                   }`}
@@ -96,7 +103,7 @@ export function MapsListingWizard() {
           </ol>
 
           <div className="p-5 sm:p-7">
-            <p className="text-[11px] font-bold text-[#5f6368]">Adım {step} / {STEPS.length}</p>
+            <p className="text-[11px] font-bold text-[#5f6368]" aria-live="polite">Adım {step} / {STEPS.length}</p>
 
             {step === 1 && (
               <div>
@@ -106,6 +113,7 @@ export function MapsListingWizard() {
                   value={draft.businessName}
                   onChange={(event) => setDraft({ ...draft, businessName: event.target.value })}
                   placeholder="Örn. Defne Dental Klinik"
+                  aria-label="İşletme adı"
                   className="mt-5 w-full rounded-xl border border-[#dadce0] px-4 py-3.5 text-[15px] outline-none focus:border-[#1a73e8]"
                 />
               </div>
@@ -121,9 +129,29 @@ export function MapsListingWizard() {
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                     placeholder="Kategori ara (restoran, kuaför, emlak…)"
+                    aria-label="Kategori ara"
                     className="w-full bg-transparent text-[14px] outline-none"
                   />
                 </div>
+                {hints.length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#1a73e8]">Ada göre öneriler</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {hints.map((item) => (
+                        <button
+                          key={`hint-${item}`}
+                          type="button"
+                          onClick={() => setDraft({ ...draft, sector: item })}
+                          className={`rounded-full border px-3 py-1.5 text-[12px] font-bold ${
+                            draft.sector === item ? "border-[#1a73e8] bg-[#e8f0fe] text-[#174ea6]" : "border-[#dadce0] text-[#3c4043] hover:bg-[#f8f9fa]"
+                          }`}
+                        >
+                          {item}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="mt-3 grid max-h-72 gap-2 overflow-y-auto sm:grid-cols-2">
                   {categories.map((item) => (
                     <button
@@ -189,6 +217,7 @@ export function MapsListingWizard() {
                   value={draft.website}
                   onChange={(event) => setDraft({ ...draft, website: event.target.value.slice(0, 120) })}
                   placeholder="Web sitesi (varsa)"
+                  aria-label="Web sitesi"
                   maxLength={120}
                   className="mt-3 w-full rounded-xl border border-[#dadce0] px-4 py-3.5 text-[15px] outline-none focus:border-[#1a73e8]"
                 />
@@ -258,8 +287,25 @@ export function MapsListingWizard() {
                   value={draft.description}
                   onChange={(event) => setDraft({ ...draft, description: event.target.value })}
                   placeholder="Örn. Defne’de 12 yıldır diş tedavisi. İmplant, ortodonti ve acil muayene."
+                  aria-label="İşletme açıklaması"
                   className="mt-5 w-full rounded-xl border border-[#dadce0] px-4 py-3 text-[14px] outline-none focus:border-[#1a73e8]"
                 />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDraft({
+                      ...draft,
+                      description: buildGbpDescription({
+                        name: draft.businessName,
+                        sector: draft.sector,
+                        district: draft.district,
+                      }),
+                    })
+                  }
+                  className="mt-3 rounded-xl border border-[#dadce0] px-4 py-2 text-[12px] font-black text-[#174ea6] hover:bg-[#f8f9fa]"
+                >
+                  Ad ve kategoriden açıklama öner
+                </button>
                 <div className="mt-4 rounded-2xl bg-[#f8f9fa] p-4 text-[12px] leading-relaxed text-[#5f6368]">
                   <p className="font-black text-[#202124]">{draft.businessName || "İşletme adı"}</p>
                   <p className="mt-1">{draft.sector || "Kategori"} · {draft.district}</p>

@@ -220,6 +220,27 @@ test("SQLite API giriş, içerik, hit ve başvuru akışını çalıştırır", 
   assert.equal(mapsLeads.leads[0].kind, "maps");
   assert.equal(mapsLeads.leads[0].district, "Defne");
 
+  const botLead = await fetch(`${base}/api/leads`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: "Bot",
+      phone: "0555 111 22 33",
+      company_fax: "spam",
+    }),
+  });
+  assert.equal(botLead.status, 201);
+  const afterBot = await fetch(`${base}/api/leads`, { headers: { Cookie: cookie } }).then((response) => response.json());
+  assert.equal(afterBot.leads.some((lead) => lead.name === "Bot"), false);
+  assert.equal(mapsLead.headers.get("x-frame-options"), "SAMEORIGIN");
+
+  const notJson = await fetch(`${base}/api/leads`, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: "name=Bot",
+  });
+  assert.equal(notJson.status, 415);
+
   const partnerRegister = await fetch(`${base}/api/partners/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

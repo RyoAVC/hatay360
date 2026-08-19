@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { motion } from "motion/react";
-import { Home, PhoneCall, Layers } from "lucide-react";
+import { Home, MapPinned, PhoneCall, Layers, Wrench, Sparkles } from "lucide-react";
 
 export function NotFoundPage() {
   return (
@@ -38,6 +38,30 @@ export function NotFoundPage() {
             className="inline-flex items-center gap-2 rounded-xl border border-[#ecebf5] bg-white px-6 py-3 text-[15px] font-semibold text-[#1a1a1a]"
           >
             <Layers className="h-4 w-4" /> Hizmetler
+          </motion.span>
+        </Link>
+        <Link to="/araclar">
+          <motion.span
+            whileHover={{ y: -3 }}
+            className="inline-flex items-center gap-2 rounded-xl border border-[#ecebf5] bg-white px-6 py-3 text-[15px] font-semibold text-[#1a1a1a]"
+          >
+            <Sparkles className="h-4 w-4" /> Ücretsiz araçlar
+          </motion.span>
+        </Link>
+        <Link to="/demolar">
+          <motion.span
+            whileHover={{ y: -3 }}
+            className="inline-flex items-center gap-2 rounded-xl border border-[#ecebf5] bg-white px-6 py-3 text-[15px] font-semibold text-[#1a1a1a]"
+          >
+            <Wrench className="h-4 w-4" /> Demo vitrin
+          </motion.span>
+        </Link>
+        <Link to="/hatay">
+          <motion.span
+            whileHover={{ y: -3 }}
+            className="inline-flex items-center gap-2 rounded-xl border border-[#ecebf5] bg-white px-6 py-3 text-[15px] font-semibold text-[#1a1a1a]"
+          >
+            <MapPinned className="h-4 w-4" /> Hatay ilçeleri
           </motion.span>
         </Link>
         <Link to="/iletisim">

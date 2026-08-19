@@ -4,6 +4,7 @@ import { BadgeCheck, CalendarDays, ExternalLink } from "lucide-react";
 import { KlinikDemo, NakliyatDemo, ServisDemo, TaxiDemo } from "../components/ads-site-demos";
 import { CatalogDemo } from "../components/catalog-demo";
 import { extraBySlug } from "../lib/extra-demos";
+import { PageCrumbs } from "../components/page-crumbs";
 import { useContent } from "../context/content-context";
 import { AVCLABS_PRODUCTS, AVCLABS_VITRINE, DEMO_PHOTOS } from "../lib/avclabs";
 
@@ -33,6 +34,12 @@ function DemoBar({ label, licensed, slug }: { label: string; licensed?: boolean;
             Tüm demolar
           </Link>
         </div>
+      </div>
+      <div className="mx-auto max-w-6xl px-4 pb-2">
+        <PageCrumbs
+          tone="dark"
+          items={[{ label: "Ana sayfa", to: "/" }, { label: "Demolar", to: "/demolar" }, { label }]}
+        />
       </div>
     </div>
   );

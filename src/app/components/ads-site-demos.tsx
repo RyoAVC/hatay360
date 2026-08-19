@@ -47,12 +47,14 @@ export function HeroSlider({
   }, [slides.length]);
   const go = (dir: number) => setI((n) => (n + dir + slides.length) % slides.length);
   return (
-    <div className={`relative overflow-hidden ${className}`}>
+    <div className={`relative overflow-hidden touch-pan-y ${className}`}>
       {slides.map((s, idx) => (
         <img
           key={`${s.src}-${idx}`}
           src={s.src}
           alt={s.alt}
+          loading={idx === 0 ? "eager" : "lazy"}
+          decoding="async"
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-out ${idx === i ? "opacity-100" : "opacity-0"}`}
         />
       ))}
@@ -73,6 +75,7 @@ export function HeroSlider({
               key={idx}
               type="button"
               aria-label={`Slayt ${idx + 1}`}
+              aria-current={idx === i ? "true" : undefined}
               onClick={() => setI(idx)}
               className="h-1.5 rounded-full transition-all"
               style={{ width: idx === i ? 22 : 8, background: idx === i ? accent : "rgba(255,255,255,0.45)" }}

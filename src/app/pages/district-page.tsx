@@ -7,7 +7,7 @@ import { CallbackForm } from "../components/callback-form";
 import { NotFoundPage } from "./not-found";
 import { useContent } from "../context/content-context";
 import { districtAngle } from "../lib/district-copy";
-import { districtPath, findDistrictBySlug, resolveDistricts } from "../lib/seo";
+import { districtPath, districtFaqs, findDistrictBySlug, resolveDistricts } from "../lib/seo";
 
 export function DistrictPage() {
   const { slug = "" } = useParams();
@@ -48,20 +48,7 @@ export function DistrictPage() {
     },
   ];
 
-  const faqs = [
-    {
-      q: `${name} için web sitesi ne kadar sürer?`,
-      a: "Kurumsal site genelde 7–14 gün. E-ticaret altyapısı aynı gün kurulup içeriğe göre yayına alınır. Keşif uzaktan da olur.",
-    },
-    {
-      q: "Sadece reklam yaptırabilir miyim?",
-      a: "Evet. Elinizde site varsa reklamı ayrı yönetiriz. Yoksa önce sade bir sayfa, sonra reklam öneririz.",
-    },
-    {
-      q: "Antakya’ya gelmem gerekir mi?",
-      a: angle.hook,
-    },
-  ];
+  const faqs = districtFaqs(name, angle.hook);
 
   return (
     <>

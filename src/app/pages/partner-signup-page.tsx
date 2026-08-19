@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { SiteLogo } from "../components/site-logo";
 import { FormError } from "../components/form-error";
 import { PhoneField } from "../components/phone-field";
+import { HoneypotField } from "../components/honeypot-field";
 import { apiRequest } from "../lib/api";
 import { isValidTrPhone, PHONE_ERROR } from "../lib/contact";
 import { turkishFormProps } from "../lib/form-validation";
@@ -24,7 +25,7 @@ export function PartnerSignupPage() {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
 
-  const submit = async (event: FormEvent) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isValidTrPhone(form.phone)) {
       setError(PHONE_ERROR);
@@ -37,9 +38,10 @@ export function PartnerSignupPage() {
     setBusy(true);
     setError("");
     try {
+      const companyFax = String(new FormData(event.currentTarget).get("company_fax") || "");
       await apiRequest("/api/partners/register", {
         method: "POST",
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, company_fax: companyFax }),
       });
       setSent(true);
     } catch (nextError) {
@@ -99,6 +101,7 @@ export function PartnerSignupPage() {
             <h2 className="text-[26px] font-black text-[#102b35]">Firma kaydı</h2>
             <p className="mt-2 text-[12px] text-[#71818a]">Bayilik için firmanızı, yetkiliyi ve şifrenizi yazın.</p>
             {error && <div className="mt-4"><FormError>{error}</FormError></div>}
+            <HoneypotField />
             {field("companyName", "Firma adı")}
             {field("contactName", "Yetkili adı")}
             {field("email", "E-posta", "email")}

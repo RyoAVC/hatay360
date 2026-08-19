@@ -8,6 +8,7 @@ import { turkishFormProps } from "../lib/form-validation";
 import { apiRequest } from "../lib/api";
 import { FormError } from "./form-error";
 import { PhoneField } from "./phone-field";
+import { HoneypotField } from "./honeypot-field";
 
 const SERVICES = [
   "E-Ticaret altyapısı",
@@ -40,6 +41,7 @@ export function CallbackForm({ compact = false }: CallbackFormProps) {
     const form = new FormData(formElement);
     const name = String(form.get("name") || "").trim();
     const service = String(form.get("service") || "Genel bilgi").trim();
+    const companyFax = String(form.get("company_fax") || "").trim();
     if (name.length < 2) {
       setError("Adınızı ve soyadınızı yazın.");
       return;
@@ -57,7 +59,7 @@ export function CallbackForm({ compact = false }: CallbackFormProps) {
     try {
       await apiRequest<{ ok: boolean; id: number }>("/api/leads", {
         method: "POST",
-        body: JSON.stringify({ name, phone, service, sourcePath: pathname }),
+        body: JSON.stringify({ name, phone, service, sourcePath: pathname, company_fax: companyFax }),
       });
       const href = toWhatsAppHref(settings.phone, message);
       if (whatsappWindow) {
@@ -114,6 +116,7 @@ export function CallbackForm({ compact = false }: CallbackFormProps) {
       )}
 
       {error && <FormError>{error}</FormError>}
+      <HoneypotField />
 
       <div className={compact ? "grid gap-3 sm:grid-cols-2" : "grid gap-4 sm:grid-cols-2"}>
         <input

@@ -1,8 +1,13 @@
+import { PageCrumbs } from "../components/page-crumbs";
 import { PageHero } from "../components/page-hero";
+import { PRIVACY_FAQS } from "../lib/seo";
 
 export function GizlilikPage() {
   return (
     <>
+      <div className="mx-auto max-w-6xl px-5 pt-6 sm:px-8">
+        <PageCrumbs items={[{ label: "Ana sayfa", to: "/" }, { label: "Gizlilik" }]} />
+      </div>
       <PageHero
         eyebrow="Yasal"
         title="Gizlilik ve KVKK"
@@ -49,6 +54,18 @@ export function GizlilikPage() {
           <p className="mt-2">
             Site tasarımı ve yazılımı Mahir Avcı / Avcı E-Ticaret’e aittir. Görseller, arayüz ve metinler izinsiz kopyalanamaz. Hakkınızı ihlal eden kullanım görürsek yasal yükümlülük doğar.
           </p>
+        </div>
+        <div>
+          <h2 className="text-[20px] font-bold text-[#1a1a1a]">Sık sorulanlar</h2>
+          <p className="mt-2 text-[15px]">Kart, arama listesi ve silme talebi — kısa cevaplar.</p>
+          <div className="mt-4 space-y-2">
+            {PRIVACY_FAQS.map((faq) => (
+              <details key={faq.q} className="rounded-2xl border border-[#ecebf5] bg-white p-4 text-[#1a1a1a] open:border-[#b3e5ee]">
+                <summary className="cursor-pointer text-[15px] font-semibold">{faq.q}</summary>
+                <p className="mt-2 text-[14px] font-normal leading-relaxed text-[#6f6c8f]">{faq.a}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
     </>

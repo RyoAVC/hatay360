@@ -1,12 +1,14 @@
 import { Link, Navigate, useParams } from "react-router";
-import { ArrowRight, BadgeCheck, Clock3, Megaphone, MessageSquareText, Stethoscope, Target, Truck, Wrench } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowRight, BadgeCheck, Clock3, Megaphone, MessageSquareText, Search, Stethoscope, Target, Truck, Wrench } from "lucide-react";
 import { motion } from "motion/react";
+import { PageCrumbs } from "../components/page-crumbs";
 import { PageHero } from "../components/page-hero";
 import { CallbackForm } from "../components/callback-form";
 import { AvclabsShowcase } from "../components/avclabs-showcase";
 import { useContent, type SectorItem } from "../context/content-context";
 import { ADS_SITE_DEMOS } from "../lib/avclabs";
-import { EXTRA_DEMOS, EXTRA_GROUPS } from "../lib/extra-demos";
+import { EXTRA_DEMOS, EXTRA_GROUPS, filterExtraDemos, type ExtraKind } from "../lib/extra-demos";
 import { toTelHref } from "../lib/contact";
 
 const iconMap = {
@@ -23,10 +25,22 @@ const iconMap = {
 const DEFAULT_DEMO_IMAGE = "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1400&q=82";
 
 export function DemoOverviewPage() {
+  const [query, setQuery] = useState("");
+  const [kind, setKind] = useState<ExtraKind | "all">("all");
+  const extras = useMemo(() => filterExtraDemos(query, kind), [query, kind]);
+  const featured = useMemo(() => {
+    const term = query.trim().toLocaleLowerCase("tr-TR");
+    if (kind !== "all") return [];
+    if (!term) return ADS_SITE_DEMOS;
+    return ADS_SITE_DEMOS.filter((item) => `${item.title} ${item.subtitle} ${item.slug}`.toLocaleLowerCase("tr-TR").includes(term));
+  }, [query, kind]);
+  const searching = Boolean(query.trim()) || kind !== "all";
+
   return (
     <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(0,168,196,0.10),_transparent_28%),linear-gradient(180deg,#f8fafc_0%,#eef5f8_100%)]">
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
-        <div className="mx-auto max-w-3xl text-center">
+        <PageCrumbs items={[{ label: "Ana sayfa", to: "/" }, { label: "Demolar" }]} />
+        <div className="mx-auto mt-6 max-w-3xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-[#dbeaf2] bg-white/80 px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em] text-[#0ea5c9]">
             Demo vitrin · AVC ailesi
           </span>
@@ -38,43 +52,73 @@ export function DemoOverviewPage() {
           </p>
         </div>
 
-        <h2 className="mt-14 text-[22px] font-black text-[#0f172a]">Öne çıkan Hatay360 siteleri</h2>
-        <p className="mt-2 text-[14px] text-[#64748b]">Taksi, nakliyat, klinik, teknik servis — dolu örnekler.</p>
-        <div className="mt-6 grid gap-5 md:grid-cols-2">
-          {ADS_SITE_DEMOS.map((item) => (
-            <Link
-              key={item.slug}
-              to={`/demo/${item.slug}`}
-              className="group overflow-hidden rounded-[28px] border border-[#e7edf3] bg-white shadow-[0_18px_40px_rgba(15,23,42,0.06)]"
-            >
-              <div className="relative h-48">
-                <img src={item.image} alt={item.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 text-white">
-                  <h3 className="text-[20px] font-black">{item.title}</h3>
-                  <p className="text-[13px] text-white/80">{item.subtitle}</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between px-5 py-4 text-[13px] font-black text-[#0ea5c9]">
-                Hatay360 site örneği <ArrowRight className="h-4 w-4" />
-              </div>
-            </Link>
-          ))}
+        <div className="mx-auto mt-10 max-w-3xl rounded-[24px] border border-[#d7eaee] bg-white p-4 shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
+          <label className="flex items-center gap-3 rounded-2xl border border-[#e2eef1] bg-[#f8fbfc] px-4 py-3">
+            <Search className="h-4 w-4 shrink-0 text-[#00a8c4]" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Sektör ara: eczane, lastik, diş, kahve…"
+              aria-label="Demo ara"
+              className="w-full bg-transparent text-[14px] outline-none"
+            />
+          </label>
+          <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Demo türü">
+            {([{ id: "all", title: "Tümü" }, ...EXTRA_GROUPS] as { id: ExtraKind | "all"; title: string }[]).map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setKind(item.id)}
+                aria-pressed={kind === item.id}
+                className={`rounded-full px-3 py-1.5 text-[11px] font-black ${kind === item.id ? "bg-[#00a8c4] text-white" : "bg-[#f1f5f9] text-[#475569]"}`}
+              >
+                {item.title}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {EXTRA_GROUPS.map((group) => (
-          <div key={group.id} className="mt-14">
-            <h2 className="text-[22px] font-black text-[#0f172a]">{group.title}</h2>
-            <p className="mt-2 text-[14px] text-[#64748b]">{group.text}</p>
+        {Boolean(featured.length) && (
+          <>
+            <h2 className="mt-14 text-[22px] font-black text-[#0f172a]">Öne çıkan Hatay360 siteleri</h2>
+            <p className="mt-2 text-[14px] text-[#64748b]">Taksi, nakliyat, klinik, teknik servis — dolu örnekler.</p>
+            <div className="mt-6 grid gap-5 md:grid-cols-2">
+              {featured.map((item) => (
+                <Link
+                  key={item.slug}
+                  to={`/demo/${item.slug}`}
+                  className="group overflow-hidden rounded-[28px] border border-[#e7edf3] bg-white shadow-[0_18px_40px_rgba(15,23,42,0.06)]"
+                >
+                  <div className="relative h-48">
+                    <img src={item.image} alt={item.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                    <div className="absolute bottom-4 left-4 right-4 text-white">
+                      <h3 className="text-[20px] font-black">{item.title}</h3>
+                      <p className="text-[13px] text-white/80">{item.subtitle}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between px-5 py-4 text-[13px] font-black text-[#0ea5c9]">
+                    Hatay360 site örneği <ArrowRight className="h-4 w-4" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </>
+        )}
+
+        {searching ? (
+          <div className="mt-14">
+            <h2 className="text-[22px] font-black text-[#0f172a]" aria-live="polite">{extras.length} örnek bulundu</h2>
+            {!extras.length && <p className="mt-3 text-[14px] text-[#64748b]" role="status">Bu aramaya uyan demo yok. Eczane, lastik, diş veya kahve yazmayı deneyin.</p>}
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {EXTRA_DEMOS.filter((item) => item.kind === group.id).map((item) => (
+              {extras.map((item) => (
                 <Link
                   key={item.slug}
                   to={`/demo/${item.slug}`}
                   className="group overflow-hidden rounded-[24px] border border-[#e7edf3] bg-white shadow-[0_12px_28px_rgba(15,23,42,0.05)]"
                 >
                   <div className="relative h-36">
-                    <img src={item.hero} alt={item.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                    <img src={item.hero} alt={item.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
                     <h3 className="absolute bottom-3 left-3 right-3 text-[16px] font-black text-white">{item.title}</h3>
                   </div>
@@ -83,7 +127,30 @@ export function DemoOverviewPage() {
               ))}
             </div>
           </div>
-        ))}
+        ) : (
+          EXTRA_GROUPS.map((group) => (
+            <div key={group.id} className="mt-14">
+              <h2 className="text-[22px] font-black text-[#0f172a]">{group.title}</h2>
+              <p className="mt-2 text-[14px] text-[#64748b]">{group.text}</p>
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {EXTRA_DEMOS.filter((item) => item.kind === group.id).map((item) => (
+                  <Link
+                    key={item.slug}
+                    to={`/demo/${item.slug}`}
+                    className="group overflow-hidden rounded-[24px] border border-[#e7edf3] bg-white shadow-[0_12px_28px_rgba(15,23,42,0.05)]"
+                  >
+                    <div className="relative h-36">
+                      <img src={item.hero} alt={item.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
+                      <h3 className="absolute bottom-3 left-3 right-3 text-[16px] font-black text-white">{item.title}</h3>
+                    </div>
+                    <p className="px-4 py-3 text-[12px] font-bold text-[#64748b]">{item.subtitle}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
 
         <AvclabsShowcase />
       </div>

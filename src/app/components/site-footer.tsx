@@ -8,14 +8,14 @@ import { toTelHref, toWhatsAppHref } from "../lib/contact";
 
 const GOOGLE_MAPS_URL = "https://www.google.com/maps/search/?api=1&query=Hatay%20Web%20Tasar%C4%B1m%20ve%20Reklam%20Yaz%C4%B1l%C4%B1m%20Ajans%C4%B1";
 const TRUST_NOTES = ["İşletme profilimizi Google Maps üzerinde doğrulayın.", "Güncel yıldızları ve müşteri yorumlarını kaynağında inceleyin.", "Kıbrıs Caddesi No:13 için yol tarifi alın."];
-const SERVICE_LINKS = [{ label: "Web tasarım", to: "/pazarla" }, { label: "Google & Meta reklam", to: "/pazarla" }, { label: "Paketler", to: "/paketler" }, { label: "Google Maps hizmetleri", to: "/google-maps-harita-kaydi" }, { label: "Hatay ilçeleri", to: "/hatay" }, { label: "Referanslar", to: "/referanslar" }, { label: "Giriş / kayıt", to: "/hesap" }, { label: "Müşteri paneli", to: "/musteri/giris" }, { label: "Firma girişi", to: "/firma/giris" }];
+const SERVICE_LINKS = [{ label: "Web tasarım", to: "/pazarla" }, { label: "Google & Meta reklam", to: "/pazarla" }, { label: "Paketler", to: "/paketler" }, { label: "Google Maps hizmetleri", to: "/google-maps-harita-kaydi" }, { label: "SEO araçları", to: "/araclar" }, { label: "Yorum daveti", to: "/araclar/yorum-mesaji" }, { label: "QR menü", to: "/araclar/qr-menu" }, { label: "NAP kontrol", to: "/araclar/nap-kontrol" }, { label: "UTM link", to: "/araclar/utm-link" }, { label: "Şema kodu", to: "/araclar/schema" }, { label: "WhatsApp / yorum linki", to: "/araclar/musteri-linki" }, { label: "Kartvizit", to: "/araclar/kartvizit" }, { label: "Harita linki", to: "/araclar/harita-linki" }, { label: "Hatay ilçeleri", to: "/hatay" }, { label: "Referanslar", to: "/referanslar" }, { label: "Giriş / kayıt", to: "/hesap" }, { label: "Müşteri paneli", to: "/musteri/giris" }, { label: "Firma girişi", to: "/firma/giris" }];
 
 export function SiteFooter() {
   const { settings } = useContent();
   const [note, setNote] = useState(0);
   useEffect(() => { const timer = window.setInterval(() => setNote((value) => (value + 1) % TRUST_NOTES.length), 4200); return () => window.clearInterval(timer); }, []);
   return (
-    <footer className="mt-16 border-t border-white/10 bg-[#061820] text-white">
+    <footer className="mt-16 border-t border-white/10 bg-[#061820] text-white print:hidden">
       <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr_0.9fr]">
           <div className="relative overflow-hidden rounded-[26px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(0,168,196,0.16),transparent_38%),rgba(255,255,255,0.035)] p-6">

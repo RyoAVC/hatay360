@@ -53,6 +53,7 @@ export function LoginPage() {
               autoComplete="username"
               placeholder="mahir"
               value={username}
+              required
               onChange={(e) => {
                 setUsername(e.target.value);
                 setError("");
@@ -69,6 +70,7 @@ export function LoginPage() {
               type="password"
               autoComplete="current-password"
               value={password}
+              required
               onChange={(e) => {
                 setPassword(e.target.value);
                 setError("");

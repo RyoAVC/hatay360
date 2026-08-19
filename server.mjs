@@ -241,11 +241,21 @@ function bootstrapAdmin() {
 
 bootstrapAdmin();
 
+const SECURITY_HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "SAMEORIGIN",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
+  "Cross-Origin-Resource-Policy": "same-origin",
+  "Cross-Origin-Opener-Policy": "same-origin",
+  "X-Permitted-Cross-Domain-Policies": "none",
+};
+
 function json(res, status, payload, extraHeaders = {}) {
   res.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
-    "X-Content-Type-Options": "nosniff",
+    ...SECURITY_HEADERS,
     ...extraHeaders,
   });
   res.end(JSON.stringify(payload));
@@ -447,6 +457,33 @@ function rateLimited(req, key, limit, windowMs) {
   return fresh.length > limit;
 }
 
+function recentFailedLogins(req) {
+  const since = new Date(Date.now() - 20 * 60 * 1000).toISOString();
+  const row = db
+    .prepare("SELECT COUNT(*) AS n FROM login_events WHERE visitor_hash = ? AND success = 0 AND created_at >= ?")
+    .get(visitorHash(req), since);
+  return Number(row?.n || 0);
+}
+
+function loginLocked(req, res) {
+  if (recentFailedLogins(req) < 8) return false;
+  json(res, 429, { error: "Çok fazla hatalı giriş. 20 dakika sonra tekrar deneyin." });
+  return true;
+}
+
+function logLogin(req, username, success) {
+  db.prepare("INSERT INTO login_events (username, visitor_hash, success, created_at) VALUES (?, ?, ?, ?)").run(
+    username || "empty",
+    visitorHash(req),
+    success ? 1 : 0,
+    nowIso(),
+  );
+}
+
+function isBotTrap(body) {
+  return Boolean(cleanText(body?.company_fax, 80) || cleanText(body?.hp, 80));
+}
+
 setInterval(() => {
   db.prepare("DELETE FROM admin_sessions WHERE expires_at <= ?").run(nowIso());
   db.prepare("DELETE FROM customer_sessions WHERE expires_at <= ?").run(nowIso());
@@ -523,6 +560,13 @@ async function handleApi(req, res, url) {
   if (!sameOrigin(req) && !["GET", "HEAD"].includes(req.method || "")) {
     return json(res, 403, { error: "Geçersiz istek kaynağı." });
   }
+  const method = req.method || "GET";
+  if (["POST", "PUT", "PATCH"].includes(method)) {
+    const contentType = String(req.headers["content-type"] || "").toLowerCase();
+    if (contentType && !contentType.includes("application/json")) {
+      return json(res, 415, { error: "İstek JSON olarak gönderilmelidir." });
+    }
+  }
 
   if (req.method === "GET" && url.pathname === "/api/health") {
     return json(res, 200, { ok: true, database: "sqlite", time: nowIso() });
@@ -535,6 +579,7 @@ async function handleApi(req, res, url) {
   }
 
   if (req.method === "POST" && url.pathname === "/api/auth/login") {
+    if (loginLocked(req, res)) return;
     if (rateLimited(req, "login", 10, 15 * 60 * 1000)) {
       return json(res, 429, { error: "Çok fazla giriş denemesi. Bir süre sonra tekrar deneyin." });
     }
@@ -543,12 +588,7 @@ async function handleApi(req, res, url) {
     const password = String(body.password || "");
     const user = db.prepare("SELECT * FROM admin_users WHERE username = ?").get(username);
     const success = Boolean(user && verifyPassword(password, user.password_salt, user.password_hash));
-    db.prepare("INSERT INTO login_events (username, visitor_hash, success, created_at) VALUES (?, ?, ?, ?)").run(
-      username || "empty",
-      visitorHash(req),
-      success ? 1 : 0,
-      nowIso(),
-    );
+    logLogin(req, username, success);
     if (!success) return json(res, 401, { error: "Kullanıcı adı veya şifre hatalı." });
 
     const token = randomBytes(32).toString("base64url");
@@ -576,6 +616,7 @@ async function handleApi(req, res, url) {
   }
 
   if (req.method === "POST" && url.pathname === "/api/customer/login") {
+    if (loginLocked(req, res)) return;
     if (rateLimited(req, "customer-login", 10, 15 * 60 * 1000)) {
       return json(res, 429, { error: "Çok fazla giriş denemesi. Bir süre sonra tekrar deneyin." });
     }
@@ -583,9 +624,9 @@ async function handleApi(req, res, url) {
     const email = cleanText(body.email, 160).toLowerCase();
     const password = String(body.password || "");
     const account = db.prepare("SELECT * FROM customer_accounts WHERE email = ? AND status = 'active'").get(email);
-    if (!account || !verifyPassword(password, account.password_salt, account.password_hash)) {
-      return json(res, 401, { error: "E-posta veya şifre hatalı." });
-    }
+    const success = Boolean(account && verifyPassword(password, account.password_salt, account.password_hash));
+    logLogin(req, email || "customer", success);
+    if (!success) return json(res, 401, { error: "E-posta veya şifre hatalı." });
     const token = randomBytes(32).toString("base64url");
     const expiresAt = new Date(Date.now() + SESSION_HOURS * 60 * 60 * 1000);
     db.prepare("INSERT INTO customer_sessions (token_hash, customer_id, expires_at, created_at) VALUES (?, ?, ?, ?)").run(
@@ -608,6 +649,7 @@ async function handleApi(req, res, url) {
       return json(res, 429, { error: "Çok fazla başvuru gönderildi. Lütfen daha sonra tekrar deneyin." });
     }
     const body = await readJson(req, 30_000);
+    if (isBotTrap(body)) return json(res, 201, { ok: true });
     const companyName = cleanText(body.companyName, 160);
     const contactName = cleanText(body.contactName, 120);
     const email = cleanText(body.email, 160).toLowerCase();
@@ -657,6 +699,7 @@ async function handleApi(req, res, url) {
   }
 
   if (req.method === "POST" && url.pathname === "/api/partners/login") {
+    if (loginLocked(req, res)) return;
     if (rateLimited(req, "partner-login", 10, 15 * 60 * 1000)) {
       return json(res, 429, { error: "Çok fazla giriş denemesi. Bir süre sonra tekrar deneyin." });
     }
@@ -664,7 +707,9 @@ async function handleApi(req, res, url) {
     const email = cleanText(body.email, 160).toLowerCase();
     const password = String(body.password || "");
     const account = db.prepare("SELECT * FROM partner_accounts WHERE email = ?").get(email);
-    if (!account || !verifyPassword(password, account.password_salt, account.password_hash)) {
+    const passwordOk = Boolean(account && verifyPassword(password, account.password_salt, account.password_hash));
+    logLogin(req, email || "partner", passwordOk);
+    if (!passwordOk) {
       return json(res, 401, { error: "E-posta veya şifre hatalı." });
     }
     if (account.status === "pending") {
@@ -1000,6 +1045,7 @@ async function handleApi(req, res, url) {
       return json(res, 429, { error: "Çok fazla talep gönderildi. Lütfen daha sonra tekrar deneyin." });
     }
     const body = await readJson(req, 30_000);
+    if (isBotTrap(body)) return json(res, 201, { ok: true, id: 0 });
     const name = cleanText(body.name, 120);
     const phone = cleanText(body.phone, 40);
     const kind = LEAD_KINDS.has(cleanText(body.kind, 20)) ? cleanText(body.kind, 20) : "callback";
@@ -1192,12 +1238,113 @@ function serveStatic(req, res, url) {
   res.writeHead(200, {
     "Content-Type": MIME_TYPES[extension] || "application/octet-stream",
     "Cache-Control": extension === ".html" ? "no-cache" : "public, max-age=31536000, immutable",
-    "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "SAMEORIGIN",
-    "Referrer-Policy": "strict-origin-when-cross-origin",
+    ...SECURITY_HEADERS,
   });
   if (req.method === "HEAD") return res.end();
   createReadStream(file).pipe(res);
+}
+
+const SITE_ORIGIN = String(process.env.HATAY360_SITE_ORIGIN || "https://hatay360.com").replace(/\/$/, "");
+const PUBLIC_PATHS = [
+  "/",
+  "/pazarla",
+  "/ozellikler",
+  "/paketler",
+  "/referanslar",
+  "/google-maps-harita-kaydi",
+  "/hatay-kesfet",
+  "/hatayda-nerede-kahvalti-yapilir",
+  "/hakkimizda",
+  "/iletisim",
+  "/demolar",
+  "/araclar",
+  "/araclar/google-sira-bulucu",
+  "/araclar/meta-etiket-olusturucu",
+  "/araclar/yerel-anahtar-kelime-olusturucu",
+  "/araclar/yorum-mesaji",
+  "/araclar/yorum-cevabi",
+  "/araclar/randevu-hatirlatma",
+  "/araclar/qr-menu",
+  "/araclar/nap-kontrol",
+  "/araclar/utm-link",
+  "/araclar/schema",
+  "/araclar/musteri-linki",
+  "/araclar/kartvizit",
+  "/araclar/harita-linki",
+  "/araclar/calisma-saati",
+  "/araclar/kapaliyiz",
+  "/gizlilik",
+  "/kosullar",
+  "/hatay",
+  "/demo/taksi",
+  "/demo/nakliyat",
+  "/demo/klinik",
+  "/demo/servis",
+  "/demo/eczane",
+  "/demo/oto-yikama",
+  "/demo/dugun-salonu",
+  "/demo/firin",
+  "/demo/cicekci",
+  "/demo/dis-klinigi",
+  "/demo/optik",
+  "/demo/kahve",
+  "/demo/lastikci",
+  "/demo/pet-shop",
+  "/demo/klima",
+  "/demo/tesisatci",
+  "/demo/otel",
+  "/demo/zeytinyagi",
+  "/demo/elektrikci",
+  "/demo/kres",
+  "/demo/camci",
+  "/demo/insaat",
+  "/demo/marangoz",
+  "/demo/berber",
+  "/demo/kombi",
+  "/demo/kaporta",
+  "/demo/kasap",
+  "/demo/spor-salonu",
+  "/demo/manav",
+  "/demo/sigorta",
+  "/demo/dugun-organizasyon",
+  "/demo/zuccaciye",
+  "/demo/hali-yikama",
+  "/demo/kunefe",
+  "/demo/mobilya",
+  "/demo/ayakkabi",
+];
+
+function textResponse(res, body, type) {
+  res.writeHead(200, {
+    "Content-Type": type,
+    "Cache-Control": "public, max-age=3600",
+    ...SECURITY_HEADERS,
+  });
+  res.end(body);
+}
+
+function robotsTxt() {
+  return `User-agent: *
+Allow: /
+Allow: /musteri/kayit
+Allow: /firma/kayit
+Disallow: /panel
+Disallow: /panel/
+Disallow: /musteri
+Disallow: /firma
+Disallow: /admin
+
+Sitemap: ${SITE_ORIGIN}/sitemap.xml
+`;
+}
+
+function sitemapXml() {
+  const urls = PUBLIC_PATHS.map((path) => `  <url><loc>${SITE_ORIGIN}${path}</loc></url>`).join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>
+`;
 }
 
 const server = createServer(async (req, res) => {
@@ -1205,6 +1352,8 @@ const server = createServer(async (req, res) => {
     const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
     if (url.pathname.startsWith("/api/")) return await handleApi(req, res, url);
     if (!["GET", "HEAD"].includes(req.method || "")) return json(res, 405, { error: "Yöntem desteklenmiyor." });
+    if (url.pathname === "/robots.txt") return textResponse(res, robotsTxt(), "text/plain; charset=utf-8");
+    if (url.pathname === "/sitemap.xml") return textResponse(res, sitemapXml(), "application/xml; charset=utf-8");
     return serveStatic(req, res, url);
   } catch (error) {
     if (error instanceof SyntaxError) return json(res, 400, { error: "Geçersiz JSON." });

@@ -1,13 +1,13 @@
-import { Link } from "react-router";
-import { Phone } from "lucide-react";
+import { MessageCircle, Phone } from "lucide-react";
 import { useContent } from "../context/content-context";
-import { toTelHref } from "../lib/contact";
+import { toTelHref, toWhatsAppHref } from "../lib/contact";
 
 export function StickyCta() {
   const { settings } = useContent();
+  const message = "Merhaba Hatay360, teklif almak istiyorum.";
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#ecebf5] bg-white/95 p-3 backdrop-blur-md md:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#ecebf5] bg-white/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md print:hidden md:hidden">
       <div className="mx-auto flex max-w-lg gap-2">
         <a
           href={toTelHref(settings.phone)}
@@ -16,12 +16,13 @@ export function StickyCta() {
         >
           <Phone className="h-5 w-5" />
         </a>
-        <Link
-          to="/iletisim"
-          className="flex flex-1 items-center justify-center rounded-xl bg-[#00a8c4] text-[15px] font-semibold text-white"
+        <a
+          href={toWhatsAppHref(settings.phone, message)}
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#00a8c4] text-[15px] font-semibold text-white"
+          aria-label="WhatsApp ile teklif iste"
         >
-          Sizi arayalım
-        </Link>
+          <MessageCircle className="h-4 w-4" /> WhatsApp
+        </a>
       </div>
     </div>
   );
