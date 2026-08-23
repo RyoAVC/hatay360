@@ -1,6 +1,14 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { DEFAULT_DISTRICTS, DEFAULT_SEO_KEYWORDS, DEFAULT_SEO_LOCAL_LEAD, DEFAULT_SEO_PAGES, type District, type SeoPage, type SeoPageId } from "../lib/seo";
 import { apiRequest } from "../lib/api";
+import {
+  DEFAULT_CUSTOMER_LOGIN_BANNERS,
+  DEFAULT_PARTNER_LOGIN_BANNERS,
+  normalizeLoginBanners,
+  type LoginPromoBanner,
+} from "../lib/login-promo";
+import { normalizeAttentionEffect, type AttentionEffectId } from "../lib/attention-effects";
+import { DEFAULT_CORPORATE_CONTENT, normalizeCorporateContent, type CorporateContent } from "../lib/corporate-content";
 
 export type PlanFeature = {
   text: string;
@@ -35,6 +43,25 @@ export type Slide = {
   primaryCtaHref: string;
   secondaryCtaText: string;
   secondaryCtaHref: string;
+  /** Hero görsel katmanı */
+  mediaType?: "none" | "image" | "gif" | "video";
+  mediaUrl?: string;
+  /** Özel CSS (önizleme + canlı hero’da uygulanır) */
+  effectCss?: string;
+  /** Ana medya dikkat efekti (Animate.css / Hatay360) */
+  effectPreset?: AttentionEffectId;
+  /** Hero üstüne binen dikkat katmanı (resim/gif) */
+  overlayUrl?: string;
+  overlayEffect?: AttentionEffectId;
+  /** Admin’de görünen özel efekt adı */
+  overlayName?: string;
+};
+
+export type HeroDesignSnapshot = {
+  id: string;
+  name: string;
+  savedAt: string;
+  slides: Slide[];
 };
 
 export type EcosystemService = {
@@ -103,12 +130,12 @@ const SECTOR_DEMO_DEFAULTS: Record<string, { badge: string; accent: string; imag
   taxi: {
     badge: "Hatay 7/24 Taksi",
     accent: "#facc15",
-    image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1400&q=82",
+    image: "https://images.unsplash.com/photo-1628068147323-4b27e9ac750d?auto=format&fit=crop&w=1400&q=82",
   },
   nakliyat: {
     badge: "Evden Eve Nakliyat",
     accent: "#38bdf8",
-    image: "https://images.unsplash.com/photo-1600518464441-9154a4dea21b?auto=format&fit=crop&w=1400&q=82",
+    image: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=1400&q=82",
   },
   klinik: {
     badge: "Klinik & Randevu",
@@ -190,7 +217,8 @@ export type HomeSectionId =
   | "stickyCta"
   | "floatingLock"
   | "packageBuilder"
-  | "siteProtect";
+  | "siteProtect"
+  | "footerTrust";
 
 export const DEFAULT_HOME_SECTIONS: Record<HomeSectionId, boolean> = {
   pillars: true,
@@ -210,6 +238,7 @@ export const DEFAULT_HOME_SECTIONS: Record<HomeSectionId, boolean> = {
   floatingLock: true,
   packageBuilder: false,
   siteProtect: true,
+  footerTrust: true,
 };
 
 export const HOME_SECTION_OPTIONS: { id: HomeSectionId; label: string }[] = [
@@ -230,13 +259,35 @@ export const HOME_SECTION_OPTIONS: { id: HomeSectionId; label: string }[] = [
   { id: "floatingLock", label: "AVC sahiplik kilidi" },
   { id: "packageBuilder", label: "Paket yapılandırıcı" },
   { id: "siteProtect", label: "Sağ tık ve kopya uyarısı" },
+  { id: "footerTrust", label: "Footer kurumsal güvence" },
 ];
+
+export type VisibilityFlag =
+  | "stickyPhoneMobile"
+  | "stickyPhoneDesktop"
+  | "stickyWhatsAppMobile"
+  | "stickyWhatsAppDesktop"
+  | "botMobile"
+  | "botDesktop";
+
+export const DEFAULT_VISIBILITY: Record<VisibilityFlag, boolean> = {
+  stickyPhoneMobile: true,
+  stickyPhoneDesktop: true,
+  stickyWhatsAppMobile: true,
+  stickyWhatsAppDesktop: true,
+  botMobile: true,
+  botDesktop: true,
+};
 
 export type SiteSettings = {
   siteTitle: string;
   phone: string;
   email: string;
   address: string;
+  /** Ofis / destek mesai — hafta içi, örn. 09:00–18:00 */
+  supportWeekdayHours: string;
+  /** Cumartesi mesai; boş = Cumartesi kapalı */
+  supportSaturdayHours: string;
   avciLabsUrl: string;
   mascotName: string;
   mascotActive: boolean;
@@ -257,11 +308,138 @@ export type SiteSettings = {
   aiApiKey: string;
   aiModel: string;
   homeSections: Record<HomeSectionId, boolean>;
+  stickyPhoneMobile: boolean;
+  stickyPhoneDesktop: boolean;
+  stickyWhatsAppMobile: boolean;
+  stickyWhatsAppDesktop: boolean;
+  botMobile: boolean;
+  botDesktop: boolean;
+  /** Müşteri giriş sol panel banner’ları */
+  customerLoginBanners: LoginPromoBanner[];
+  /** Bayilik giriş + kayıt sol panel banner’ları */
+  partnerLoginBanners: LoginPromoBanner[];
+  /** Hero slayt tasarım geçmişi (aktif dışı arşiv) */
+  heroDesignHistory: HeroDesignSnapshot[];
+  /** Kurumsal hub + misyon/vizyon + KVKK / yasal metinler */
+  corporate: CorporateContent;
 };
 
 export function sectionOn(settings: SiteSettings, id: HomeSectionId): boolean {
   const value = settings.homeSections?.[id];
   return typeof value === "boolean" ? value : DEFAULT_HOME_SECTIONS[id];
+}
+
+export function settingOn(settings: SiteSettings, id: VisibilityFlag): boolean {
+  const value = settings[id];
+  return typeof value === "boolean" ? value : DEFAULT_VISIBILITY[id];
+}
+
+function boolOr(value: unknown, fallback: boolean) {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+const LEGACY_HIZMETLER_PAZARYERI_DESCRIPTION =
+  "Hatay web sitesi, İskenderun tasarım, pazaryeri entegrasyonu, Google/Meta reklam ve özel yazılım. Tek ekip, tek muhatap.";
+
+const LEGACY_SEO_LOCAL_LEAD =
+  "Antakya merkezli Hatay360; Hatay’da web tasarım, reklam ajansı ve e-ticaret altyapısı sunar. İskenderun, Defne ve diğer ilçelere uzaktan da çalışırız.";
+
+function migrateHizmetlerSeoPages(pages: Record<SeoPageId, SeoPage>): Record<SeoPageId, SeoPage> {
+  if (pages.hizmetler?.description !== LEGACY_HIZMETLER_PAZARYERI_DESCRIPTION) return pages;
+  return {
+    ...pages,
+    hizmetler: {
+      ...pages.hizmetler,
+      description: DEFAULT_SEO_PAGES.hizmetler.description,
+    },
+  };
+}
+
+function migrateSeoLocalLead(lead: unknown): string {
+  if (typeof lead !== "string") return DEFAULT_SEO_LOCAL_LEAD;
+  if (lead === LEGACY_SEO_LOCAL_LEAD) return DEFAULT_SEO_LOCAL_LEAD;
+  return lead;
+}
+
+function mergeSiteSettings(parsed: Partial<SiteSettings> | null | undefined): SiteSettings {
+  const next = parsed && typeof parsed === "object" ? parsed : {};
+  const weekdayRaw = typeof next.supportWeekdayHours === "string" ? next.supportWeekdayHours : INITIAL_SETTINGS.supportWeekdayHours;
+  const saturdayRaw = typeof next.supportSaturdayHours === "string" ? next.supportSaturdayHours : INITIAL_SETTINGS.supportSaturdayHours;
+  return {
+    ...INITIAL_SETTINGS,
+    ...next,
+    phone:
+      !next.phone || ["+90 (850) 888 00 00", "+90 850 308 68 97"].includes(next.phone)
+        ? INITIAL_SETTINGS.phone
+        : next.phone,
+    supportWeekdayHours: weekdayRaw.trim() || INITIAL_SETTINGS.supportWeekdayHours,
+    supportSaturdayHours: saturdayRaw.trim(),
+    aiApiKey: "",
+    seoPages: migrateHizmetlerSeoPages({ ...INITIAL_SETTINGS.seoPages, ...(next.seoPages || {}) }),
+    seoLocalLead: migrateSeoLocalLead(next.seoLocalLead),
+    districts: Array.isArray(next.districts) && next.districts.length ? next.districts : INITIAL_SETTINGS.districts,
+    homeSections: { ...DEFAULT_HOME_SECTIONS, ...(next.homeSections || {}) },
+    stickyPhoneMobile: boolOr(next.stickyPhoneMobile, true),
+    stickyPhoneDesktop: boolOr(next.stickyPhoneDesktop, true),
+    stickyWhatsAppMobile: boolOr(next.stickyWhatsAppMobile, true),
+    stickyWhatsAppDesktop: boolOr(next.stickyWhatsAppDesktop, true),
+    botMobile: boolOr(next.botMobile, true),
+    botDesktop: boolOr(next.botDesktop, true),
+    avciLabsUrl: next.avciLabsUrl === "/pazarla" ? "/demolar" : next.avciLabsUrl || INITIAL_SETTINGS.avciLabsUrl,
+    customerLoginBanners: normalizeLoginBanners(next.customerLoginBanners, DEFAULT_CUSTOMER_LOGIN_BANNERS),
+    partnerLoginBanners: normalizeLoginBanners(next.partnerLoginBanners, DEFAULT_PARTNER_LOGIN_BANNERS),
+    heroDesignHistory: normalizeHeroDesignHistory(next.heroDesignHistory),
+    corporate: normalizeCorporateContent(next.corporate),
+  };
+}
+
+function normalizeHeroDesignHistory(raw: unknown): HeroDesignSnapshot[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item, index) => {
+      if (!item || typeof item !== "object") return null;
+      const row = item as Record<string, unknown>;
+      const slides = Array.isArray(row.slides) ? migrateSlides(row.slides as Slide[]) : [];
+      if (!slides.length) return null;
+      return {
+        id: String(row.id || `hist-${index}-${Date.now()}`).slice(0, 80),
+        name: String(row.name || `Tasarım ${index + 1}`).trim().slice(0, 80) || `Tasarım ${index + 1}`,
+        savedAt: String(row.savedAt || new Date().toISOString()).slice(0, 40),
+        slides,
+      } satisfies HeroDesignSnapshot;
+    })
+    .filter(Boolean)
+    .slice(0, 24) as HeroDesignSnapshot[];
+}
+
+function migrateSlides(slides: Slide[]): Slide[] {
+  return slides.map((slide) => {
+    const mediaUrl = String(slide.mediaUrl || "");
+    let mediaType: Slide["mediaType"] = "none";
+    if (slide.mediaType === "video" || slide.mediaType === "gif" || slide.mediaType === "image") {
+      mediaType = slide.mediaType;
+    } else if (mediaUrl) {
+      const lower = mediaUrl.toLowerCase();
+      mediaType =
+        lower.includes("video") || lower.endsWith(".mp4") || lower.endsWith(".webm") || lower.startsWith("data:video")
+          ? "video"
+          : lower.includes("gif") || lower.endsWith(".gif") || lower.startsWith("data:image/gif")
+            ? "gif"
+            : "image";
+    }
+    const next: Slide = {
+      ...slide,
+      mediaType,
+      mediaUrl,
+      effectCss: String(slide.effectCss || ""),
+      effectPreset: normalizeAttentionEffect(slide.effectPreset),
+      overlayUrl: String(slide.overlayUrl || ""),
+      overlayEffect: normalizeAttentionEffect(slide.overlayEffect),
+      overlayName: String(slide.overlayName || "").slice(0, 80),
+    };
+    if (next.secondaryCtaHref === "/pazarla") next.secondaryCtaHref = "/paketler";
+    return next;
+  });
 }
 
 const INITIAL_PLANS: Plan[] = [
@@ -429,7 +607,7 @@ const INITIAL_SLIDES: Slide[] = [
     primaryCtaText: "Bütçe Planı Alın",
     primaryCtaHref: "/iletisim",
     secondaryCtaText: "Ajans Hizmetleri",
-    secondaryCtaHref: "/pazarla",
+    secondaryCtaHref: "/paketler",
   },
   {
     id: 2,
@@ -463,7 +641,7 @@ const INITIAL_SERVICES: EcosystemService[] = [
     desc: "Taksici, klinik, nakliyat, servis gibi sektörler için satışa odaklı, mobil uyumlu ve hızlı landing page ve kurumsal web çözümleri.",
     badge: "Özel Web Arayüzü",
     highlights: [
-      "Google PageSpeed 99+ uyumlu performans",
+      "Mobil uyumlu, hızlı açılan arayüz",
       "Telefon & WhatsApp CTA odaklı tasarım",
       "Masaüstü, tablet ve mobil cihazlara %100 tam uyum",
     ],
@@ -769,7 +947,9 @@ const INITIAL_SETTINGS: SiteSettings = {
   phone: "+90 850 308 68 37",
   email: "info@hatay360.com",
   address: "Antakya / Hatay",
-  avciLabsUrl: "/pazarla",
+  supportWeekdayHours: "09:00–18:00",
+  supportSaturdayHours: "10:00–14:00",
+  avciLabsUrl: "/demolar",
   mascotName: "360 Bot",
   mascotActive: false,
   headerCtaText: "Sizi Arayalım",
@@ -789,6 +969,16 @@ const INITIAL_SETTINGS: SiteSettings = {
   aiApiKey: "",
   aiModel: "gemini-2.0-flash",
   homeSections: DEFAULT_HOME_SECTIONS,
+  stickyPhoneMobile: true,
+  stickyPhoneDesktop: true,
+  stickyWhatsAppMobile: true,
+  stickyWhatsAppDesktop: true,
+  botMobile: true,
+  botDesktop: true,
+  customerLoginBanners: DEFAULT_CUSTOMER_LOGIN_BANNERS,
+  partnerLoginBanners: DEFAULT_PARTNER_LOGIN_BANNERS,
+  heroDesignHistory: [],
+  corporate: DEFAULT_CORPORATE_CONTENT,
 };
 
 export type ContentSnapshot = {
@@ -827,6 +1017,67 @@ const STORE = {
 
 const LEGACY_KEYS = ["avci_plans", "avci_slides", "avci_services", "avci_references", "avci_settings"];
 
+/** localStorage ~5 MB; base64 görsel/video sığmaz. Önbelleğe yalnızca küçük veriler yazılır. */
+const LOCAL_CACHE_DATA_URL_MAX = 48_000;
+
+function stripHeavyDataUrls<T>(value: T): T {
+  return JSON.parse(
+    JSON.stringify(value, (_key, nested) => {
+      if (typeof nested === "string" && nested.startsWith("data:") && nested.length > LOCAL_CACHE_DATA_URL_MAX) {
+        return "";
+      }
+      return nested;
+    }),
+  ) as T;
+}
+
+function turkishStorageError(error: unknown): string {
+  const name = error instanceof DOMException ? error.name : "";
+  const message = error instanceof Error ? error.message : String(error || "");
+  if (
+    name === "QuotaExceededError" ||
+    name === "NS_ERROR_DOM_QUOTA_REACHED" ||
+    /exceeded the quota|QuotaExceeded/i.test(message)
+  ) {
+    return "Tarayıcı depolama kotası doldu. Büyük resim/GIF/video dosyaları tarayıcıya sığmıyor; ‘Kaydet’ ile sunucuya yazın. Gerekirse bazı görselleri küçültün veya URL kullanın.";
+  }
+  if (/Failed to execute 'setItem'|setItem/i.test(message)) {
+    return "Tarayıcı önbelleğine yazılamadı. Büyük medya dosyaları kotayı aşıyor olabilir; Kaydet ile sunucuya kaydedin.";
+  }
+  return message || "Tarayıcı önbelleği güncellenemedi.";
+}
+
+export function turkishContentError(error: unknown): string {
+  if (!(error instanceof Error)) return "İçerik kaydedilemedi.";
+  const msg = error.message || "";
+  if (/exceeded the quota|QuotaExceeded|Failed to execute 'setItem'/i.test(msg)) {
+    return turkishStorageError(error);
+  }
+  if (/Failed to fetch|NetworkError|Load failed|network/i.test(msg)) {
+    return "Sunucuya bağlanılamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.";
+  }
+  if (/JSON|Unexpected token/i.test(msg)) {
+    return "Sunucu yanıtı okunamadı. Sayfayı yenileyip tekrar deneyin.";
+  }
+  // Zaten Türkçe görünen mesajları olduğu gibi bırak
+  return msg;
+}
+
+function writeLocalStore(key: string, value: unknown): void {
+  try {
+    const payload = JSON.stringify(stripHeavyDataUrls(value));
+    localStorage.setItem(key, payload);
+  } catch (error) {
+    // Kotayı açmak için anahtarı temizlemeyi dene; uygulama belleğindeki veri korunur.
+    try {
+      localStorage.removeItem(key);
+      localStorage.setItem(key, JSON.stringify(stripHeavyDataUrls(value)));
+    } catch {
+      console.warn(turkishStorageError(error));
+    }
+  }
+}
+
 export function planKind(plan: Plan): "ads" | "store" {
   return plan.kind === "store" || String(plan.id).startsWith("shop-") ? "store" : "ads";
 }
@@ -863,7 +1114,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   const [contentError, setContentError] = useState("");
   const [plans, setPlans] = useState<Plan[]>(() => mergePlans(readStore(STORE.plans, INITIAL_PLANS)));
 
-  const [slides, setSlides] = useState<Slide[]>(() => readStore(STORE.slides, INITIAL_SLIDES));
+  const [slides, setSlides] = useState<Slide[]>(() => migrateSlides(readStore(STORE.slides, INITIAL_SLIDES)));
 
   const [services, setServices] = useState<EcosystemService[]>(() => readStore(STORE.services, INITIAL_SERVICES));
 
@@ -875,19 +1126,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem(STORE.settings);
     if (!saved) return INITIAL_SETTINGS;
     try {
-      const parsed = JSON.parse(saved);
-      return {
-        ...INITIAL_SETTINGS,
-        ...parsed,
-        phone:
-          !parsed.phone || ["+90 (850) 888 00 00", "+90 850 308 68 97"].includes(parsed.phone)
-            ? INITIAL_SETTINGS.phone
-            : parsed.phone,
-        aiApiKey: "",
-        seoPages: { ...INITIAL_SETTINGS.seoPages, ...(parsed.seoPages || {}) },
-        districts: Array.isArray(parsed.districts) && parsed.districts.length ? parsed.districts : INITIAL_SETTINGS.districts,
-        homeSections: { ...DEFAULT_HOME_SECTIONS, ...(parsed.homeSections || {}) },
-      };
+      return mergeSiteSettings(JSON.parse(saved));
     } catch {
       return INITIAL_SETTINGS;
     }
@@ -899,26 +1138,12 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       .then(({ content, updatedAt }) => {
         if (!active) return;
         if (Array.isArray(content.plans)) updatePlans(mergePlans(content.plans));
-        if (Array.isArray(content.slides)) updateSlides(content.slides);
+        if (Array.isArray(content.slides)) updateSlides(migrateSlides(content.slides));
         if (Array.isArray(content.services)) updateServices(content.services);
         if (Array.isArray(content.sectors)) updateSectors(content.sectors);
         if (Array.isArray(content.references)) updateReferences(content.references);
         if (content.settings && typeof content.settings === "object") {
-          updateSettings({
-            ...INITIAL_SETTINGS,
-            ...content.settings,
-            phone:
-              !content.settings.phone || ["+90 (850) 888 00 00", "+90 850 308 68 97"].includes(content.settings.phone)
-                ? INITIAL_SETTINGS.phone
-                : content.settings.phone,
-            aiApiKey: "",
-            seoPages: { ...INITIAL_SETTINGS.seoPages, ...(content.settings.seoPages || {}) },
-            districts:
-              Array.isArray(content.settings.districts) && content.settings.districts.length
-                ? content.settings.districts
-                : INITIAL_SETTINGS.districts,
-            homeSections: { ...DEFAULT_HOME_SECTIONS, ...(content.settings.homeSections || {}) },
-          });
+          updateSettings(mergeSiteSettings(content.settings));
         }
         setDatabaseStatus("connected");
         setDatabaseHasContent(Boolean(updatedAt));
@@ -936,33 +1161,33 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
   const updatePlans = (newPlans: Plan[]) => {
     setPlans(newPlans);
-    localStorage.setItem(STORE.plans, JSON.stringify(newPlans));
+    writeLocalStore(STORE.plans, newPlans);
   };
 
   const updateSlides = (newSlides: Slide[]) => {
     setSlides(newSlides);
-    localStorage.setItem(STORE.slides, JSON.stringify(newSlides));
+    writeLocalStore(STORE.slides, newSlides);
   };
 
   const updateServices = (newServices: EcosystemService[]) => {
     setServices(newServices);
-    localStorage.setItem(STORE.services, JSON.stringify(newServices));
+    writeLocalStore(STORE.services, newServices);
   };
 
   const updateSectors = (newSectors: SectorItem[]) => {
     const normalized = newSectors.map((sector) => normalizeSector(sector));
     setSectors(normalized);
-    localStorage.setItem(STORE.sectors, JSON.stringify(normalized));
+    writeLocalStore(STORE.sectors, normalized);
   };
 
   const updateReferences = (newRefs: ReferenceItem[]) => {
     setReferences(newRefs);
-    localStorage.setItem(STORE.references, JSON.stringify(newRefs));
+    writeLocalStore(STORE.references, newRefs);
   };
 
   const updateSettings = (newSettings: SiteSettings) => {
     setSettings(newSettings);
-    localStorage.setItem(STORE.settings, JSON.stringify({ ...newSettings, aiApiKey: "" }));
+    writeLocalStore(STORE.settings, { ...newSettings, aiApiKey: "" });
   };
 
   const saveAllContent = async (snapshot: ContentSnapshot) => {

@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { DEMO_PHOTOS } from "../lib/avclabs";
 import { toTelHref, toWhatsAppHref } from "../lib/contact";
+import { buildIletisimQuotePath, sectorParamFromSlug } from "../lib/needs-calculator";
 
 export type Slide = { src: string; alt: string; caption?: string };
 
@@ -114,6 +115,7 @@ export function DemoFooter({
   links,
   districts,
   message,
+  quoteSector,
 }: {
   phone: string;
   brand: string;
@@ -124,7 +126,9 @@ export function DemoFooter({
   links: { href: string; label: string }[];
   districts: string[];
   message: string;
+  quoteSector?: string;
 }) {
+  const quoteTo = buildIletisimQuotePath({ sector: sectorParamFromSlug(quoteSector) });
   return (
     <footer className="text-white" style={{ background: bg }}>
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-3">
@@ -159,8 +163,13 @@ export function DemoFooter({
       </div>
       <div className="border-t border-white/10 px-5 py-4">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 text-[12px] text-white/45 sm:flex-row sm:items-center sm:justify-between">
-          <p>Örnek web sitesi · Hatay360 tasarımı</p>
-          <Link to="/demolar" className="font-bold text-white/70 hover:text-white">Tüm demolar →</Link>
+          <p>Reklam dönüşüm sayfası · Hatay360 · tam mağaza sitesi değildir</p>
+          <div className="flex flex-wrap gap-3">
+            <Link to={quoteTo} className="font-bold text-white/70 hover:text-white">Teklif al</Link>
+            <Link to="/paketler" className="font-bold text-white/70 hover:text-white">Reklam paketleri</Link>
+            <Link to="/paketler#magaza-paketleri" className="font-bold text-white/70 hover:text-white">Mağaza / web</Link>
+            <Link to="/demolar" className="font-bold text-white/70 hover:text-white">Tüm demolar →</Link>
+          </div>
         </div>
       </div>
     </footer>
@@ -292,7 +301,7 @@ export function TaxiDemo({ phone }: { phone: string }) {
             {fleet.map((car) => (
               <article key={car.name} className="overflow-hidden rounded-[24px] border border-white/10 bg-[#111]">
                 <div className="relative h-44">
-                  <img src={car.img} alt={car.name} className="h-full w-full object-cover" />
+                  <img src={car.img} alt={car.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   <span className="absolute left-3 top-3 rounded-full bg-[#facc15] px-2.5 py-1 text-[10px] font-black text-black">{car.tag}</span>
                 </div>
                 <div className="p-5">
@@ -352,6 +361,7 @@ export function TaxiDemo({ phone }: { phone: string }) {
         tagline="7/24 santral, havalimanı karşılama ve ilçe transferi. Ücret yola çıkmadan söylenir."
         bg="#050505"
         accent="#facc15"
+        quoteSector="taksi"
         message={`Taksi: ${from}, ${when}`}
         links={[
           { href: "#cagir", label: "Taksi çağır" },
@@ -507,7 +517,7 @@ export function NakliyatDemo({ phone }: { phone: string }) {
         <div className="mt-8 grid gap-5 md:grid-cols-3">
           {jobs.map((j) => (
             <article key={j.t} className="overflow-hidden rounded-[28px] bg-white shadow-sm">
-              <img src={j.img} alt={j.t} className="h-48 w-full object-cover" />
+              <img src={j.img} alt={j.t} loading="lazy" decoding="async" className="h-48 w-full object-cover" />
               <div className="p-5">
                 <p className="text-[18px] font-black">{j.t}</p>
                 <p className="mt-2 text-[14px] leading-relaxed text-[#64748b]">{j.d}</p>
@@ -538,7 +548,7 @@ export function NakliyatDemo({ phone }: { phone: string }) {
       </section>
 
       <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-14 lg:grid-cols-2">
-        <img src={DEMO_PHOTOS.nakliyatTeam} alt="Nakliyat ekibi" className="h-80 w-full rounded-[32px] object-cover" />
+        <img src={DEMO_PHOTOS.nakliyatTeam} alt="Nakliyat ekibi" loading="lazy" decoding="async" className="h-80 w-full rounded-[32px] object-cover" />
         <div>
           <h2 className="text-[28px] font-black">Antakya çıkışlı. Adana–Mersin hattı düzenli.</h2>
           <ul className="mt-6 space-y-2 text-[14px] font-bold">
@@ -565,6 +575,7 @@ export function NakliyatDemo({ phone }: { phone: string }) {
         tagline="Evden eve, ofis ve şehirler arası. Keşif ücretsiz, fiyat yazılı, teslim tutanaklı."
         bg="#0b3a5b"
         accent="#38bdf8"
+        quoteSector="nakliyat"
         message="Nakliyat keşif istiyorum"
         links={[
           { href: "#kesif", label: "Keşif paneli" },
@@ -642,7 +653,7 @@ export function KlinikDemo({ phone }: { phone: string }) {
         <div className="mt-8 grid gap-5 md:grid-cols-3">
           {treatments.map((t) => (
             <article key={t.t} className="overflow-hidden rounded-[28px] bg-white shadow-sm">
-              <img src={t.img} alt={t.t} className="h-48 w-full object-cover" />
+              <img src={t.img} alt={t.t} loading="lazy" decoding="async" className="h-48 w-full object-cover" />
               <div className="p-5">
                 <p className="text-[18px] font-black">{t.t}</p>
                 <p className="mt-2 text-[14px] text-[#547878]">{t.d}</p>
@@ -658,7 +669,7 @@ export function KlinikDemo({ phone }: { phone: string }) {
           <div className="mt-8 grid gap-5 md:grid-cols-3">
             {docs.map((d) => (
               <article key={d.n} className="rounded-[28px] border border-[#ccfbf1] bg-[#f3fbfa] p-5">
-                <img src={d.img} alt={d.n} className="h-56 w-full rounded-2xl object-cover object-top" />
+                <img src={d.img} alt={d.n} loading="lazy" decoding="async" className="h-56 w-full rounded-2xl object-cover object-top" />
                 <p className="mt-4 text-[18px] font-black">{d.n}</p>
                 <p className="text-[14px] text-[#547878]">{d.r}</p>
                 <p className="mt-1 text-[12px] font-bold text-[#0d9488]">{d.y} klinik deneyim</p>
@@ -698,6 +709,7 @@ export function KlinikDemo({ phone }: { phone: string }) {
         tagline="Aynı hafta randevu. İmplant, beyazlatma ve çocuk diş. Hekim ve süre görünür."
         bg="#0f766e"
         accent="#5eead4"
+        quoteSector="klinik"
         message={`Diş randevusu: ${slot}`}
         links={[
           { href: "#saat", label: "Saat al" },
@@ -792,7 +804,7 @@ export function ServisDemo({ phone }: { phone: string }) {
           {jobs.map((j) => (
             <article key={j.t} className="overflow-hidden rounded-[28px] bg-white shadow-sm">
               <div className="relative h-48">
-                <img src={j.img} alt={j.t} className="h-full w-full object-cover" />
+                <img src={j.img} alt={j.t} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                 <span className="absolute left-3 top-3 rounded-full bg-white/95 p-2 text-[#c2410c]"><j.icon className="h-4 w-4" /></span>
               </div>
               <div className="p-5">
@@ -824,7 +836,7 @@ export function ServisDemo({ phone }: { phone: string }) {
       </section>
 
       <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-14 lg:grid-cols-2">
-        <img src={DEMO_PHOTOS.servisTech} alt="Teknisyen" className="h-80 w-full rounded-[32px] object-cover" />
+        <img src={DEMO_PHOTOS.servisTech} alt="Teknisyen" loading="lazy" decoding="async" className="h-80 w-full rounded-[32px] object-cover" />
         <div>
           <h2 className="text-[28px] font-black text-[#9a3412]">Marka ezberi yok, arıza var.</h2>
           <div className="mt-6 flex flex-wrap gap-2">
@@ -851,6 +863,7 @@ export function ServisDemo({ phone }: { phone: string }) {
         tagline="Klima, kombi ve beyaz eşya. Bakış ücreti başta. Parça onaysız takılmaz."
         bg="#9a3412"
         accent="#fdba74"
+        quoteSector="servis"
         message={`Servis: ${device} — ${fault}`}
         links={[
           { href: "#ariza", label: "Arıza bildir" },

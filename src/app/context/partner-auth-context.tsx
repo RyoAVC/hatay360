@@ -16,7 +16,7 @@ export type PartnerIdentity = {
 type PartnerAuthContextType = {
   partner: PartnerIdentity | null;
   isChecking: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, options?: { trustDevice?: boolean }) => Promise<{ trustedIp?: string }>;
   logout: () => Promise<void>;
 };
 
@@ -33,12 +33,17 @@ export function PartnerAuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setIsChecking(false));
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const result = await apiRequest<{ partner: PartnerIdentity }>("/api/partners/login", {
+  const login = async (email: string, password: string, options?: { trustDevice?: boolean }) => {
+    const result = await apiRequest<{ partner: PartnerIdentity; trustedIp?: string }>("/api/partners/login", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({
+        email,
+        password,
+        trustDevice: Boolean(options?.trustDevice),
+      }),
     });
     setPartner(result.partner);
+    return { trustedIp: result.trustedIp };
   };
 
   const logout = async () => {

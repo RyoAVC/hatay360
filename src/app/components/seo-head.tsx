@@ -22,6 +22,7 @@ import {
   type SeoPageId,
 } from "../lib/seo";
 import { districtAngle } from "../lib/district-copy";
+import { supportOpeningHoursSchema } from "../lib/contact";
 
 function upsertMeta(attr: "name" | "property", key: string, content: string) {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
@@ -41,6 +42,18 @@ function upsertLink(rel: string, href: string) {
     document.head.appendChild(el);
   }
   el.href = href;
+}
+
+function isIndexedPublicPath(pathname: string) {
+  if (SEO_PATH_MAP[pathname]) return true;
+  if (pathname === "/hatay" || pathname.startsWith("/hatay/")) return true;
+  if (pathname === "/demolar" || pathname.startsWith("/demo/")) return true;
+  if (pathname.startsWith("/sektor/")) return true;
+  if (pathname === "/araclar" || pathname.startsWith("/araclar/")) return true;
+  if (pathname === "/google-maps-harita-kaydi") return true;
+  if (pathname === "/hatay-kesfet" || pathname === "/hatayda-nerede-kahvalti-yapilir") return true;
+  if (pathname === "/hesap") return true;
+  return false;
 }
 
 export function SeoHead() {
@@ -65,6 +78,15 @@ export function SeoHead() {
       document.title = `${label} | ${brand}`;
       upsertMeta("name", "description", "Hatay360 güvenli hesap paneli.");
       upsertMeta("name", "robots", "noindex, nofollow, noarchive");
+      document.head.querySelector('link[rel="canonical"]')?.remove();
+      document.getElementById("hatay360-jsonld")?.remove();
+      return;
+    }
+
+    if (!isIndexedPublicPath(pathname)) {
+      document.title = `Sayfa bulunamadı | ${brand}`;
+      upsertMeta("name", "description", "Bu adres Hatay360’ta yok. Ana sayfa, paketler, ücretsiz araçlar veya Hatay ilçelerinden devam edin.");
+      upsertMeta("name", "robots", "noindex, follow");
       document.head.querySelector('link[rel="canonical"]')?.remove();
       document.getElementById("hatay360-jsonld")?.remove();
       return;
@@ -163,6 +185,16 @@ export function SeoHead() {
         description: "Google Ads ve Instagram kampanyaları için UTM bağlantısı üretin. Tıklamanın hangi ilandan geldiğini ölçün.",
         keywords: "utm oluşturucu, google ads utm, instagram kampanya linki, hatay reklam ölçüm",
       },
+      "/araclar/reklam-metni": {
+        title: `Google Ads Metin Taslağı | ${brand}`,
+        description: "Hatay işletmeleri için Google Ads RSA başlık (30) ve açıklama (90) taslağı. Sıra veya satış garantisi yoktur.",
+        keywords: "google ads metin, rsa başlık, reklam açıklama, hatay google ads, reklam karakter limiti",
+      },
+      "/araclar/sosyal-onizleme": {
+        title: `Sosyal Paylaşım Önizlemesi (Open Graph) | ${brand}`,
+        description: "WhatsApp ve Facebook kartı için Open Graph meta satırları. Google Ads metni değildir; sıra veya tıklama garantisi yoktur.",
+        keywords: "open graph, whatsapp önizleme, facebook paylaşım kartı, og:title, hatay sosyal meta",
+      },
       "/araclar/schema": {
         title: `Yerel İşletme Şema Kodu | ${brand}`,
         description: "Hatay işletmeleri için LocalBusiness JSON-LD üretin. Google’a göndermez; kopyalayıp sitenize yapıştırırsınız.",
@@ -193,15 +225,20 @@ export function SeoHead() {
         description: "Hatay işletmeleri için WhatsApp ve Google Maps kapalıyız metni. Sahte açık yazılmaz; tarih ve dönüş net.",
         keywords: "kapalıyız notu, bayram tatil mesajı, google maps kapalı, hatay işletme tatil",
       },
+      "/araclar/ozel-ihtiyac-hesaplayici": {
+        title: `Özel İhtiyaç Hesaplayıcı | ${brand}`,
+        description: "Hatay işletmeleri için web, reklam, harita ve e-ticaret ihtiyacına göre paket önerisi. Sitedeki fiyatlar örnektir; kesin teklif yazılıdır. Sıra garantisi yok.",
+        keywords: "hatay paket hesaplayıcı, ihtiyaç hesaplayıcı, hatay web tasarım teklif, google ads paket, e-ticaret ihtiyaç",
+      },
       "/google-maps-harita-kaydi": {
         title: `Google Maps Harita Kaydı ve Yerel Görünürlük | ${brand}`,
         description: "Hatay işletmeleri için Google Business Profile kurulumu, harita SEO'su, yerel görünürlük ve gerçek müşteri yorumu yönetimi.",
         keywords: "google maps harita kaydı, hatay harita seo, google işletme profili, haritada üst sıralar, yorum yönetimi",
       },
       "/hesap": {
-        title: `Müşteri Girişi, Yeni Kayıt ve Firma Bayiliği | ${brand}`,
-        description: "Hatay360 müşteri girişi, yeni müşteri kaydı ve web tasarım firmaları için bayilik başvurusu.",
-        keywords: "hatay360 giriş, müşteri paneli, yeni müşteri kaydı, hatay360 bayi, firma girişi",
+        title: `Hesap Seçimi — Müşteri, Bayi ve Yönetim | ${brand}`,
+        description: "Hatay360 hesap kapıları: müşteri paneli, bayi paneli ve yönetim girişi ayrı tutulur.",
+        keywords: "hatay360 giriş, müşteri paneli, bayi paneli, hatay360 hesap",
       },
       "/hatay-kesfet": {
         title: `Hatay Keşif Planlayıcı - İlçeye Göre Öneriler | ${brand}`,
@@ -322,6 +359,7 @@ export function SeoHead() {
               addressRegion: "Hatay",
               addressCountry: "TR",
             },
+            openingHours: supportOpeningHoursSchema(settings.supportWeekdayHours, settings.supportSaturdayHours),
             areaServed,
           },
           buildFaqJsonLd(CONTACT_FAQS),
@@ -382,7 +420,7 @@ export function SeoHead() {
           addressCountry: "TR",
         },
         areaServed,
-        knowsAbout: ["Hatay web tasarım", "Hatay reklam ajansı", "Hatay e-ticaret", "Google Ads"],
+        knowsAbout: ["Hatay web tasarım", "Hatay reklam ajansı", "Google Ads", "Google Maps"],
       };
       if (pathname === "/") json = attachJsonLdGraph(json, [buildFaqJsonLd(CONTACT_FAQS)]);
       if (pathname === "/hakkimizda") json = attachJsonLdGraph(json, [buildFaqJsonLd(ABOUT_FAQS)]);
@@ -399,16 +437,21 @@ export function SeoHead() {
     else if (pathname === "/demolar") crumbs.push({ name: "Demolar", path: "/demolar" });
     else if (pathname === "/iletisim") crumbs.push({ name: "İletişim", path: "/iletisim" });
     else if (pathname === "/paketler") crumbs.push({ name: "Paketler", path: "/paketler" });
-    else if (pathname === "/pazarla") crumbs.push({ name: "Hizmetler", path: "/pazarla" });
+    else if (pathname === "/pazarla") crumbs.push({ name: "Pazarla", path: "/pazarla" });
     else if (pathname === "/hakkimizda") crumbs.push({ name: "Hakkımızda", path: "/hakkimizda" });
+    else if (pathname === "/kurumsal") crumbs.push({ name: "Kurumsal", path: "/kurumsal" });
+    else if (pathname === "/misyon") crumbs.push({ name: "Kurumsal", path: "/kurumsal" }, { name: "Misyon", path: "/misyon" });
+    else if (pathname === "/vizyon") crumbs.push({ name: "Kurumsal", path: "/kurumsal" }, { name: "Vizyon", path: "/vizyon" });
     else if (pathname === "/referanslar") crumbs.push({ name: "Referanslar", path: "/referanslar" });
     else if (pathname === "/ozellikler") crumbs.push({ name: "Özellikler", path: "/ozellikler" });
     else if (pathname === "/gizlilik") crumbs.push({ name: "Gizlilik", path: "/gizlilik" });
+    else if (pathname === "/kvkk") crumbs.push({ name: "KVKK", path: "/kvkk" });
+    else if (pathname === "/mesafeli-satis") crumbs.push({ name: "Mesafeli satış", path: "/mesafeli-satis" });
     else if (pathname === "/kosullar") crumbs.push({ name: "Kullanım koşulları", path: "/kosullar" });
     else if (pathname === "/google-maps-harita-kaydi") crumbs.push({ name: "Google Maps kaydı", path: "/google-maps-harita-kaydi" });
     else if (pathname === "/hatay-kesfet") crumbs.push({ name: "Hatay keşif", path: "/hatay-kesfet" });
     else if (pathname === "/hatayda-nerede-kahvalti-yapilir") crumbs.push({ name: "Hatay keşif", path: "/hatay-kesfet" }, { name: "Kahvaltı rehberi", path: "/hatayda-nerede-kahvalti-yapilir" });
-    else if (pathname === "/hesap") crumbs.push({ name: "Giriş / kayıt", path: "/hesap" });
+    else if (pathname === "/hesap") crumbs.push({ name: "Hesap", path: "/hesap" });
     if (crumbs.length > 1) json = attachJsonLdGraph(json, [buildBreadcrumbJsonLd(origin, crumbs)]);
 
     document.title = title;

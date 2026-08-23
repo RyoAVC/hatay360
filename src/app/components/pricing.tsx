@@ -1,14 +1,12 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { Link } from "react-router";
 import { useContent, planKind, sectionOn, type Plan } from "../context/content-context";
 import {
   Check,
   ArrowRight,
   Sparkles,
   ChevronDown,
-  Layers,
   Target,
-  Smartphone,
-  Code2,
   Sliders,
   Calculator,
   Flame,
@@ -19,11 +17,22 @@ import {
   Zap,
   Crown,
   Orbit,
+  Globe,
+  MapPin,
+  ShoppingBag,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Reveal } from "./motion-primitives";
 import { StorePackages } from "./store-packages";
-import { BrandChip, BrandLogo, BrandLogoRow, MARKETPLACE_BRANDS, ADS_BRANDS, APP_BRANDS, resolveBrandId } from "./brand-logo";
+import { BrandChip, BrandLogo, BrandLogoRow, ADS_BRANDS, resolveBrandId } from "./brand-logo";
+import {
+  estimatePackageConfig,
+  formatTryAmount,
+  PACKAGE_MODULE_OPTIONS,
+  buildIletisimQuotePath,
+  buildReadyPlanQuotePath,
+  type NeedId,
+} from "../lib/needs-calculator";
 
 const VIEW_MODES = [
   { id: "hazir", label: "Hazır Paketler", icon: Sparkles },
@@ -40,12 +49,16 @@ const FAQS = [
     a: "Evet. Reklam landing page veya mağaza kurulumu anahtar teslim yapılır, panel eğitimi ücretsizdir. Satışa başladığınız andan itibaren destek hattımız yanınızdadır.",
   },
   {
-    q: "Pazarla pazaryeri entegrasyonu için ekstra komisyon öder miyim?",
-    a: "Hayır! Pazarla pazaryeri entegrasyonu paketlerimize dahildir. Komisyon veya ek aracı entegratör ücreti alınmaz.",
+    q: "Google Maps kaydı pakete dahil mi?",
+    a: "Harita kaydı ve NAP düzeni yazılı teklifte ayrı kalem olarak görünür; tüm paketlere otomatik dahil değildir. Google'ın kendi doğrulaması (kartpostal, telefon, e-posta) Hatay360 dışında yürür. Sıralama 1. sıra sözü verilmez.",
+  },
+  {
+    q: "Pazarla pazaryeri entegrasyonu pakete dahil mi?",
+    a: "Hayır. Pazarla ayrı bir üründür (Trendyol / Hepsiburada senkronu); ajans paketinin otomatik parçası değildir. İsterseniz yazılı teklife eklenir. Pazaryeri komisyonları ilgili platformlara aittir.",
   },
   {
     q: "Google Ads ve Meta reklam yönetimi nasıl yapılıyor?",
-    a: "Google Certified & Meta reklam uzman kadromuz reklam bütçenizi analiz eder, Performance Max ve dönüşüm reklamlarını maksimum ROAS getirisi elde edecek şekilde kurar.",
+    a: "Google Ads ve Meta reklam ekibimiz bütçenizi analiz eder, Performance Max ve dönüşüm reklamlarını mümkün olan en iyi dönüşüm için kurar.",
   },
   {
     q: "Özel yazılım ve otomasyon neleri kapsar?",
@@ -165,6 +178,13 @@ function PlanCard({ plan }: { plan: Plan }) {
   const rawStyle = (plan.effectStyle || (plan.id === "enterprise" ? "ice" : "none")) as EffectStyle;
   const effectStyle = rawStyle === "fire" ? "none" : rawStyle;
   const effectText = plan.effectText || (effectStyle === "ice" ? "Özel teklif fırsatı" : plan.badge);
+  const quotePath = buildReadyPlanQuotePath({
+    id: plan.id,
+    name: plan.name,
+    kind: planKind(plan),
+    monthlyPrice: plan.monthlyPrice,
+  });
+  const isAds = planKind(plan) === "ads";
 
   return (
     <motion.div
@@ -206,15 +226,23 @@ function PlanCard({ plan }: { plan: Plan }) {
         </div>
         <p className={`mt-2 text-[13px] font-medium leading-relaxed ${plan.featured ? "text-white/80" : "text-[#514f6e]"}`}>{plan.desc}</p>
         <div className={`mt-6 rounded-2xl border p-4 ${plan.featured ? "border-white/20 bg-white/10" : "border-[#b3e5ee] bg-[#f4fbfd]"}`}>
-          <p className={`text-[12px] font-bold line-through ${plan.featured ? "text-white/60" : "text-[#94a3b8]"}`}>{plan.oldPrice}</p>
+          <p className={`text-[10px] font-black uppercase tracking-[0.14em] ${plan.featured ? "text-[#7dd3e8]" : "text-[#078ca5]"}`}>
+            {isAds ? "Yönetim ücreti (örnek)" : "Paket tutarı (örnek)"}
+          </p>
+          <p className={`mt-2 text-[12px] font-bold line-through ${plan.featured ? "text-white/60" : "text-[#94a3b8]"}`}>{plan.oldPrice}</p>
           <p className={`mt-1 text-[34px] font-black leading-none ${plan.featured ? "text-white" : "text-[#1a1a1a]"}`}>{plan.price}</p>
           <div className="mt-2 flex items-center justify-between text-[11px] font-bold">
             <span className="text-[#00a8c4]">{plan.installments}</span>
             <span className={plan.featured ? "text-white/80" : "text-[#64748b]"}>{plan.monthlyPrice}</span>
           </div>
+          {isAds ? (
+            <p className={`mt-3 text-[11px] font-semibold leading-snug ${plan.featured ? "text-white/55" : "text-[#64748b]"}`}>
+              Google / Meta reklam bütçesi ayrıca, sizin hesabınızda kalır.
+            </p>
+          ) : null}
         </div>
-        <a
-          href="/iletisim"
+        <Link
+          to={quotePath}
           className={`mt-6 flex cursor-pointer items-center justify-center gap-2 rounded-2xl py-3.5 text-[15px] font-black transition-all hover:scale-105 ${
             plan.featured
               ? "bg-gradient-to-r from-[#00a8c4] to-[#3ec8dc] text-white shadow-lg"
@@ -222,7 +250,7 @@ function PlanCard({ plan }: { plan: Plan }) {
           }`}
         >
           {plan.cta} <ArrowRight className="h-4 w-4" />
-        </a>
+        </Link>
         {plan.pills && (
           <div className="mt-4 flex flex-wrap gap-1.5">
             {plan.pills.map((p) => (
@@ -250,29 +278,152 @@ function PlanCard({ plan }: { plan: Plan }) {
   );
 }
 
+const MODULE_ICONS = {
+  site: Globe,
+  ads: Target,
+  maps: MapPin,
+  shop: ShoppingBag,
+} as const;
+
+function PackageConfigurator() {
+  const [needs, setNeeds] = useState<NeedId[]>(["site", "ads"]);
+  const estimate = useMemo(() => estimatePackageConfig({ needs }), [needs]);
+
+  const toggle = (id: NeedId) => {
+    setNeeds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+  };
+
+  return (
+    <motion.div
+      key="yapilandirici-mode"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="mt-14 overflow-hidden rounded-3xl border-2 border-[#b3e5ee] bg-white shadow-[0_18px_48px_rgba(0,168,196,0.1)]"
+    >
+      <div className="border-b border-[#e4f3f6] px-6 py-7 sm:px-10">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#00a8c4]/10 px-3.5 py-1 text-[12px] font-black text-[#00a8c4]">
+          <Calculator className="h-4 w-4" /> Özel İhtiyaç Hesaplayıcı
+        </span>
+        <h3 className="mt-4 max-w-xl text-[26px] font-black leading-tight tracking-tight text-[#1a1a1a] sm:text-[30px]">
+          Paketinizi ihtiyacınıza göre özelleştirin
+        </h3>
+        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[#514f6e]">
+          Web tasarım, Google / Meta reklam ve harita kaydı temel hizmetlerdir. E-ticaret yalnızca işaretlerseniz eklenir. Sitedeki tutarlar örnektir; kesin tutar yazılı teklifte belirtilir.
+        </p>
+        <Link to="/araclar/ozel-ihtiyac-hesaplayici" className="mt-3 inline-flex items-center gap-1 text-[13px] font-bold text-[#00a8c4] hover:underline">
+          Sektör ve ilçeye göre öneri <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+
+      <div className="grid items-start gap-6 px-6 py-7 sm:px-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(260px,0.85fr)] lg:gap-8">
+        <div className="grid gap-3 sm:grid-cols-2">
+          {PACKAGE_MODULE_OPTIONS.map((option) => {
+            const on = needs.includes(option.id);
+            const Icon = MODULE_ICONS[option.id];
+            return (
+              <button
+                key={option.id}
+                type="button"
+                aria-pressed={on}
+                onClick={() => toggle(option.id)}
+                className={`flex min-h-[148px] cursor-pointer flex-col rounded-2xl border-2 p-4 text-left transition-all ${
+                  on
+                    ? "border-[#00a8c4] bg-[#f4fbfd] shadow-[0_10px_24px_rgba(0,168,196,0.12)]"
+                    : "border-[#ecebf5] bg-white hover:border-[#b3e5ee]"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${on ? "bg-[#00a8c4] text-white" : "bg-[#e8f8fb] text-[#00a8c4]"}`}>
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span className={`mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${on ? "border-[#00a8c4] bg-[#00a8c4] text-white" : "border-[#cbd5e1] bg-white"}`}>
+                    {on ? <Check className="h-3 w-3" /> : null}
+                  </span>
+                </div>
+                <p className="mt-3 text-[15px] font-black text-[#1a1a1a]">{option.label}</p>
+                {option.optional ? (
+                  <span className="mt-1 w-fit rounded-full bg-[#fff7ed] px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-[#c2410c]">İsteğe bağlı</span>
+                ) : null}
+                <p className="mt-1.5 flex-1 text-[12px] leading-relaxed text-[#64748b]">{option.hint}</p>
+                {option.id === "ads" ? <BrandLogoRow ids={ADS_BRANDS} size={18} className="mt-3" /> : null}
+                {on ? (
+                  <p className="mt-3 text-[12px] font-black text-[#00a8c4]">örnek {formatTryAmount(estimate.lines.find((line) => line.id === option.id)?.monthly || 0)} / ay</p>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+
+        <aside className="rounded-3xl border border-[#1a4d57] bg-gradient-to-b from-[#12343a] via-[#0f2428] to-[#10262b] p-6 text-white lg:sticky lg:top-24">
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#7dd3e8]">Özel yapılandırılmış paket</p>
+          <h4 className="mt-3 text-[22px] font-black leading-snug">{estimate.packageName || "Modül seçin"}</h4>
+          {estimate.monthly > 0 ? (
+            <>
+              <p className="mt-4 text-[12px] font-bold text-white/65">Örnek aylık tutar</p>
+              <p className="mt-1 text-[36px] font-black leading-none tracking-tight">
+                {formatTryAmount(estimate.monthly)} <span className="text-[14px] font-semibold text-white/55">/ ay</span>
+              </p>
+              <p className="mt-2 text-[12px] text-white/50">12 ay örnek: {formatTryAmount(estimate.exampleTotal)}</p>
+            </>
+          ) : (
+            <p className="mt-4 text-[14px] leading-relaxed text-white/70">En az bir hizmet seçin; örnek tutar burada toplanır.</p>
+          )}
+
+          {estimate.lines.length ? (
+            <ul className="mt-5 space-y-2">
+              {estimate.lines.map((line) => (
+                <li key={line.id} className="flex items-center justify-between gap-3 rounded-xl bg-white/10 px-3 py-2 text-[13px]">
+                  <span className="font-semibold text-white/90">{line.label}</span>
+                  <span className="font-black text-[#7dd3e8]">{formatTryAmount(line.monthly)}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+
+          <ul className="mt-5 space-y-2 text-[12px] leading-relaxed text-white/70">
+            <li className="flex items-start gap-2">
+              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#7dd3e8]" />
+              {estimate.quoteNote}
+            </li>
+            {estimate.adsBudgetNote ? (
+              <li className="flex items-start gap-2">
+                <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#7dd3e8]" />
+                {estimate.adsBudgetNote}
+              </li>
+            ) : null}
+            <li className="flex items-start gap-2">
+              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#7dd3e8]" />
+              Hazır paketlerde 12 taksit imkânı vardır.
+            </li>
+          </ul>
+
+          <Link
+            to={buildIletisimQuotePath({
+              needs,
+              packageName: estimate.packageName,
+              exampleMonthly: estimate.monthly || undefined,
+            })}
+            className={`mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-[15px] font-black shadow-lg transition-transform ${
+              estimate.monthly
+                ? "bg-gradient-to-r from-[#00a8c4] to-[#3ec8dc] text-white hover:scale-[1.02]"
+                : "pointer-events-none bg-white/10 text-white/40"
+            }`}
+          >
+            Yazılı teklif alın <ArrowRight className="h-4 w-4" />
+          </Link>
+          <p className="mt-4 text-[11px] leading-relaxed text-white/45">{estimate.disclaimer}</p>
+        </aside>
+      </div>
+    </motion.div>
+  );
+}
+
 export function Pricing({ hideHeader = false }: { hideHeader?: boolean }) {
   const { plans, settings } = useContent();
   const showBuilder = sectionOn(settings, "packageBuilder");
   const [viewMode, setViewMode] = useState<"hazir" | "yapilandirici">("hazir");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  // AKILLI PAKET YAPILANDIRICI STATE'LERİ
-  const [productCount, setProductCount] = useState(5000);
-  const [includeMarketplaces, setIncludeMarketplaces] = useState(true);
-  const [includeAds, setIncludeAds] = useState(true);
-  const [includeApp, setIncludeApp] = useState(false);
-  const [includeLabs, setIncludeLabs] = useState(false);
-
-  // Hesaplanan tahmini fiyat
-  const calculatedMonthly = Math.round(
-    1490 +
-      (productCount > 1000 ? 500 : 0) +
-      (includeMarketplaces ? 990 : 0) +
-      (includeAds ? 1490 : 0) +
-      (includeApp ? 1990 : 0) +
-      (includeLabs ? 1290 : 0)
-  );
-
   const adsPlans = plans.filter((p) => planKind(p) === "ads");
   const storePlans = plans.filter((p) => planKind(p) === "store");
 
@@ -328,7 +479,7 @@ export function Pricing({ hideHeader = false }: { hideHeader?: boolean }) {
             exit={{ opacity: 0, y: -20 }}
             className="mt-14 space-y-16"
           >
-            <div>
+                <div>
               <div className="mx-auto max-w-2xl text-center">
                 <h3 className="text-[22px] font-black text-[#1a1a1a]">Reklam paketleri</h3>
                 <p className="mt-2 text-[14px] text-[#6f6c8f]">
@@ -345,152 +496,7 @@ export function Pricing({ hideHeader = false }: { hideHeader?: boolean }) {
             {storePlans.length > 0 && <StorePackages plans={storePlans} />}
           </motion.div>
         ) : (
-          /* --- MOD 2: AKILLI PAKET YAPILANDIRICI (DİNAMİK HESAPLAYICI) --- */
-          <motion.div
-            key="yapilandirici-mode"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="mt-14 rounded-3xl border-2 border-[#b3e5ee] bg-white p-8 shadow-2xl sm:p-12"
-          >
-            <div className="grid gap-10 lg:grid-cols-2">
-              <div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#00a8c4]/10 px-3.5 py-1 text-[12px] font-black text-[#00a8c4]">
-                  <Calculator className="h-4 w-4" /> Özel İhtiyaç Hesaplayıcı
-                </span>
-                <h3 className="mt-4 text-[28px] font-black text-[#1a1a1a]">
-                  Paketinizi İhtiyacınıza Göre Özelleştirin
-                </h3>
-                <p className="mt-2 text-[15px] font-medium text-[#514f6e]">
-                  Satış hacminize ve kullanmak istediğiniz dijital ajans modüllerine göre paketinizi şekillendirin.
-                </p>
-
-                {/* SLIDER 1: ÜRÜN SAYISI */}
-                <div className="mt-8 space-y-3">
-                  <div className="flex items-center justify-between text-[14px] font-black">
-                    <span>Yüklenecek Ürün Hacmi</span>
-                    <span className="text-[#00a8c4]">{productCount.toLocaleString()} Ürün</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="1000"
-                    max="50000"
-                    step="1000"
-                    value={productCount}
-                    onChange={(e) => setProductCount(Number(e.target.value))}
-                    className="w-full accent-[#00a8c4] cursor-pointer"
-                  />
-                </div>
-
-                {/* MODÜL TOGGLE SEÇENEKLERİ */}
-                <div className="mt-8 space-y-3">
-                  <p className="text-[14px] font-black text-[#1a1a1a]">Eklenecek Hizmet Modülleri:</p>
-
-                  <label className="flex items-center justify-between rounded-2xl border border-[#ecebf5] p-3.5 cursor-pointer hover:bg-[#e8f8fb]">
-                    <div className="flex items-center gap-3">
-                      <Layers className="h-5 w-5 text-[#00a8c4]" />
-                      <div>
-                        <p className="text-[14px] font-extrabold text-[#1a1a1a]">Pazarla Entegrasyonu</p>
-                        <p className="text-[11px] text-[#64748b]">Trendyol, Hepsiburada, N11 stok senkronu</p>
-                        <BrandLogoRow ids={MARKETPLACE_BRANDS} size={22} className="mt-2" />
-                      </div>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={includeMarketplaces}
-                      onChange={(e) => setIncludeMarketplaces(e.target.checked)}
-                      className="h-5 w-5 accent-[#00a8c4] cursor-pointer"
-                    />
-                  </label>
-
-                  <label className="flex items-center justify-between rounded-2xl border border-[#ecebf5] p-3.5 cursor-pointer hover:bg-[#eff6ff]">
-                    <div className="flex items-center gap-3">
-                      <Target className="h-5 w-5 text-[#3b82f6]" />
-                      <div>
-                        <p className="text-[14px] font-extrabold text-[#1a1a1a]">Google Ads & Meta Ajans Desteği</p>
-                        <p className="text-[11px] text-[#64748b]">Arama, PMax & Instagram dönüşüm reklamları</p>
-                        <BrandLogoRow ids={ADS_BRANDS} size={22} className="mt-2" />
-                      </div>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={includeAds}
-                      onChange={(e) => setIncludeAds(e.target.checked)}
-                      className="h-5 w-5 accent-[#3b82f6] cursor-pointer"
-                    />
-                  </label>
-
-                  <label className="flex items-center justify-between rounded-2xl border border-[#ecebf5] p-3.5 cursor-pointer hover:bg-[#fae8ff]">
-                    <div className="flex items-center gap-3">
-                      <Smartphone className="h-5 w-5 text-[#a855f7]" />
-                      <div>
-                        <p className="text-[14px] font-extrabold text-[#1a1a1a]">iOS & Android Mobil App</p>
-                        <p className="text-[11px] text-[#64748b]">App Store & Play Store yayınlı özel uygulama</p>
-                        <BrandLogoRow ids={APP_BRANDS} size={22} className="mt-2" />
-                      </div>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={includeApp}
-                      onChange={(e) => setIncludeApp(e.target.checked)}
-                      className="h-5 w-5 accent-[#a855f7] cursor-pointer"
-                    />
-                  </label>
-
-                  <label className="flex items-center justify-between rounded-2xl border border-[#ecebf5] p-3.5 cursor-pointer hover:bg-[#f1f5f9]">
-                    <div className="flex items-center gap-3">
-                      <Code2 className="h-5 w-5 text-[#00a8c4]" />
-                      <div>
-                        <p className="text-[14px] font-extrabold text-[#1a1a1a]">Özel yazılım & otomasyon</p>
-                        <p className="text-[11px] text-[#64748b]">Stok botları, API ve e-fatura modülleri</p>
-                      </div>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={includeLabs}
-                      onChange={(e) => setIncludeLabs(e.target.checked)}
-                      className="h-5 w-5 accent-[#00a8c4] cursor-pointer"
-                    />
-                  </label>
-                </div>
-              </div>
-
-              {/* DİNAMİK HESAPLANAN ÖZEL PAKET KARTI */}
-              <div className="flex flex-col justify-between rounded-3xl bg-gradient-to-br from-[#18181f] via-[#0d2428] to-[#0d0d0d] p-8 text-white shadow-2xl border-2 border-[#00a8c4]">
-                <div>
-                  <span className="rounded-full bg-[#00a8c4] px-3.5 py-1 text-[11px] font-black uppercase tracking-wider text-white">
-                    Özel Yapılandırılmış Paket
-                  </span>
-                  <p className="mt-4 text-[14px] text-white/80">Tahmini Aylık Yatırım Tutarı:</p>
-                  <p className="mt-1 text-[44px] font-black text-white leading-none">
-                    ₺{calculatedMonthly.toLocaleString()} <span className="text-[16px] text-white/70 font-normal">/ay</span>
-                  </p>
-
-                  <div className="mt-6 space-y-2.5 text-[13px]">
-                    <div className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-[#10b981]" />
-                      <span className="font-bold">12 Taksit İmkânı & Sözleşmesiz Esneklik</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-[#10b981]" />
-                      <span className="font-bold">Google PageSpeed 99+ Hız Garantisi</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-[#10b981]" />
-                      <span className="font-bold">7/24 Kesintisiz Canlı Destek</span>
-                    </div>
-                  </div>
-                </div>
-
-                <a
-                  href="/iletisim"
-                  className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#00a8c4] to-[#3ec8dc] py-4 text-[16px] font-black text-white shadow-lg transition-all hover:scale-105 cursor-pointer"
-                >
-                  Bu Yapılandırmayla Teklif Alın <ArrowRight className="h-5 w-5" />
-                </a>
-              </div>
-            </div>
-          </motion.div>
+          <PackageConfigurator key="yapilandirici-mode" />
         )}
       </AnimatePresence>
 

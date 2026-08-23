@@ -18,15 +18,15 @@ export function FeaturesPage() {
       </div>
       <PageHero
         eyebrow="Özellikler"
-        title="Hatay e-ticaret ve web sitesi altyapısı"
-        desc="SSL, sanal POS, pazaryeri, sınırsız ürün. Hatay’da web sitesi ve mağaza kurmak isteyen işletmeler için bütünsel altyapı."
+        title="Hatay web, reklam ve görünürlük"
+        desc="Web tasarım, Google Ads, Meta ve Maps. SSL ve mobil uyum paketlerde. E-ticaret isteğe bağlı."
       >
         <Link to="/iletisim">
           <motion.span
             whileHover={{ y: -3 }}
             className="inline-flex items-center gap-2 rounded-xl bg-[#00a8c4] px-6 py-3 text-[16px] font-semibold text-white shadow-[0px_10px_28px_rgba(0,168,196,0.35)]"
           >
-            15 gün ücretsiz dene <ArrowRight className="h-[18px] w-[18px]" />
+            Sizi arayalım <ArrowRight className="h-[18px] w-[18px]" />
           </motion.span>
         </Link>
       </PageHero>
@@ -38,7 +38,7 @@ export function FeaturesPage() {
 
       <section className="mx-auto max-w-3xl px-5 pb-10 sm:px-8">
         <h2 className="text-[24px] font-bold text-[#1a1a1a]">Sık sorulanlar</h2>
-        <p className="mt-2 text-[15px] text-[#6f6c8f]">SSL, mağaza ve deneme — kısa cevaplar.</p>
+        <p className="mt-2 text-[15px] text-[#6f6c8f]">SSL, kapsam ve deneme — kısa cevaplar.</p>
         <div className="mt-5 space-y-2">
           {FEATURE_FAQS.map((faq) => (
             <details key={faq.q} className="rounded-2xl border border-[#ecebf5] bg-white p-4 open:border-[#b3e5ee]">

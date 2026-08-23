@@ -1,36 +1,37 @@
 import { Link } from "react-router";
 import { motion } from "motion/react";
-import { Store, Palette, Megaphone, Code2, ArrowRight } from "lucide-react";
+import { Store, Palette, Megaphone, MapPinned, ArrowRight } from "lucide-react";
 import { Reveal, staggerItem } from "./motion-primitives";
+import { buildIletisimQuotePath } from "../lib/needs-calculator";
 
 const PILLARS = [
   {
     icon: Megaphone,
     title: "Google Ads & Meta",
-    desc: "İşletmenizin Google aramalarında ve sosyal medyada görünür olmasını sağlayan reklam yönetimi.",
-    href: "/pazarla",
+    desc: "Reklam yönetimi: bütçe sizin hesapta kalır, yönetim ücreti ayrıdır.",
+    href: buildIletisimQuotePath({ needs: ["ads"] }),
     cta: "Reklam teklifi",
   },
   {
     icon: Palette,
-    title: "Landing Page & Web Tasarım",
-    desc: "Telefon, WhatsApp ve form dönüşümüne odaklı hızlı ve güçlü sayfalar. Hazır tema değil, net mesaj ve satış hedefli tasarım.",
-    href: "/pazarla",
-    cta: "Tasarımı gör",
+    title: "Web tasarım",
+    desc: "Landing ve kurumsal siteler; telefon, WhatsApp ve form dönüşümüne odaklı net mesaj.",
+    href: buildIletisimQuotePath({ needs: ["site"] }),
+    cta: "Site teklifi",
+  },
+  {
+    icon: MapPinned,
+    title: "Google Maps",
+    desc: "İşletme profili, NAP tutarlılığı ve yerel aramada harita görünürlüğü.",
+    href: "/google-maps-harita-kaydi",
+    cta: "Harita kaydı",
   },
   {
     icon: Store,
-    title: "E-Ticaret & Görünürlük",
-    desc: "Mağaza ve reklam birlikte yürür; satış hedefi olan işletmeler için kurumsal görünürlük ve satış akışı oluşturur.",
-    href: "/paketler",
-    cta: "Paketleri incele",
-  },
-  {
-    icon: Code2,
-    title: "Yazılım & Entegrasyon",
-    desc: "Landing page, WhatsApp, form ve kampanya verilerini tek ekiple yönetir; otomasyon ve raporlama kolaylaşır.",
-    href: "/pazarla",
-    cta: "Hizmetleri gör",
+    title: "E-ticaret (isteğe bağlı)",
+    desc: "Teklifte ayrı kalem. Pazarla ayrı üründür; her pakete dahil değildir.",
+    href: buildIletisimQuotePath({ needs: ["shop"] }),
+    cta: "E-ticaret teklifi",
   },
 ];
 
@@ -42,10 +43,10 @@ export function ServicePillars() {
           Hatay360 ne yapar?
         </span>
         <h2 className="mt-3 text-[32px] font-black tracking-[-0.05em] text-[#111827] sm:text-[40px]">
-          Reklam, web ve satış akışı tek bir kurumsal stratejiyle büyür.
+          Reklam, web ve Google Maps tek bir kurumsal stratejiyle büyür.
         </h2>
         <p className="mt-4 text-[17px] leading-relaxed text-[#514f6e]">
-          Antakya merkezli dijital ajans olarak çalışıyoruz; hedefimiz daha çok arama, daha çok çağrı ve daha çok dönüşüm. Google Ads, yerel SEO ve kurumsal web tasarım bir arada çalışır.
+          Antakya merkezli dijital ajans olarak çalışıyoruz; hedefimiz daha çok arama, daha çok çağrı ve daha çok dönüşüm. Google Ads, kurumsal web ve işletme harita kaydı bir arada çalışır.
         </p>
       </Reveal>
 

@@ -1,14 +1,14 @@
 export const P = {
   vet: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1400&q=80",
-  vet2: "https://images.unsplash.com/photo-1576201836106-3ec7c41216d6?auto=format&fit=crop&w=1200&q=80",
+  vet2: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&w=1200&q=80",
   vet3: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=1200&q=80",
   cake: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1400&q=80",
   cake2: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=1200&q=80",
   cake3: "https://images.unsplash.com/photo-1486427944299-d1955d23e34d?auto=format&fit=crop&w=1200&q=80",
-  dry: "https://images.unsplash.com/photo-1545173164-22d1b201357c?auto=format&fit=crop&w=1400&q=80",
+  dry: "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=1400&q=80",
   dry2: "https://images.unsplash.com/photo-1582735689369-4fe89db7114c?auto=format&fit=crop&w=1200&q=80",
-  dry3: "https://images.unsplash.com/photo-1517677208171-0ec17a5c1cba?auto=format&fit=crop&w=1200&q=80",
-  nalbur: "https://images.unsplash.com/photo-1504148458006-5492fbd32d1e?auto=format&fit=crop&w=1400&q=80",
+  dry3: "https://images.unsplash.com/photo-1582735689369-4fe89db7114c?auto=format&fit=crop&w=1200&q=80",
+  nalbur: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1400&q=80",
   nalbur2: "https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&w=1200&q=80",
   tools: "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=1400&q=80",
   tools2: "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=1200&q=80",
@@ -20,20 +20,20 @@ export const P = {
   gym2: "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=1200&q=80",
   hair: "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1400&q=80",
   hair2: "https://images.unsplash.com/photo-1522337094846-8a818192de1f?auto=format&fit=crop&w=1200&q=80",
-  barber: "https://images.unsplash.com/photo-1503951914875-834188fe4720?auto=format&fit=crop&w=1400&q=80",
+  barber: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=1400&q=80",
   barber2: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=1200&q=80",
   gold: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1400&q=80",
   gold2: "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?auto=format&fit=crop&w=1200&q=80",
   jewel: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1400&q=80",
   jewel2: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1200&q=80",
-  boutique: "https://images.unsplash.com/photo-1441984904996-e0b6ba87e799?auto=format&fit=crop&w=1400&q=80",
+  boutique: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1400&q=80",
   boutique2: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80",
   parts: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1400&q=80",
   parts2: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1200&q=80",
   code: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1400&q=80",
   code2: "https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=1200&q=80",
-  house: "https://images.unsplash.com/photo-1560518883-ce09059eeafa?auto=format&fit=crop&w=1400&q=80",
-  house2: "https://images.unsplash.com/photo-1564010438633-4a36c2554b0d?auto=format&fit=crop&w=1200&q=80",
+  house: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80",
+  house2: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
   house3: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
   resto: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1400&q=80",
   resto2: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80",
@@ -54,20 +54,20 @@ export const P = {
   pharm2: "https://images.unsplash.com/photo-1585435557343-3b092031a831?auto=format&fit=crop&w=1200&q=80",
   wash: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&w=1400&q=80",
   wash2: "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&w=1200&q=80",
-  wedding: "https://images.unsplash.com/photo-1519167758481-83f29da81c46?auto=format&fit=crop&w=1400&q=80",
+  wedding: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1400&q=80",
   wedding2: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1200&q=80",
   bread: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1400&q=80",
-  bread2: "https://images.unsplash.com/photo-1549931319-a545dcf3d7a9?auto=format&fit=crop&w=1200&q=80",
+  bread2: "https://images.unsplash.com/photo-1608198093002-ad4e005484ec?auto=format&fit=crop&w=1200&q=80",
   flower: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1400&q=80",
-  flower2: "https://images.unsplash.com/photo-1457089328109-07c3c792c9d0?auto=format&fit=crop&w=1200&q=80",
-  dental: "https://images.unsplash.com/photo-1606811841689-23dfddceee33?auto=format&fit=crop&w=1400&q=80",
+  flower2: "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1200&q=80",
+  dental: "https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&w=1400&q=80",
   dental2: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80",
   glasses: "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?auto=format&fit=crop&w=1400&q=80",
   glasses2: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=1200&q=80",
   coffee: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1400&q=80",
   coffee2: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80",
   tire: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1400&q=80",
-  tire2: "https://images.unsplash.com/photo-1619642751034-085acef54fe8?auto=format&fit=crop&w=1200&q=80",
+  tire2: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1200&q=80",
   pet: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=1400&q=80",
   pet2: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80",
   photo: "https://images.unsplash.com/photo-1471341971476-ae15ff5dd4ea?auto=format&fit=crop&w=1400&q=80",
@@ -76,17 +76,17 @@ export const P = {
   desk2: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80",
   class: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1400&q=80",
   class2: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=1200&q=80",
-  ac: "https://images.unsplash.com/photo-1631545806609-34ed2f0f4a4b?auto=format&fit=crop&w=1400&q=80",
+  ac: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1400&q=80",
   ac2: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1200&q=80",
   pipe: "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=1400&q=80",
-  pipe2: "https://images.unsplash.com/photo-1504148458006-5492fbd32d1e?auto=format&fit=crop&w=1200&q=80",
+  pipe2: "https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&w=1200&q=80",
   hotel: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1400&q=80",
   hotel2: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80",
   olive: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=1400&q=80",
   olive2: "https://images.unsplash.com/photo-1471943311424-646960669fbc?auto=format&fit=crop&w=1200&q=80",
-  dish: "https://images.unsplash.com/photo-1556912172-45b7abe8b7c1?auto=format&fit=crop&w=1400&q=80",
+  dish: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1400&q=80",
   dish2: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1200&q=80",
-  glass: "https://images.unsplash.com/photo-1513558161293-cdaf765d22c7?auto=format&fit=crop&w=1200&q=80",
+  glass: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1200&q=80",
   rug: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1400&q=80",
   rug2: "https://images.unsplash.com/photo-1615874959474-d609969a20ed?auto=format&fit=crop&w=1200&q=80",
   dessert: "https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=1400&q=80",
@@ -94,6 +94,9 @@ export const P = {
   sofa2: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80",
   shoe: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1400&q=80",
   shoe2: "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=1200&q=80",
+  window: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1400&q=80",
+  sausage: "https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?auto=format&fit=crop&w=1400&q=80",
+  sausage2: "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=1200&q=80",
 } as const;
 
 export type ExtraKind = "local" | "shop" | "pro";
@@ -1858,11 +1861,75 @@ export const EXTRA_DEMOS: ExtraDemo[] = [
     ],
     districts: ["Antakya", "Defne", "İskenderun"],
   },
+  {
+    slug: "pvc-dograma",
+    kind: "local",
+    widget: "call",
+    title: "PVC doğrama",
+    brand: "Antakya PVC",
+    subtitle: "Pencere, kapı, keşif — camcı değil",
+    accent: "#0369a1",
+    bg: "#0c4a6e",
+    hero: P.window,
+    hook: "PVC pencere m² sitede. Camcı acil kırık değil; kasa, açılım, sineklik ayrı satır.",
+    lead: "PVC doğrama sitesi. Cam değişimi yok. Pencere / balkon kapısı ölçü, keşif ücreti yazılı.",
+    slides: [
+      { src: P.window, alt: "Pencere", caption: "Pencere" },
+      { src: P.house, alt: "Cephe", caption: "Cephe" },
+      { src: P.house2, alt: "Montaj", caption: "Montaj" },
+    ],
+    services: [
+      { t: "Pencere", d: "m² + açılım." },
+      { t: "Balkon kapısı", d: "Sürme / açılır." },
+      { t: "Sineklik", d: "Kasa ile." },
+    ],
+    choices: ["Pencere değişimi", "Balkon kapısı", "Sineklik", "Keşif"],
+    reviews: [
+      { n: "Defne daire", t: "m² fiyat sitedeki gibiydi." },
+      { n: "Antakya", t: "Keşif günü tutuldu." },
+    ],
+    districts: ["Antakya", "Defne", "Kırıkhan"],
+  },
+  {
+    slug: "sucuk",
+    kind: "shop",
+    widget: "shop",
+    title: "Hatay sucuk",
+    brand: "Antakya Sucuk",
+    subtitle: "Kg vakum, isot, toptan — kasap değil",
+    accent: "#9a3412",
+    bg: "#431407",
+    hero: P.sausage,
+    hook: "Sucuk kg sitede. Kıyma tezgâhı yok; fermente halka, vakum ve toptan koli ayrı satır.",
+    lead: "Sucuk üretici vitrini. Kasap kesimi değil. Hatay isotlu sucuk ve pastırma; kg ve koli fiyatı yazılı.",
+    slides: [
+      { src: P.sausage, alt: "Sucuk", caption: "Halka" },
+      { src: P.sausage2, alt: "Vakum", caption: "Vakum kg" },
+      { src: P.spice, alt: "Baharat", caption: "Isot" },
+    ],
+    services: [
+      { t: "Kg vakum", d: "Acılı / az acılı." },
+      { t: "Pastırma", d: "Dilim veya bütün." },
+      { t: "Toptan", d: "Kebapçı koli." },
+    ],
+    products: [
+      { name: "Hatay sucuk kg vakum", price: "₺420", img: P.sausage, tag: "Isotlu" },
+      { name: "Az acılı sucuk kg", price: "₺390", img: P.sausage2 },
+      { name: "Pastırma kg", price: "₺890", img: P.meat },
+      { name: "Toptan koli 5 kg", price: "₺1.850", img: P.spice },
+    ],
+    choices: ["Acılı kg", "Az acılı", "Pastırma", "Toptan koli"],
+    reviews: [
+      { n: "Defne ocakbaşı", t: "Kg fiyat sitedeki gibiydi, kıyma yoktu." },
+      { n: "Antakya ev", t: "Vakum tarih ve isot oranı yazılıydı." },
+    ],
+    districts: ["Antakya", "Defne", "Kırıkhan"],
+  },
 ];
 
 export const EXTRA_GROUPS: { id: ExtraKind; title: string; text: string }[] = [
-  { id: "local", title: "Yerel işletme siteleri", text: "Veteriner, eczane, berber, kasap, manav, künefe, spor salonu, düğün organizasyon, halı yıkama, otel, kombi — çağrı ve randevu." },
-  { id: "shop", title: "E-ticaret örnekleri", text: "Kuyumcu, takı, butik, ayakkabı, zeytinyağı, züccaciye, mobilya, hırdavat, çiçekçi, optik, pet shop, motor parçası." },
+  { id: "local", title: "Yerel işletme siteleri", text: "Veteriner, eczane, berber, kasap, manav, künefe, PVC doğrama, spor salonu, düğün organizasyon, halı yıkama, otel, kombi — çağrı ve randevu." },
+  { id: "shop", title: "E-ticaret örnekleri", text: "Kuyumcu, takı, butik, ayakkabı, zeytinyağı, sucuk, züccaciye, mobilya, hırdavat, çiçekçi, optik, pet shop, motor parçası." },
   { id: "pro", title: "Kurumsal, emlak, yazılım, mobil", text: "Firma vitrini, hukuk, muhasebe, sigorta, özel yazılım ve Android / iOS." },
 ];
 
@@ -1870,10 +1937,39 @@ export function extraBySlug(slug: string) {
   return EXTRA_DEMOS.find((d) => d.slug === slug);
 }
 
-export function filterTools(tools: readonly { to: string; title: string; desc: string }[], query: string) {
+export function filterTools<T extends { to: string; title: string; desc: string }>(tools: readonly T[], query: string): T[] {
   const term = query.trim().toLocaleLowerCase("tr-TR");
   if (!term) return [...tools];
   return tools.filter((tool) => `${tool.title} ${tool.desc} ${tool.to}`.toLocaleLowerCase("tr-TR").includes(term));
+}
+
+export type ToolCategoryId = "seo" | "harita" | "metin" | "hesap";
+
+export const TOOL_CATEGORIES: { id: ToolCategoryId; label: string }[] = [
+  { id: "seo", label: "SEO" },
+  { id: "harita", label: "Harita" },
+  { id: "metin", label: "Metin" },
+  { id: "hesap", label: "Hesap" },
+];
+
+const TOOL_CATEGORY_IDS = new Set<string>(TOOL_CATEGORIES.map((item) => item.id));
+
+/** /araclar?kat=seo gibi bağlantılar; geçersiz değer Tümü’ne düşer. */
+export function parseToolCategory(raw: string | null | undefined): ToolCategoryId | "all" {
+  const id = (raw || "").trim().toLocaleLowerCase("tr-TR");
+  if (!id || id === "all" || id === "tumu") return "all";
+  if (TOOL_CATEGORY_IDS.has(id)) return id as ToolCategoryId;
+  return "all";
+}
+
+/** Kategori + metin filtresi; kategori boşsa yalnız metne göre süzer. */
+export function filterToolsByCategory<T extends { to: string; title: string; desc: string; category?: ToolCategoryId }>(
+  tools: readonly T[],
+  query: string,
+  category: ToolCategoryId | "all" = "all",
+): T[] {
+  const byCategory = category === "all" ? [...tools] : tools.filter((tool) => tool.category === category);
+  return filterTools(byCategory, query);
 }
 
 export function filterExtraDemos(query: string, kind: ExtraKind | "all" = "all") {

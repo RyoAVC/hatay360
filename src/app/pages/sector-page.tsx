@@ -1,6 +1,6 @@
 import { Link, Navigate, useParams } from "react-router";
 import { useMemo, useState } from "react";
-import { ArrowRight, BadgeCheck, Clock3, Megaphone, MessageSquareText, Search, Stethoscope, Target, Truck, Wrench } from "lucide-react";
+import { ArrowRight, BadgeCheck, Clock3, MapPin, Megaphone, MessageSquareText, Search, Stethoscope, Target, Truck, Wrench } from "lucide-react";
 import { motion } from "motion/react";
 import { PageCrumbs } from "../components/page-crumbs";
 import { PageHero } from "../components/page-hero";
@@ -10,6 +10,7 @@ import { useContent, type SectorItem } from "../context/content-context";
 import { ADS_SITE_DEMOS } from "../lib/avclabs";
 import { EXTRA_DEMOS, EXTRA_GROUPS, filterExtraDemos, type ExtraKind } from "../lib/extra-demos";
 import { toTelHref } from "../lib/contact";
+import { buildIletisimQuotePath, sectorParamFromSlug } from "../lib/needs-calculator";
 
 const iconMap = {
   target: Target,
@@ -48,7 +49,7 @@ export function DemoOverviewPage() {
             Hatay360 demoları ve AvcNova lisanslı yazılımlar
           </h1>
           <p className="mt-4 text-[17px] leading-relaxed text-[#4b5c71]">
-            Hatay360 web tasarım, reklam ve görünürlük işini yapar. Her örnek sitede <strong>yönetim paneli</strong> vardır; işletme sahibi randevu, sipariş ve içeriği kendisi görür. Araç kiralama, bungalov, yat gibi operasyon yazılımlarını AVC ailesinin AvcNova markası üretir.
+            Klinik / taksi / nakliyat demoları <strong>reklam dönüşüm (landing) sayfası</strong>dır; tam mağaza veya kurumsal web sitesi değildir. Mağaza / web paketleri ayrıdır. Her örnekte <strong>yönetim paneli</strong> vardır. Araç kiralama, bungalov, yat gibi operasyon yazılımlarını AVC ailesinin AvcNova markası üretir.
           </p>
         </div>
 
@@ -80,8 +81,8 @@ export function DemoOverviewPage() {
 
         {Boolean(featured.length) && (
           <>
-            <h2 className="mt-14 text-[22px] font-black text-[#0f172a]">Öne çıkan Hatay360 siteleri</h2>
-            <p className="mt-2 text-[14px] text-[#64748b]">Taksi, nakliyat, klinik, teknik servis — dolu örnekler.</p>
+            <h2 className="mt-14 text-[22px] font-black text-[#0f172a]">Öne çıkan reklam dönüşüm sayfaları</h2>
+            <p className="mt-2 text-[14px] text-[#64748b]">Taksi, nakliyat, klinik, teknik servis — reklam landing örnekleri. Tam mağaza sitesi için mağaza paketlerine bakın.</p>
             <div className="mt-6 grid gap-5 md:grid-cols-2">
               {featured.map((item) => (
                 <Link
@@ -98,7 +99,7 @@ export function DemoOverviewPage() {
                     </div>
                   </div>
                   <div className="flex items-center justify-between px-5 py-4 text-[13px] font-black text-[#0ea5c9]">
-                    Hatay360 site örneği <ArrowRight className="h-4 w-4" />
+                    Reklam landing örneği <ArrowRight className="h-4 w-4" />
                   </div>
                 </Link>
               ))}
@@ -161,6 +162,7 @@ export function DemoOverviewPage() {
 function SectorDemoPreview({ sector }: { sector: SectorItem }) {
   const { settings } = useContent();
   const { primary, soft, dark } = sector.theme;
+  const quoteTo = buildIletisimQuotePath({ sector: sectorParamFromSlug(sector.slug) });
 
   const featureRows = [
     "Google arama görünürlüğü",
@@ -184,7 +186,7 @@ function SectorDemoPreview({ sector }: { sector: SectorItem }) {
   }> = {
     taxi: {
       accent: "#facc15",
-      image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1400&q=82",
+      image: "https://images.unsplash.com/photo-1628068147323-4b27e9ac750d?auto=format&fit=crop&w=1400&q=82",
       badge: "Hatay 7/24",
       headline: "Hatay’da güvenli, hızlı ve uygun fiyatlı taksi",
       sub: "Antakya, Defne, İskenderun ve tüm ilçelerde anlık çağrı ve güvenli transfer.",
@@ -195,7 +197,7 @@ function SectorDemoPreview({ sector }: { sector: SectorItem }) {
     },
     nakliyat: {
       accent: "#38bdf8",
-      image: "https://images.unsplash.com/photo-1600518464441-9154a4dea21b?auto=format&fit=crop&w=1400&q=82",
+      image: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=1400&q=82",
       badge: "Nakliyat & Taşıma",
       headline: "Fiyat, güven ve hız bir arada",
       sub: "Evden eve, ofis taşıma ve şehir içi nakliyatta doğru teklif sistemi kuruyoruz.",
@@ -308,7 +310,7 @@ function SectorDemoPreview({ sector }: { sector: SectorItem }) {
               </div>
 
               <div className="mt-7 flex flex-wrap gap-3">
-                <Link to="/iletisim" className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-[14px] font-black text-white shadow-[0_12px_25px_rgba(0,168,196,0.35)]" style={{ background: visual.accent }}>
+                <Link to={quoteTo} className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-[14px] font-black text-white shadow-[0_12px_25px_rgba(0,168,196,0.35)]" style={{ background: visual.accent }}>
                   Hızlı teklif al <ArrowRight className="h-4 w-4" />
                 </Link>
                 <a href={toTelHref(settings.phone)} className="inline-flex items-center gap-2 rounded-xl border border-[#d8dfe8] bg-white px-5 py-3 text-[14px] font-black text-[#111827]">
@@ -367,9 +369,9 @@ function SectorDemoPreview({ sector }: { sector: SectorItem }) {
                   </div>
                 </div>
 
-                <button className="mt-5 w-full rounded-xl px-4 py-3 text-[14px] font-black text-[#111827]" style={{ background: visual.accent }}>
+                <Link to={quoteTo} className="mt-5 flex w-full items-center justify-center rounded-xl px-4 py-3 text-[14px] font-black text-[#111827]" style={{ background: visual.accent }}>
                   {visual.cta}
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -412,11 +414,14 @@ export function SectorPage() {
     <>
       <PageHero eyebrow={sector.eyebrow} title={sector.title} desc={sector.description} compact>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <Link to="/iletisim" className="inline-flex items-center gap-2 rounded-xl bg-[#00a8c4] px-6 py-3.5 text-[15px] font-bold text-white shadow-[0px_12px_30px_rgba(0,168,196,0.35)]">
+          <Link to={buildIletisimQuotePath({ sector: sectorParamFromSlug(sector.slug) })} className="inline-flex items-center gap-2 rounded-xl bg-[#00a8c4] px-6 py-3.5 text-[15px] font-bold text-white shadow-[0px_12px_30px_rgba(0,168,196,0.35)]">
             Teklif alın <ArrowRight className="h-4 w-4" />
           </Link>
           <Link to="/demolar" className="inline-flex items-center gap-2 rounded-xl border border-[#d9dbe9] bg-white px-6 py-3.5 text-[15px] font-bold text-[#1a1a1a] hover:border-[#00a8c4] hover:text-[#00a8c4]">
             Demo listesi
+          </Link>
+          <Link to="/google-maps-harita-kaydi" className="inline-flex items-center gap-2 rounded-xl border border-[#d9dbe9] bg-white px-6 py-3.5 text-[15px] font-bold text-[#1a1a1a] hover:border-[#00a8c4] hover:text-[#00a8c4]">
+            <MapPin className="h-4 w-4" /> {sector.title} harita
           </Link>
         </div>
       </PageHero>
@@ -508,7 +513,7 @@ export function SectorPage() {
 
       <section className="mx-auto max-w-3xl px-5 pb-12 sm:px-8">
         <div className="rounded-[30px] border border-[#ecebf5] bg-white/90 p-8 shadow-[0px_16px_40px_rgba(25,33,61,0.06)] backdrop-blur-sm">
-          <CallbackForm />
+          <CallbackForm defaultSector={sectorParamFromSlug(sector.slug)} />
         </div>
       </section>
     </>

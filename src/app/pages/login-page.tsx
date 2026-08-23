@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { Navigate, useNavigate } from "react-router";
+import { Link, Navigate, useNavigate } from "react-router";
 import { Lock, User } from "lucide-react";
 import { useAuth } from "../context/auth-context";
 import { SiteLogo } from "../components/site-logo";
@@ -89,6 +89,14 @@ export function LoginPage() {
             {submitting ? "Kontrol ediliyor…" : "Giriş Yap"}
           </button>
         </form>
+        <p className="mt-6 text-center">
+          <Link
+            to="/hesap"
+            className="inline-flex min-h-11 items-center rounded-lg px-1 text-[12px] font-medium text-white/45 outline-none hover:text-white/70 hover:underline focus-visible:ring-2 focus-visible:ring-[#00a8c4] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]"
+          >
+            Hesap seçimine dön
+          </Link>
+        </p>
       </div>
     </div>
   );

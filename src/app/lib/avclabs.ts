@@ -1,21 +1,36 @@
 export const AVCLABS_VITRINE = "http://localhost:4120";
 
+export const AVC_SISTER_SYSTEMS = [
+  {
+    name: "Avcı E-Ticaret",
+    host: "avcieticaret.com",
+    url: "https://avcieticaret.com",
+    blurb: "AVC ağında e-ticaret altyapısı. Hatay360’tan ayrı sitedir.",
+  },
+  {
+    name: "AvcNova",
+    host: "avcnova.com",
+    url: "https://avcnova.com",
+    blurb: "AVC ağında yazılım ve otomasyon. Hatay360’tan ayrı sitedir.",
+  },
+] as const;
+
 export const DEMO_PHOTOS = {
-  taxi: "https://images.unsplash.com/photo-1511527661048-7fe73d085879?auto=format&fit=crop&w=1600&q=80",
-  taxiCar: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40c?auto=format&fit=crop&w=1200&q=80",
-  taxiNight: "https://images.unsplash.com/photo-1511919884226-fd3cad54680b?auto=format&fit=crop&w=1200&q=80",
-  taxiAirport: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80",
-  taxiVip: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=80",
-  nakliyat: "https://images.unsplash.com/photo-1601584115197-04ecc1da4384?auto=format&fit=crop&w=1600&q=80",
+  taxi: "https://images.unsplash.com/photo-1628068147323-4b27e9ac750d?auto=format&fit=crop&w=1600&q=80",
+  taxiCar: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80",
+  taxiNight: "https://images.unsplash.com/photo-1581305192949-97421dfccae7?auto=format&fit=crop&w=1200&q=80",
+  taxiAirport: "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?auto=format&fit=crop&w=1200&q=80",
+  taxiVip: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1200&q=80",
+  nakliyat: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=1600&q=80",
   nakliyatBoxes: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?auto=format&fit=crop&w=1200&q=80",
   nakliyatOffice: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80",
-  nakliyatTeam: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=80",
+  nakliyatTeam: "https://images.unsplash.com/photo-1600518464441-9154a4dea21b?auto=format&fit=crop&w=1200&q=80",
   klinik: "https://images.unsplash.com/photo-1629909615184-74f495363b67?auto=format&fit=crop&w=1600&q=80",
   doctor: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=800&q=80",
   doctor2: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=800&q=80",
   doctor3: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=800&q=80",
   klinikRoom: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1200&q=80",
-  klinikDental: "https://images.unsplash.com/photo-1606811841689-23dfddceee58?auto=format&fit=crop&w=1200&q=80",
+  klinikDental: "https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&w=1200&q=80",
   servis: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1600&q=80",
   servisKlima: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=80",
   servisMakine: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=1200&q=80",
@@ -28,9 +43,9 @@ export const DEMO_PHOTOS = {
   bungalow: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1600&q=80",
   bungalow2: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=800&q=80",
   bungalow3: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=800&q=80",
-  yacht: "https://images.unsplash.com/photo-1567899378494-47b22a2ae96c?auto=format&fit=crop&w=1600&q=80",
+  yacht: "https://images.unsplash.com/photo-1540946485063-a40da27545f8?auto=format&fit=crop&w=1600&q=80",
   yacht2: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80",
-  moto: "https://images.unsplash.com/photo-1558981403-ded1ea8f0944?auto=format&fit=crop&w=1600&q=80",
+  moto: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1600&q=80",
   moto2: "https://images.unsplash.com/photo-1558980664-769d59546b3d?auto=format&fit=crop&w=800&q=80",
 } as const;
 

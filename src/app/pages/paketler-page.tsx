@@ -12,9 +12,9 @@ export function PaketlerPage() {
         <PageCrumbs items={[{ label: "Ana sayfa", to: "/" }, { label: "Paketler" }]} />
       </div>
       <PageHero
-        eyebrow="Reklam, mağaza ve web paketleri"
-        title="Önce reklam; yanında e-ticaret ve web"
-        desc="Google Ads ve Meta yönetimi ayrı, mağaza ve pazaryeri altyapısı ayrı durur. Paket tutarı yönetim ücretidir; reklam bütçesi Google ve Meta'da sizin kalır. Hazır paket veya özel teklif."
+        eyebrow="Reklam, web ve Google Maps"
+        title="Görünürlük önce: reklam, web ve Maps"
+        desc="Google Ads, Meta ve Google Maps ajans çekirdeğidir; kurumsal web yanına gelir. E-ticaret ve Pazarla ayrı üründür, teklife eklenir. Paket tutarı yönetim ücretidir; reklam bütçesi Google ve Meta'da sizin kalır. Hazır paket veya özel teklif."
       />
 
       <Pricing hideHeader />

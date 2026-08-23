@@ -48,7 +48,7 @@ export function AvclabsShowcase() {
             className="overflow-hidden rounded-[28px] border border-[#e7edf3] bg-white shadow-[0_18px_40px_rgba(15,23,42,0.06)]"
           >
             <div className="relative h-48">
-              <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+              <img src={item.image} alt={item.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
               <span className="absolute left-4 top-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[#0ea5c9]">
                 AvcNova · lisanslı

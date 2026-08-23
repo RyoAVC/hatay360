@@ -6,22 +6,22 @@ const MODULES = [
   {
     icon: Receipt,
     title: "E-fatura & e-arşiv",
-    desc: "Siparişten faturaya otomatik akış. Entegratör bağlantısı paketlere dahildir.",
+    desc: "Siparişten faturaya otomatik akış. İsteğe bağlı; yazılı teklifte ayrı kalem.",
   },
   {
     icon: Truck,
     title: "Kargo barkod",
-    desc: "Yurtiçi, MNG, Aras ve diğer kargo firmaları için barkod ve takip numarası.",
+    desc: "Yurtiçi, MNG, Aras ve diğer kargo firmaları için barkod ve takip. İsteğe bağlı; yazılı teklifte kalem.",
   },
   {
     icon: Globe2,
     title: "E-ihracat altyapısı",
-    desc: "Farklı para birimi, dil ve kargo kurgusuyla yurt dışı satışı tek panelden.",
+    desc: "Farklı para birimi, dil ve kargo kurgusuyla yurt dışı satışı. İsteğe bağlı; yazılı teklifte kalem.",
   },
   {
     icon: FileText,
     title: "Özel entegrasyon",
-    desc: "ERP, muhasebe veya kendi yazılımınız varsa API ile bağlarız.",
+    desc: "ERP, muhasebe veya kendi yazılımınız varsa API ile bağlarız. İsteğe bağlı; yazılı teklifte kalem.",
   },
 ];
 
@@ -30,13 +30,13 @@ export function ExtraModules() {
     <section className="mx-auto max-w-6xl px-5 py-24 sm:px-8">
       <Reveal className="mx-auto max-w-2xl text-center">
         <span className="text-[14px] font-semibold uppercase tracking-wider text-[#00a8c4]">
-          Operasyon
+          E-ticaret eklentileri
         </span>
         <h2 className="mt-3 text-[32px] font-bold tracking-tight text-[#1a1a1a] sm:text-[40px]">
-          Satıştan sonra da yanınızdayız
+          İsteğe bağlı e-ticaret eklentileri
         </h2>
         <p className="mt-4 text-[17px] leading-relaxed text-[#514f6e]">
-          Mağaza açmak yetmez. Fatura, kargo ve ihracat süreçleri de Hatay360 panelinde yürür.
+          Katalog ve satış ihtiyacı olan işletmeye. E-fatura, kargo ve entegrasyon çekirdek web paketinin parçası değil.
         </p>
       </Reveal>
 

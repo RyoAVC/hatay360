@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Sparkles, MessageCircle, ArrowRight, Store, Megaphone, Smartphone, Globe, Code2 } from "lucide-react";
+import { X, Sparkles, MessageCircle, ArrowRight, Store, Megaphone, Globe, MapPinned } from "lucide-react";
 import { Link } from "react-router";
-import { useContent } from "../context/content-context";
+import { settingOn, useContent } from "../context/content-context";
+import { buildIletisimQuotePath } from "../lib/needs-calculator";
 
 const TIPS = [
-  "👋 Selam! Ben 360 Bot. E-ticaret, web tasarım, reklam ve yazılım işlerinizde buradayım.",
+  "👋 Selam! Ben 360 Bot. Web tasarım, reklam ve Google Maps işlerinizde buradayım.",
   "🌐 Markanıza özel, mobil uyumlu ve hızlı web tasarımları hazırlıyoruz.",
   "🚀 Google Ads ve Instagram reklamlarıyla cironuzu büyütelim mi?",
-  "📱 iOS ve Android uygulamanızı hazırlayıp mağazalarda yayınlayalım.",
-  "💻 Pazaryeri entegrasyonu ve özel yazılım ihtiyaçlarınızı konuşalım.",
+  "📍 İşletmenizi Google Maps kaydıyla haritada görünür kılalım.",
+  "📦 Size uygun paketi birlikte seçelim: web, reklam ve harita keşfi.",
 ];
 
 export function MascotBot() {
@@ -48,9 +49,13 @@ export function MascotBot() {
   }, []);
 
   const botName = settings.mascotName || "Hatay360 Bot";
+  const showMobile = settingOn(settings, "botMobile");
+  const showDesktop = settingOn(settings, "botDesktop");
+  if (!showMobile && !showDesktop) return null;
+  const deviceClass = showMobile && showDesktop ? "" : showMobile ? "md:hidden" : "hidden md:flex";
 
   return (
-    <div className="fixed bottom-24 right-4 z-50 flex flex-col items-end print:hidden md:bottom-6 md:right-6">
+    <div className={`fixed bottom-24 right-4 z-50 flex flex-col items-end print:hidden md:bottom-6 md:right-6 ${deviceClass}`}>
       {/* Konuşma Balonu (Speech Bubble) */}
       <AnimatePresence>
         {showSpeech && !isOpen && (
@@ -115,7 +120,7 @@ export function MascotBot() {
                     <h3 className="text-[16px] font-black">{botName}</h3>
                     <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-extrabold text-white">7/24 Aktif</span>
                   </div>
-                  <p className="text-[12px] text-white/90">E-Ticaret, Web Tasarım, Reklam & Yazılım</p>
+                  <p className="text-[12px] text-white/90">Web tasarım, reklam ve Google Maps</p>
                 </div>
               </div>
             </div>
@@ -134,8 +139,8 @@ export function MascotBot() {
                     <Store className="h-4 w-4" />
                   </span>
                   <div>
-                    <p className="text-[13px] font-bold text-[#1a1a1a]">E-Ticaret Paketleri</p>
-                    <p className="text-[11px] text-[#514f6e]">Anahtar teslim e-ticaret altyapısı</p>
+                    <p className="text-[13px] font-bold text-[#1a1a1a]">Paketler</p>
+                    <p className="text-[11px] text-[#514f6e]">Web, reklam ve harita paketlerini keşfedin</p>
                   </div>
                 </div>
                 <ArrowRight className="h-4 w-4 text-[#00a8c4]" />
@@ -159,7 +164,7 @@ export function MascotBot() {
               </Link>
 
               <Link
-                to="/pazarla"
+                to={buildIletisimQuotePath({ needs: ["ads"] })}
                 onClick={() => setIsOpen(false)}
                 className="flex items-center justify-between rounded-2xl border border-[#ecebf5] bg-[#eff6ff] p-3 transition-all hover:border-[#3b82f6] hover:bg-[#dbeafe] hover:shadow-md"
               >
@@ -176,34 +181,17 @@ export function MascotBot() {
               </Link>
 
               <Link
-                to="/ozellikler"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center justify-between rounded-2xl border border-[#ecebf5] bg-[#fae8ff] p-3 transition-all hover:border-[#a855f7] hover:bg-[#f5d0fe] hover:shadow-md"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#a855f7] text-white">
-                    <Smartphone className="h-4 w-4" />
-                  </span>
-                  <div>
-                    <p className="text-[13px] font-bold text-[#1a1a1a]">Mobil App Geliştirme</p>
-                    <p className="text-[11px] text-[#514f6e]">iOS & Android store yayınlı uygulamalar</p>
-                  </div>
-                </div>
-                <ArrowRight className="h-4 w-4 text-[#a855f7]" />
-              </Link>
-
-              <Link
-                to="/pazarla"
+                to="/google-maps-harita-kaydi"
                 onClick={() => setIsOpen(false)}
                 className="flex items-center justify-between rounded-2xl border border-[#ecebf5] bg-[#1a1a1a] p-3 text-white transition-all hover:bg-[#2d2d3a] hover:shadow-md"
               >
                 <div className="flex items-center gap-3">
                   <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#00a8c4] text-white">
-                    <Code2 className="h-4 w-4" />
+                    <MapPinned className="h-4 w-4" />
                   </span>
                   <div>
-                    <p className="text-[13px] font-bold text-white">Özel yazılım & entegrasyon</p>
-                    <p className="text-[11px] text-white/80">Pazaryeri, bot ve API çözümleri</p>
+                    <p className="text-[13px] font-bold text-white">Google Maps kaydı</p>
+                    <p className="text-[11px] text-white/80">İşletmenizi haritada görünür kılın</p>
                   </div>
                 </div>
                 <ArrowRight className="h-4 w-4 text-[#00a8c4]" />

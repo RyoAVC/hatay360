@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { DEMO_ADMIN_PASS, DEMO_ADMIN_USER, demoAdminKey, getDemoAdminSite, type DemoAdminWidget } from "../lib/demo-admin";
 import { FormError } from "../components/form-error";
+import { buildIletisimQuotePath, sectorParamFromSlug } from "../lib/needs-calculator";
 
 function isAuthed(slug: string) {
   try {
@@ -147,7 +148,7 @@ function copyFor(widget: DemoAdminWidget) {
   return table[widget];
 }
 
-function DemoPanelNotice({ dark }: { dark?: boolean }) {
+function DemoPanelNotice({ dark, slug }: { dark?: boolean; slug?: string }) {
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[60] p-3 sm:p-4">
       <div
@@ -162,7 +163,7 @@ function DemoPanelNotice({ dark }: { dark?: boolean }) {
           Bu ekran <b>sadece demo tasarımı</b> — gerçek panel değil. Hatay360’ın asıl e-ticaret yönetim paneli bundan çok daha dolu ve profesyonel. İsterseniz canlısını gösterelim.
         </p>
         <Link
-          to="/iletisim"
+          to={buildIletisimQuotePath({ sector: sectorParamFromSlug(slug) })}
           className="inline-flex shrink-0 items-center justify-center rounded-xl bg-[#00a8c4] px-4 py-2.5 text-[13px] font-black text-white shadow-[0_8px_20px_rgba(0,168,196,0.35)]"
         >
           Demo isteyin
@@ -214,7 +215,7 @@ export function DemoAdminLoginPage() {
         <button type="submit" className="mt-6 w-full rounded-xl bg-[#00a8c4] py-3 text-[15px] font-black">Panele gir</button>
         <Link to={`/demo/${slug}`} className="mt-4 block text-center text-[12px] font-bold text-white/45">Siteye dön</Link>
       </form>
-      <DemoPanelNotice dark />
+      <DemoPanelNotice dark slug={slug} />
     </div>
   );
 }
@@ -321,7 +322,7 @@ export function DemoAdminPage() {
           </div>
         )}
       </div>
-      <DemoPanelNotice />
+      <DemoPanelNotice slug={slug} />
     </div>
   );
 }

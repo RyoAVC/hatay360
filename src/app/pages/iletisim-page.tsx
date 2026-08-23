@@ -4,7 +4,7 @@ import { Phone, Mail, MessageCircle, Clock, MapPin, Navigation } from "lucide-re
 import { PageHero } from "../components/page-hero";
 import { Reveal, staggerItem } from "../components/motion-primitives";
 import { useContent } from "../context/content-context";
-import { toTelHref, toWhatsAppHref } from "../lib/contact";
+import { isSupportOpenNow, nextSupportChange, supportHoursCopy, toTelHref, toWhatsAppHref } from "../lib/contact";
 import { CONTACT_FAQS } from "../lib/seo";
 import { PageCrumbs } from "../components/page-crumbs";
 import { CallbackForm } from "../components/callback-form";
@@ -13,9 +13,12 @@ import { ServiceAreas } from "../components/service-areas";
 export function IletisimPage() {
   const { settings } = useContent();
   const faqs = CONTACT_FAQS;
+  const hours = supportHoursCopy(settings.supportWeekdayHours, settings.supportSaturdayHours);
+  const openNow = isSupportOpenNow(settings.supportWeekdayHours, settings.supportSaturdayHours);
+  const nextHours = nextSupportChange(settings.supportWeekdayHours, settings.supportSaturdayHours);
 
   const channels = [
-    { icon: Phone, title: "Telefon", value: settings.phone, href: toTelHref(settings.phone), hint: "Hafta içi 09:00–18:00" },
+    { icon: Phone, title: "Telefon", value: settings.phone, href: toTelHref(settings.phone), hint: hours.phoneHint },
     { icon: MessageCircle, title: "WhatsApp", value: "Hemen yazın", href: toWhatsAppHref(settings.phone), hint: "Hızlı teklif ve destek" },
     { icon: Mail, title: "E-posta", value: settings.email, href: `mailto:${settings.email}`, hint: "Teklif ve evrak" },
   ];
@@ -81,14 +84,33 @@ export function IletisimPage() {
                 </div>
               </motion.div>
 
-              <motion.div variants={staggerItem} className="flex items-center gap-4 rounded-2xl bg-[#1a1a1a] p-6 text-white">
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10">
+              <motion.div
+                variants={staggerItem}
+                className="flex items-center gap-4 rounded-2xl bg-[#1a1a1a] p-6 text-white"
+                role="status"
+                aria-live="polite"
+              >
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10" aria-hidden>
                   <Clock className="h-6 w-6" />
                 </span>
-                <div>
-                  <p className="text-[14px] text-white/60">Destek saatleri</p>
-                  <p className="text-[16px] font-semibold">Hafta içi 09:00 – 18:00</p>
-                  <p className="text-[13px] text-white/50">Cumartesi 10:00 – 14:00 · Pazar kapalı</p>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-[14px] text-white/60">Destek saatleri</p>
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wide ${
+                        openNow ? "bg-emerald-400/20 text-emerald-300" : "bg-white/10 text-white/55"
+                      }`}
+                    >
+                      {openNow ? "Şu an açık" : "Mesai dışı"}
+                    </span>
+                  </div>
+                  <p className="text-[16px] font-semibold">{hours.weekdayLine}</p>
+                  <p className="text-[13px] text-white/50">{hours.weekendLine}</p>
+                  {nextHours.label ? (
+                    <p className={`mt-2 text-[12px] font-semibold ${openNow ? "text-emerald-200/90" : "text-amber-200/90"}`}>
+                      {nextHours.label}
+                    </p>
+                  ) : null}
                 </div>
               </motion.div>
             </motion.div>

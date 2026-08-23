@@ -70,6 +70,78 @@ export function napMatches(left: string, right: string) {
   return Boolean(a && b && a === b);
 }
 
+/** Ücretsiz NAP aracı için yapıştırılabilir özet (Google ↔ site ↔ kartvizit). */
+export function buildNapCheckReport(input: {
+  googleName: string;
+  googlePhone: string;
+  googleAddress: string;
+  siteName: string;
+  sitePhone: string;
+  siteAddress: string;
+  cardName: string;
+  cardPhone: string;
+  cardAddress: string;
+  nameOk: boolean;
+  phoneOk: boolean;
+  addressOk: boolean;
+}) {
+  const line = (ok: boolean, label: string) => `${ok ? "UYUMLU" : "FARK"} · ${label}`;
+  return [
+    "Hatay360 NAP tutarlılık özeti",
+    line(input.nameOk, "İşletme adı"),
+    line(input.phoneOk, "Telefon"),
+    line(input.addressOk, "Adres"),
+    "",
+    "Google kaydı",
+    `Ad: ${input.googleName.trim() || "—"}`,
+    `Telefon: ${input.googlePhone.trim() || "—"}`,
+    `Adres: ${input.googleAddress.trim() || "—"}`,
+    "",
+    "Web sitesi",
+    `Ad: ${input.siteName.trim() || "—"}`,
+    `Telefon: ${input.sitePhone.trim() || "—"}`,
+    `Adres: ${input.siteAddress.trim() || "—"}`,
+    "",
+    "Kartvizit / tabela",
+    `Ad: ${input.cardName.trim() || "—"}`,
+    `Telefon: ${input.cardPhone.trim() || "—"}`,
+    `Adres: ${input.cardAddress.trim() || "—"}`,
+  ].join("\n");
+}
+
+function napFieldIssue(left: string, right: string, allowMissing = false) {
+  const a = String(left || "").trim();
+  const b = String(right || "").trim();
+  if (!a || !b) return !allowMissing;
+  return !napMatches(a, b);
+}
+
+type PortalNapMapsLike = { businessName?: string | null; phone?: string | null; address?: string | null };
+
+/** NAP paneli ile aynı kural: ad/telefon OK şart; adres eksik olabilir, farklı olamaz. */
+export function countPortalNapIssues({
+  maps,
+  companyName,
+  companyPhone,
+  websitePhone,
+  websiteAddress,
+}: {
+  maps?: PortalNapMapsLike[] | null;
+  companyName?: string | null;
+  companyPhone?: string | null;
+  websitePhone?: string | null;
+  websiteAddress?: string | null;
+}) {
+  const listing = (maps || [])[0];
+  if (!listing) return 0;
+  const sitePhone = String(websitePhone || companyPhone || "").trim();
+  let issues = 0;
+  if (napFieldIssue(listing.businessName || "", companyName || "")) issues += 1;
+  if (napFieldIssue(listing.phone || "", sitePhone)) issues += 1;
+  if (napFieldIssue(listing.address || "", websiteAddress || "", true)) issues += 1;
+  return issues;
+}
+
 export function buildUtmUrl(base: string, source: string, medium: string, campaign: string, content = "") {
   const raw = String(base || "").trim();
   if (!raw) return "";
@@ -156,6 +228,155 @@ export function buildClosedNotice(input: { brand: string; from: string; to: stri
   };
 }
 
+/** WhatsApp / Facebook paylaşım kartı (Open Graph) pratik limitleri. */
+export const OG_TITLE_MAX = 60;
+export const OG_DESCRIPTION_MAX = 110;
+
+/** Google Ads duyarlı arama (RSA) limitleri — başlık 30, açıklama 90 karakter. */
+export const ADS_RSA_HEADLINE_MAX = 30;
+export const ADS_RSA_DESCRIPTION_MAX = 90;
+
+function normalizeShareUrl(raw: string) {
+  const value = String(raw || "").trim();
+  if (!value) return "";
+  try {
+    const url = new URL(value.includes("://") ? value : `https://${value}`);
+    if (!/^https?:$/i.test(url.protocol)) return "";
+    return url.toString();
+  } catch {
+    return "";
+  }
+}
+
+function escapeHtmlAttr(value: string) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/** Sayfa paylaşımı için Open Graph + Twitter meta satırları. Sıra garantisi yok. */
+export function buildOpenGraphTags(input: {
+  title: string;
+  description: string;
+  url: string;
+  imageUrl?: string;
+  siteName?: string;
+}) {
+  const title = schemaText(input.title, OG_TITLE_MAX);
+  const description = schemaText(input.description, OG_DESCRIPTION_MAX);
+  const url = normalizeShareUrl(input.url);
+  const imageUrl = normalizeShareUrl(input.imageUrl || "");
+  const siteName = schemaText(input.siteName || "", 60) || "Hatay360";
+  let host = "";
+  try {
+    host = url ? new URL(url).hostname.replace(/^www\./i, "") : "";
+  } catch {
+    host = "";
+  }
+
+  const lines = [
+    title ? `<meta property="og:title" content="${escapeHtmlAttr(title)}" />` : "",
+    description ? `<meta property="og:description" content="${escapeHtmlAttr(description)}" />` : "",
+    url ? `<meta property="og:url" content="${escapeHtmlAttr(url)}" />` : "",
+    `<meta property="og:type" content="website" />`,
+    siteName ? `<meta property="og:site_name" content="${escapeHtmlAttr(siteName)}" />` : "",
+    imageUrl ? `<meta property="og:image" content="${escapeHtmlAttr(imageUrl)}" />` : "",
+    title ? `<meta name="twitter:card" content="${imageUrl ? "summary_large_image" : "summary"}" />` : "",
+    title ? `<meta name="twitter:title" content="${escapeHtmlAttr(title)}" />` : "",
+    description ? `<meta name="twitter:description" content="${escapeHtmlAttr(description)}" />` : "",
+    imageUrl ? `<meta name="twitter:image" content="${escapeHtmlAttr(imageUrl)}" />` : "",
+  ].filter(Boolean);
+
+  return {
+    title,
+    description,
+    url,
+    imageUrl,
+    siteName,
+    host,
+    html: lines.join("\n"),
+    titleOk: title.length > 0 && title.length <= OG_TITLE_MAX,
+    descriptionOk: description.length > 0 && description.length <= OG_DESCRIPTION_MAX,
+    urlOk: Boolean(url),
+    imageOk: !String(input.imageUrl || "").trim() || Boolean(imageUrl),
+    disclaimer:
+      "Open Graph satırlarını <head> içine yapıştırın. WhatsApp / Facebook önbelleği eski kartı tutabilir; paylaşım önizlemesi sıra veya tıklama garantisi vermez.",
+  };
+}
+
+function clampAdsLine(value: string, max: number) {
+  return schemaText(value, max);
+}
+
+function uniqueAdsLines(lines: string[]) {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const line of lines) {
+    const text = line.trim();
+    if (!text || seen.has(text)) continue;
+    seen.add(text);
+    out.push(text);
+  }
+  return out;
+}
+
+/** Yerel işletme için Google Ads RSA başlık / açıklama taslakları. Sıra garantisi yok. */
+export function buildAdsRsaTexts(input: {
+  brand: string;
+  service: string;
+  district: string;
+  offer?: string;
+}) {
+  const brand = schemaText(input.brand, 40) || "İşletmemiz";
+  const service = schemaText(input.service, 40) || "hizmet";
+  const district = schemaText(input.district, 30) || "Hatay";
+  const offer = schemaText(input.offer || "", 40);
+  const locService = `${district} ${service}`;
+  const headlines = uniqueAdsLines([
+    clampAdsLine(locService, ADS_RSA_HEADLINE_MAX),
+    clampAdsLine(`${brand} | ${district}`, ADS_RSA_HEADLINE_MAX),
+    clampAdsLine(`${service} ${district}`, ADS_RSA_HEADLINE_MAX),
+    offer
+      ? clampAdsLine(offer, ADS_RSA_HEADLINE_MAX)
+      : clampAdsLine(`${brand} teklif alın`, ADS_RSA_HEADLINE_MAX),
+    clampAdsLine(`${district}'da ${service}`, ADS_RSA_HEADLINE_MAX),
+    clampAdsLine(`Yerel ${service}`, ADS_RSA_HEADLINE_MAX),
+    clampAdsLine(brand, ADS_RSA_HEADLINE_MAX),
+  ]).slice(0, 8);
+
+  const descriptions = uniqueAdsLines([
+    clampAdsLine(
+      `${district} bölgesinde ${service}. ${brand} ile iletişime geçin; yazılı teklif alın.`,
+      ADS_RSA_DESCRIPTION_MAX,
+    ),
+    clampAdsLine(
+      offer
+        ? `${offer}. ${brand} — ${district}. Sıra veya getiri garantisi yoktur.`
+        : `${brand}: ${district} ${service}. Randevu / teklif için arayın. Garanti sıralama yok.`,
+      ADS_RSA_DESCRIPTION_MAX,
+    ),
+  ]).slice(0, 4);
+
+  return {
+    headlines: headlines.map((text) => ({
+      text,
+      length: text.length,
+      max: ADS_RSA_HEADLINE_MAX,
+      ok: text.length > 0 && text.length <= ADS_RSA_HEADLINE_MAX,
+    })),
+    descriptions: descriptions.map((text) => ({
+      text,
+      length: text.length,
+      max: ADS_RSA_DESCRIPTION_MAX,
+      ok: text.length > 0 && text.length <= ADS_RSA_DESCRIPTION_MAX,
+    })),
+    disclaimer:
+      "Google Ads karakter limitleri: başlık 30, açıklama 90. Sıra veya satış garantisi yoktur. Metni kendi Ads hesabınızda kontrol edip yayınlayın.",
+  };
+}
+
 export function extractGooglePlaceId(input: string) {
   const raw = String(input || "").trim();
   if (!raw) return "";
@@ -209,15 +430,15 @@ export function resolveDistricts(districts?: District[] | null) {
 }
 
 export const DEFAULT_SEO_LOCAL_LEAD =
-  "Antakya merkezli Hatay360; Hatay’da web tasarım, reklam ajansı ve e-ticaret altyapısı sunar. İskenderun, Defne ve diğer ilçelere uzaktan da çalışırız.";
+  "Antakya merkezli Hatay360; Hatay’da web tasarım, Google Ads/Meta ve Google Maps / yerel görünürlük sunar. İskenderun, Defne ve diğer ilçelere uzaktan da çalışırız.";
 
 export const DEFAULT_SEO_KEYWORDS =
-  "hatay reklam, hatay web tasarım, hatay web sitesi, hatay web siteciler, hatay ajans, hatay reklam ajansı, hatay e-ticaret, hatay yazılım, hatay360, antakya web tasarım, defne web tasarım, arsuz reklam, iskenderun web tasarım, iskenderun reklam, dörtyol web tasarım, payas reklam, erzin web sitesi, kırıkhan reklam, reyhanlı web tasarım, kumlu e-ticaret, hassa reklam, altınözü web tasarım, yayladağı web sitesi, samandağ reklam, belen web tasarım";
+  "hatay reklam, hatay web tasarım, hatay web sitesi, hatay web siteciler, hatay ajans, hatay reklam ajansı, hatay e-ticaret, hatay yazılım, hatay360, hatay google maps, hatay harita kaydı, antakya web tasarım, defne web tasarım, arsuz reklam, iskenderun web tasarım, iskenderun reklam, dörtyol web tasarım, payas reklam, erzin web sitesi, kırıkhan reklam, reyhanlı web tasarım, kumlu e-ticaret, hassa reklam, altınözü web tasarım, yayladağı web sitesi, samandağ reklam, belen web tasarım";
 
 export const CONTACT_FAQS = [
   {
     q: "Hatay’da web tasarım ne kadar sürer?",
-    a: "Kurumsal site genelde 7–14 gün, e-ticaret altyapısı aynı gün kurulup içeriğe göre yayına alınır. İskenderun ve diğer ilçelerde uzaktan ilerleriz.",
+    a: "Kurumsal site genellikle 7–14 günde çıkar. E-ticaret istenirse süre yazılı teklifte netleşir; aynı gün mağaza kurulumu yok. Keşif uzaktan da yapılır.",
   },
   {
     q: "Reklam için ofise gelmem gerekir mi?",
@@ -241,7 +462,7 @@ export const PACKAGE_FAQS = [
   CONTACT_FAQS[3],
   {
     q: "15 gün deneme nasıl işler?",
-    a: "E-ticaret altyapısını kurup içeriği doldurursunuz. Beğenmezseniz süre sonunda durdurulur; reklam bütçesi zaten sizin hesabınızdadır.",
+    a: "Keşif ve demo 15 gün; kart bağlama şartı yok. Beğenmezseniz süre sonunda durur. Reklam bütçesi sizin hesabınızda kalır; biz yalnızca yönetimi yaparız.",
   },
   {
     q: "Hazır paket mi özel teklif mi?",
@@ -256,7 +477,7 @@ export const SERVICE_FAQS = [
   },
   {
     q: "Pazaryeri ve kendi sitem aynı stokta mı durur?",
-    a: "Evet. Trendyol, Hepsiburada ve kendi mağaza stoku tek panelden güncellenir; çift satış riski azalır.",
+    a: "Ajans paketinin otomatik parçası değil. Stok senkronu Pazarla adlı ayrı üründedir; o üründe pazaryeri ve kendi site stoku birlikte yürür. Teklifte ayrıca yazılır.",
   },
   CONTACT_FAQS[3],
 ];
@@ -340,7 +561,7 @@ export function districtFaqs(name: string, visitHook: string) {
   return [
     {
       q: `${name} için web sitesi ne kadar sürer?`,
-      a: "Kurumsal site genelde 7–14 gün. E-ticaret altyapısı aynı gün kurulup içeriğe göre yayına alınır. Keşif uzaktan da olur.",
+      a: "Kurumsal site genelde 7–14 gün. E-ticaret istenirse süre yazılı teklifte netleşir. Keşif uzaktan da olur.",
     },
     {
       q: "Sadece reklam yaptırabilir miyim?",
@@ -349,6 +570,10 @@ export function districtFaqs(name: string, visitHook: string) {
     {
       q: "Antakya’ya gelmem gerekir mi?",
       a: visitHook,
+    },
+    {
+      q: `${name} için Google Maps kaydı yapıyor musunuz?`,
+      a: "Evet. Harita kaydı ve NAP (ad, adres, telefon) tutarlılığı teklifte ayrı kalem. Google doğrulaması kart/telefon ile işletmeye ve Google’a bağlıdır; biz tamamlatamayız. Haritada 1. sıra sözü yok.",
     },
   ];
 }
@@ -398,8 +623,13 @@ export const SEO_PATH_MAP: Record<string, SeoPageId> = {
   "/paketler": "paketler",
   "/referanslar": "referanslar",
   "/hakkimizda": "hakkimizda",
+  "/kurumsal": "kurumsal",
+  "/misyon": "misyon",
+  "/vizyon": "vizyon",
   "/iletisim": "iletisim",
   "/gizlilik": "gizlilik",
+  "/kvkk": "kvkk",
+  "/mesafeli-satis": "mesafeli",
   "/kosullar": "kosullar",
   "/sektor": "hizmetler",
 };
@@ -411,8 +641,13 @@ export type SeoPageId =
   | "paketler"
   | "referanslar"
   | "hakkimizda"
+  | "kurumsal"
+  | "misyon"
+  | "vizyon"
   | "iletisim"
   | "gizlilik"
+  | "kvkk"
+  | "mesafeli"
   | "kosullar";
 
 export type SeoPage = {
@@ -429,12 +664,12 @@ export const DEFAULT_SEO_PAGES: Record<SeoPageId, SeoPage> = {
   hizmetler: {
     title: "Hatay Web Tasarım ve Reklam | Hizmetler | Hatay360",
     description:
-      "Hatay web sitesi, İskenderun tasarım, pazaryeri entegrasyonu, Google/Meta reklam ve özel yazılım. Tek ekip, tek muhatap.",
+      "Hatay web sitesi, İskenderun tasarım, Google Ads, Meta reklam ve Google Maps. Tek ekip, tek muhatap.",
   },
   ozellikler: {
-    title: "E-Ticaret Özellikleri | Hatay Web Sitesi Altyapısı | Hatay360",
+    title: "Özellikler | Hatay Web, Reklam ve Maps | Hatay360",
     description:
-      "SSL, sanal POS, sınırsız ürün, pazaryeri senkronu. Hatay’da e-ticaret ve web sitesi altyapısı.",
+      "Web tasarım, Google Ads, Meta ve Maps görünürlüğü. SSL, mobil uyum, SEO altyapısı. E-ticaret isteğe bağlı.",
   },
   paketler: {
     title: "Hatay Web Tasarım ve E-Ticaret Paketleri | Hatay360",
@@ -451,17 +686,40 @@ export const DEFAULT_SEO_PAGES: Record<SeoPageId, SeoPage> = {
     description:
       "Antakya merkezli Hatay360: Hatay web tasarım, reklam ajansı, e-ticaret ve yazılım. İskenderun ve tüm ilçelere hizmet.",
   },
+  kurumsal: {
+    title: "Kurumsal | Misyon, Vizyon ve Yasal Belgeler | Hatay360",
+    description:
+      "Hatay360 kurumsal kimlik, misyon, vizyon, değerler ve KVKK / gizlilik / mesafeli satış belgeleri.",
+  },
+  misyon: {
+    title: "Misyonumuz | Hatay360",
+    description:
+      "Hatay işletmelerine ölçülebilir dijital çözümler sunmak — Hatay360 misyonu.",
+  },
+  vizyon: {
+    title: "Vizyonumuz | Hatay360",
+    description:
+      "Hatay ve Türkiye’de güvenilir dijital ajans olmak — Hatay360 vizyonu.",
+  },
   iletisim: {
     title: "İletişim | Hatay Web Siteciler ve Reklam Ajansı | Hatay360",
     description:
       "Hatay reklam ve web tasarım teklifi. Antakya ofis, İskenderun dahil tüm ilçeler. Numaranızı bırakın, sizi arayalım.",
   },
   gizlilik: {
-    title: "Gizlilik ve KVKK | Hatay360",
-    description: "Hatay360 gizlilik politikası ve KVKK aydınlatma metni.",
+    title: "Gizlilik Politikası | Hatay360",
+    description: "Hatay360 gizlilik politikası — kişisel verilerin korunması ve çerezler.",
+  },
+  kvkk: {
+    title: "KVKK Aydınlatma Metni | Hatay360",
+    description: "6698 sayılı Kanun kapsamında Hatay360 kişisel veri aydınlatma metni.",
+  },
+  mesafeli: {
+    title: "Mesafeli Satış Sözleşmesi | Hatay360",
+    description: "Hatay360 uzaktan hizmet satışlarında tarafların hak ve yükümlülükleri.",
   },
   kosullar: {
     title: "Kullanım Koşulları | Hatay360",
-    description: "Hatay360 e-ticaret, web tasarım ve reklam hizmetleri kullanım koşulları.",
+    description: "Hatay360 web tasarım, Ads, Maps ve isteğe bağlı e-ticaret hizmetlerinin kullanım koşulları.",
   },
 };

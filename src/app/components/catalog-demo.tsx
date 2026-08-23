@@ -179,6 +179,7 @@ export function CatalogDemo({ demo, phone }: { demo: ExtraDemo; phone: string })
         tagline={demo.lead}
         bg={demo.bg}
         accent={demo.accent}
+        quoteSector={demo.slug}
         message={msg}
         links={[
           { href: "#ozel", label: "Özel alan" },

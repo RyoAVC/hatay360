@@ -6,14 +6,40 @@ import { FormError } from "../components/form-error";
 import { PhoneField } from "../components/phone-field";
 import { HoneypotField } from "../components/honeypot-field";
 import { apiRequest } from "../lib/api";
-import { isValidTrPhone, PHONE_ERROR, sanitizePhoneInput } from "../lib/contact";
+import { isValidTrPhone, isValidNationalId, NATIONAL_ID_ERROR, PHONE_ERROR, nationalIdDigits, sanitizePhoneInput } from "../lib/contact";
 import { turkishFormProps } from "../lib/form-validation";
+import { readReferralCode } from "../lib/referral";
 import { clearMapsDraft, readMapsDraft, type MapsDraft } from "../lib/maps-signup";
 
 type LocationState = { fromMaps?: boolean; draft?: MapsDraft };
 
+function MapsDraftCard({ draft, tone }: { draft: MapsDraft; tone: "dark" | "light" }) {
+  const dark = tone === "dark";
+  return (
+    <div className={dark
+      ? "relative rounded-2xl border border-white/10 bg-white/5 p-5"
+      : "mb-5 rounded-2xl border border-[#d4e8e4] bg-[#f3faf8] p-4 lg:hidden"}
+    >
+      <p className={`flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] ${dark ? "text-[#82f0c2]" : "text-[#12865f]"}`}>
+        <MapPinned className="h-4 w-4" /> Harita taslağı
+      </p>
+      <p className={`mt-3 text-[16px] font-black ${dark ? "text-white" : "text-[#102b35]"}`}>{draft.businessName}</p>
+      <p className={`mt-1 text-[12px] ${dark ? "text-white/60" : "text-[#5b6b75]"}`}>{draft.sector} · {draft.district}</p>
+      <p className={`mt-1 text-[12px] ${dark ? "text-white/50" : "text-[#87959c]"}`}>{draft.address}</p>
+    </div>
+  );
+}
+
+function mapsSignupNotes(draft?: MapsDraft | null) {
+  const parts = [draft?.businessName && `İşletme: ${draft.businessName}`, draft?.description].filter(Boolean) as string[];
+  const joined = parts.join("\n");
+  if (draft?.sector && !joined.includes(`Sektör: ${draft.sector}`)) parts.push(`Sektör: ${draft.sector}`);
+  return parts.join("\n");
+}
+
 export function CustomerSignupPage() {
   const location = useLocation();
+  const referralCode = useMemo(() => readReferralCode(location.search), [location.search]);
   const mapsDraft = useMemo(() => {
     const state = (location.state || {}) as LocationState;
     return state.draft || readMapsDraft();
@@ -22,6 +48,7 @@ export function CustomerSignupPage() {
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState(mapsDraft?.phone ? sanitizePhoneInput(mapsDraft.phone) : "");
+  const [nationalId, setNationalId] = useState("");
   const [email, setEmail] = useState("");
   const [smsOk, setSmsOk] = useState(true);
   const [error, setError] = useState("");
@@ -44,6 +71,11 @@ export function CustomerSignupPage() {
       setBusy(false);
       return;
     }
+    if (!fromMaps && !isValidNationalId(nationalId)) {
+      setError(NATIONAL_ID_ERROR);
+      setBusy(false);
+      return;
+    }
     const formElement = event.currentTarget as HTMLFormElement;
     const companyFax = String(new FormData(formElement).get("company_fax") || "").trim();
     setBusy(true);
@@ -55,23 +87,26 @@ export function CustomerSignupPage() {
           name,
           phone,
           email,
+          nationalId: nationalIdDigits(nationalId),
           kind: fromMaps ? "maps" : "new_customer",
-          service: fromMaps ? `Google harita kaydı · ${mapsDraft?.sector || ""}` : "Yeni müşteri kaydı",
-          sourcePath: fromMaps ? "/google-maps-harita-kaydi" : "/musteri/kayit",
+          service: fromMaps ? "Google Maps / harita" : "Yeni müşteri kaydı",
+          sourcePath: fromMaps ? `/google-maps-harita-kaydi${location.search || ""}` : `/musteri/kayit${location.search || ""}`,
           sector: mapsDraft?.sector || "",
           district: mapsDraft?.district || "",
           address: mapsDraft?.address || "",
           hours: mapsDraft?.hours || "",
           website: mapsDraft?.website || "",
-          notes: [mapsDraft?.businessName && `İşletme: ${mapsDraft.businessName}`, mapsDraft?.description].filter(Boolean).join("\n"),
+          notes: mapsSignupNotes(mapsDraft),
           smsOk,
           company_fax: companyFax,
+          ref: referralCode || undefined,
         }),
       });
       clearMapsDraft();
       setSent(true);
     } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : "Kayıt gönderilemedi.");
+      const message = nextError instanceof Error ? nextError.message : "Kayıt gönderilemedi.";
+      setError(message);
     } finally {
       setBusy(false);
     }
@@ -96,16 +131,7 @@ export function CustomerSignupPage() {
             <li>Uygun görülen müşteriye şifre ayrıca iletilir.</li>
           </ul>
         </div>
-        {fromMaps && mapsDraft && (
-          <div className="relative rounded-2xl border border-white/10 bg-white/5 p-5">
-            <p className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-[#82f0c2]">
-              <MapPinned className="h-4 w-4" /> Harita taslağı
-            </p>
-            <p className="mt-3 text-[16px] font-black text-white">{mapsDraft.businessName}</p>
-            <p className="mt-1 text-[12px] text-white/60">{mapsDraft.sector} · {mapsDraft.district}</p>
-            <p className="mt-1 text-[12px] text-white/50">{mapsDraft.address}</p>
-          </div>
-        )}
+        {fromMaps && mapsDraft && <MapsDraftCard draft={mapsDraft} tone="dark" />}
       </div>
 
       <div className="flex items-center justify-center p-5 sm:p-10">
@@ -122,6 +148,7 @@ export function CustomerSignupPage() {
           </div>
         ) : (
           <form onSubmit={submit} {...turkishFormProps} className="w-full max-w-md rounded-[30px] border border-white/10 bg-white p-7 shadow-[0_28px_90px_rgba(0,0,0,0.28)] sm:p-9">
+            {fromMaps && mapsDraft && <MapsDraftCard draft={mapsDraft} tone="light" />}
             <h2 className="text-[28px] font-black tracking-[-0.04em] text-[#102b35]">Hatay360 kayıt</h2>
             <p className="mt-2 text-[12px] leading-relaxed text-[#71818a]">
               {fromMaps ? "Harita bilgileriniz hazır. Yetkili ve telefon yeterli; şifre sormuyoruz." : "Ad, telefon ve e-posta yeterli. Şifre sormuyoruz."}
@@ -144,6 +171,20 @@ export function CustomerSignupPage() {
               Telefon
               <div className="mt-2"><PhoneField value={phone} onChange={setPhone} /></div>
             </label>
+            {!fromMaps ? (
+              <label className="mt-4 block text-[11px] font-black text-[#425965]">
+                TC kimlik no
+                <input
+                  required
+                  inputMode="numeric"
+                  maxLength={11}
+                  value={nationalId}
+                  onChange={(event) => setNationalId(nationalIdDigits(event.target.value))}
+                  placeholder="11 haneli"
+                  className="mt-2 w-full rounded-xl border border-[#dbe6ea] px-4 py-3 text-[13px] outline-none focus:border-[#00a8c4]"
+                />
+              </label>
+            ) : null}
             <label className="mt-4 block text-[11px] font-black text-[#425965]">
               E-posta
               <input type="email" maxLength={80} value={email} onChange={(event) => setEmail(event.target.value)} placeholder="ornek@firma.com" className="mt-2 w-full rounded-xl border border-[#dbe6ea] px-4 py-3 text-[13px] outline-none focus:border-[#00a8c4]" />

@@ -35,7 +35,7 @@ export const DISTRICT_ANGLES: Record<string, DistrictAngle> = {
   },
   Kırıkhan: {
     hook: "Geçiş güzergâhı ve ticaret. Mağaza ve servis işletmeleri net teklif ister.",
-    fit: "Yerel ticaret, servis ve e-ticaret için sade site, reklam ve pazaryeri bağlantısı.",
+    fit: "Yerel ticaret, servis ve e-ticaret için sade site, reklam ve Google Maps.",
   },
   Reyhanlı: {
     hook: "Sınır ticareti ve yerel esnaf. Hem Türkçe hem net iletişim önemli.",

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router";
 import { ArrowRight, Building2, Camera, CircleCheck, Flag, MapPinned, MessageSquareText, Navigation, Search, ShieldAlert, Star } from "lucide-react";
 import { PageCrumbs } from "../components/page-crumbs";
@@ -16,13 +17,15 @@ const SERVICES = [
 ];
 
 export function GoogleMapsPage() {
+  const [mapsSent, setMapsSent] = useState(false);
+
   return (
     <>
       <div className="mx-auto max-w-6xl px-5 pt-6 sm:px-8">
         <PageCrumbs items={[{ label: "Ana sayfa", to: "/" }, { label: "Google Maps kaydı" }]} />
       </div>
       <div className="pt-4"><GoogleMapsPromo /></div>
-      <MapsListingWizard />
+      <MapsListingWizard onSubmitted={setMapsSent} />
 
       <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
         <div className="mx-auto max-w-3xl text-center"><span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#12865f]">Hatay yerel görünürlük</span><h1 className="mt-3 text-[34px] font-black tracking-[-0.045em] text-[#0f2d24] sm:text-[46px]">Google Maps harita kaydı ve harita yükseltme hizmeti</h1><p className="mt-4 text-[16px] leading-relaxed text-[#5d716a]">Antakya, Defne, İskenderun ve tüm Hatay ilçelerinde işletmenizin doğru aramada, doğru kategoriyle ve güven veren profille görünmesi için uçtan uca yönetim.</p></div>
@@ -50,7 +53,9 @@ export function GoogleMapsPage() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-5xl gap-8 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center"><div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#12865f]">Ücretsiz ön inceleme</p><h2 className="mt-3 text-[30px] font-black text-[#173d31]">Harita profilinizi birlikte inceleyelim.</h2><p className="mt-3 text-[13px] leading-relaxed text-[#61766e]">Kategori, açıklama, fotoğraf, yorum akışı ve ilçe görünürlüğü için yapılabilecekleri çıkaralım. Sayfada fiyat yayınlamıyoruz; işletmenin durumuna göre kapsam belirliyoruz.</p><Link to="/iletisim" className="mt-5 inline-flex items-center gap-2 text-[12px] font-black text-[#12865f]">Detaylı iletişim <ArrowRight className="h-4 w-4" /></Link></div><div className="rounded-[26px] border border-[#dce9e5] bg-white p-6 shadow-sm"><CallbackForm compact /></div></section>
+      {mapsSent ? null : (
+      <section className="mx-auto grid max-w-5xl gap-8 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center"><div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#12865f]">Ücretsiz ön inceleme</p><h2 className="mt-3 text-[30px] font-black text-[#173d31]">Harita profilinizi birlikte inceleyelim.</h2><p className="mt-3 text-[13px] leading-relaxed text-[#61766e]">Kategori, açıklama, fotoğraf, yorum akışı ve ilçe görünürlüğü için yapılabilecekleri çıkaralım. Sayfada fiyat yayınlamıyoruz; işletmenin durumuna göre kapsam belirliyoruz.</p><Link to="/iletisim" className="mt-5 inline-flex items-center gap-2 text-[12px] font-black text-[#12865f]">Detaylı iletişim <ArrowRight className="h-4 w-4" /></Link></div><div className="rounded-[26px] border border-[#dce9e5] bg-white p-6 shadow-sm"><CallbackForm compact defaultService="Google Maps / harita" /></div></section>
+      )}
     </>
   );
 }

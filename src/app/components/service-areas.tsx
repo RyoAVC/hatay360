@@ -19,7 +19,7 @@ export function ServiceAreas({ mode = "all" }: ServiceAreasProps) {
     mode === "featured"
       ? "Önce Antakya, Defne ve İskenderun. Diğer ilçelerin kendi sayfası var."
       : settings.seoLocalLead ||
-        "Antakya merkezli ajansız. Hatay ilçelerindeki işletmelere web tasarım, reklam ve e-ticaret.";
+        "Antakya merkezli ajansız. Hatay ilçelerindeki işletmelere web tasarım, reklam ve harita.";
 
   if (mode === "chips") {
     return (

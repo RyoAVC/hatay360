@@ -7,13 +7,14 @@ import { extraBySlug } from "../lib/extra-demos";
 import { PageCrumbs } from "../components/page-crumbs";
 import { useContent } from "../context/content-context";
 import { AVCLABS_PRODUCTS, AVCLABS_VITRINE, DEMO_PHOTOS } from "../lib/avclabs";
+import { buildIletisimQuotePath, sectorParamFromSlug } from "../lib/needs-calculator";
 
 function DemoBar({ label, licensed, slug }: { label: string; licensed?: boolean; slug?: string }) {
   return (
     <div className="sticky top-0 z-50 border-b border-black/10 bg-[#0f172a] text-white">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-2.5">
         <p className="text-[12px] font-semibold text-white/80">
-          {licensed ? "AvcNova lisanslı yazılım · AVC ailesi · " : "Hatay360 web sitesi örneği · "}
+          {licensed ? "AvcNova lisanslı yazılım · AVC ailesi · " : "Hatay360 reklam dönüşüm örneği · "}
           <span className="text-white">{label}</span>
         </p>
         <div className="flex items-center gap-2">
@@ -27,7 +28,12 @@ function DemoBar({ label, licensed, slug }: { label: string; licensed?: boolean;
               Yönetim paneli
             </Link>
           )}
-          <Link to="/iletisim" className="rounded-lg bg-[#00a8c4] px-3 py-1.5 text-[12px] font-bold">
+          {!licensed && (
+            <Link to="/paketler" className="rounded-lg border border-white/20 px-3 py-1.5 text-[12px] font-bold text-white/80">
+              Reklam paketleri
+            </Link>
+          )}
+          <Link to={buildIletisimQuotePath({ sector: sectorParamFromSlug(slug) })} className="rounded-lg bg-[#00a8c4] px-3 py-1.5 text-[12px] font-bold">
             Teklif al
           </Link>
           <Link to="/demolar" className="rounded-lg border border-white/20 px-3 py-1.5 text-[12px] font-bold text-white/80">

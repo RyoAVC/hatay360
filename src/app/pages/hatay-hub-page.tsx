@@ -18,8 +18,8 @@ export function HatayHubPage() {
       </div>
       <PageHero
         eyebrow="Hizmet bölgeleri"
-        title="Hatay ilçelerinde web tasarım, reklam ve e-ticaret"
-        desc="Antakya ofisinden tüm ilçelere. İlçenizi seçin; o sayfada size özel kısa teklif ve iletişim var."
+        title="Hatay ilçelerinde web tasarım, reklam ve harita"
+        desc="Antakya ofisinden tüm ilçelere: site, reklam ve Google Maps. E-ticaret isteğe bağlıdır. İlçenizi seçin; o sayfada kısa teklif ve iletişim var."
       />
 
       <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
