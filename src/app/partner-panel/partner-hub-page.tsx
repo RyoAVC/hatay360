@@ -16,6 +16,7 @@ import { PartnerGrowthToolsSection } from "./partner-growth-tools-section";
 import { PartnerOperationsToolsSection } from "./partner-operations-tools-section";
 import { PartnerCustomerSuccessTools } from "./partner-customer-success-tools";
 import { PartnerPremiumToolsSection } from "./partner-premium-tools-section";
+import { PartnerCorporateToolsSection } from "./partner-corporate-tools-section";
 import type { PartnerHubData, PartnerPanelTab } from "./partner-panel-types";
 
 export function PartnerHubPage() {
@@ -74,6 +75,7 @@ export function PartnerHubPage() {
           {tab === "operations" ? <PartnerOperationsToolsSection /> : null}
           {tab === "successTools" ? <PartnerCustomerSuccessTools /> : null}
           {tab === "premiumTools" ? <PartnerPremiumToolsSection /> : null}
+          {tab === "corporateTools" ? <PartnerCorporateToolsSection /> : null}
           {tab === "commissions" ? <PartnerCommissionsSection commissions={hub.commissions} /> : null}
           {tab === "payment" ? <PartnerPaymentSection hub={hub} onRefresh={loadHub} /> : null}
           {tab === "terms" ? <PartnerTermsSection /> : null}
