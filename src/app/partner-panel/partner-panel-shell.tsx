@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import {
   Banknote,
+  Calculator,
   FileSignature,
   LayoutDashboard,
   Link2,
@@ -17,6 +18,7 @@ import type { PartnerPanelTab } from "./partner-panel-types";
 const NAV: { id: PartnerPanelTab; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Özet", icon: LayoutDashboard },
   { id: "referrals", label: "Müşterilerim", icon: Users },
+  { id: "calculator", label: "Kazanç simülatörü", icon: Calculator },
   { id: "commissions", label: "Komisyon geçmişi", icon: Banknote },
   { id: "payment", label: "Ödeme talebi", icon: Wallet },
   { id: "terms", label: "Bayilik şartları", icon: ScrollText },
