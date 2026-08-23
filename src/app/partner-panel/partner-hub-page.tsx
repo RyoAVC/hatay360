@@ -14,6 +14,7 @@ import { PartnerEarningsCalculator } from "./partner-earnings-calculator";
 import { PartnerQuotesSection } from "./partner-quotes-section";
 import { PartnerGrowthToolsSection } from "./partner-growth-tools-section";
 import { PartnerOperationsToolsSection } from "./partner-operations-tools-section";
+import { PartnerCustomerSuccessTools } from "./partner-customer-success-tools";
 import type { PartnerHubData, PartnerPanelTab } from "./partner-panel-types";
 
 export function PartnerHubPage() {
@@ -70,6 +71,7 @@ export function PartnerHubPage() {
           {tab === "calculator" ? <PartnerEarningsCalculator /> : null}
           {tab === "growthTools" ? <PartnerGrowthToolsSection /> : null}
           {tab === "operations" ? <PartnerOperationsToolsSection /> : null}
+          {tab === "successTools" ? <PartnerCustomerSuccessTools /> : null}
           {tab === "commissions" ? <PartnerCommissionsSection commissions={hub.commissions} /> : null}
           {tab === "payment" ? <PartnerPaymentSection hub={hub} onRefresh={loadHub} /> : null}
           {tab === "terms" ? <PartnerTermsSection /> : null}
