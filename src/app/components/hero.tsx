@@ -404,7 +404,9 @@ export function Hero() {
       const mediaAnim = attentionEffectClass(content.effectPreset, reducedMotion);
       const overlayAnim = attentionEffectClass(content.overlayEffect, reducedMotion);
       const hasMedia = Boolean(mediaUrl) && mediaType !== "none";
-      const visual = hasMedia ? (
+      // İlk slayt, diğer iki slayt gibi ürün/panel simülasyonu olarak kalır.
+      // Admin'e yüklenen geniş medya bu slaytta paneli tamamen ezmez.
+      const visual = hasMedia && index !== 0 ? (
         <div className="relative overflow-hidden rounded-2xl border border-[#e2e8f0] bg-[#0f172a]">
           {content.effectCss ? <style>{content.effectCss}</style> : null}
           {mediaType === "video" ? (

@@ -1,21 +1,12 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { TrendingUp, Package, ShoppingBag, Bell } from "lucide-react";
+import { TrendingUp, PhoneCall, Target, Bell } from "lucide-react";
 import { BrandLogo, resolveBrandId } from "./brand-logo";
 
 const BARS = [42, 58, 47, 65, 72, 60, 88, 76, 95, 82, 100, 90];
 
-const PRODUCTS = [
-  "Kablosuz Kulaklık",
-  "Akıllı Saat",
-  "Spor Ayakkabı",
-  "Kahve Makinesi",
-  "Deri Cüzdan",
-  "Bluetooth Hoparlör",
-  "Güneş Gözlüğü",
-  "Sırt Çantası",
-];
-const CHANNELS = ["Trendyol", "Hepsiburada", "N11", "Mağaza"];
+const PRODUCTS = ["Kurumsal web talebi", "Google Ads görüşmesi", "Harita kaydı", "Meta kampanya talebi", "E-ticaret keşfi"];
+const CHANNELS = ["Google", "Meta", "WhatsApp", "Web sitesi"];
 
 type Order = { id: number; product: string; channel: string; price: number };
 
@@ -26,13 +17,13 @@ function randomOrder(): Order {
     id: counter,
     product: PRODUCTS[Math.floor(Math.random() * PRODUCTS.length)],
     channel: CHANNELS[Math.floor(Math.random() * CHANNELS.length)],
-    price: Math.floor(Math.random() * 900) + 100,
+    price: Math.floor(Math.random() * 6) + 1,
   };
 }
 
 export function LiveDashboard() {
-  const [sales, setSales] = useState(48920);
-  const [orders, setOrders] = useState(312);
+  const [sales, setSales] = useState(184);
+  const [orders, setOrders] = useState(47);
   const [feed, setFeed] = useState<Order[]>([randomOrder(), randomOrder(), randomOrder()]);
 
   // Canlı sipariş akışı + artan sayaçlar
@@ -64,20 +55,20 @@ export function LiveDashboard() {
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-2xl border border-[#f1f2f9] bg-white p-4">
             <div className="flex items-center justify-between">
-              <span className="text-[12px] text-[#a0a3bd]">Bugünkü ciro</span>
+              <span className="text-[12px] text-[#a0a3bd]">Aylık görünürlük</span>
               <span className="flex items-center gap-0.5 rounded-full bg-[#e9fbef] px-1.5 py-0.5 text-[10px] font-semibold text-[#0fa958]">
                 <TrendingUp className="h-3 w-3" /> %12
               </span>
             </div>
             <p className="mt-1 text-[22px] font-bold text-[#1a1a1a]">
-              ₺{sales.toLocaleString("tr-TR")}
+              +{sales.toLocaleString("tr-TR")}%
             </p>
           </div>
           <div className="rounded-2xl border border-[#f1f2f9] bg-white p-4">
             <div className="flex items-center justify-between">
-              <span className="text-[12px] text-[#a0a3bd]">Sipariş</span>
+              <span className="text-[12px] text-[#a0a3bd]">Nitelikli talep</span>
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#00a8c4]/10 text-[#00a8c4]">
-                <ShoppingBag className="h-3 w-3" />
+                <Target className="h-3 w-3" />
               </span>
             </div>
             <p className="mt-1 text-[22px] font-bold text-[#1a1a1a]">{orders}</p>
@@ -87,8 +78,8 @@ export function LiveDashboard() {
         {/* Animasyonlu grafik */}
         <div className="rounded-2xl border border-[#f1f2f9] bg-white p-4">
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-[13px] font-semibold text-[#1a1a1a]">Haftalık satış</span>
-            <span className="text-[11px] text-[#a0a3bd]">son 12 gün</span>
+            <span className="text-[13px] font-semibold text-[#1a1a1a]">Dönüşüm ivmesi</span>
+            <span className="text-[11px] text-[#a0a3bd]">son 12 hafta</span>
           </div>
           <div className="flex h-24 items-end gap-1.5">
             {BARS.map((h, i) => (
@@ -117,7 +108,7 @@ export function LiveDashboard() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#0fa958] opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-[#0fa958]" />
             </span>
-            <span className="text-[13px] font-semibold text-[#1a1a1a]">Canlı siparişler</span>
+            <span className="text-[13px] font-semibold text-[#1a1a1a]">Canlı fırsatlar</span>
             <Bell className="ml-auto h-4 w-4 text-[#a0a3bd]" />
           </div>
           <div className="space-y-2">
@@ -137,7 +128,7 @@ export function LiveDashboard() {
                       <BrandLogo name={o.channel} size={32} />
                     ) : (
                       <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#00a8c4]/10 text-[#00a8c4]">
-                        <Package className="h-4 w-4" />
+                        <PhoneCall className="h-4 w-4" />
                       </span>
                     )}
                   </span>
@@ -145,7 +136,7 @@ export function LiveDashboard() {
                     <p className="truncate text-[13px] font-medium text-[#1a1a1a]">{o.product}</p>
                     <p className="text-[11px] text-[#a0a3bd]">{o.channel}</p>
                   </div>
-                  <span className="text-[13px] font-bold text-[#1a1a1a]">₺{o.price}</span>
+                  <span className="text-[11px] font-bold text-[#0fa958]">+{o.price} lead</span>
                 </motion.div>
               ))}
             </AnimatePresence>
