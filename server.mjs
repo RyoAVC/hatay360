@@ -305,6 +305,33 @@ db.exec(`
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   );
+  CREATE TABLE IF NOT EXISTS partner_deals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    partner_id INTEGER NOT NULL REFERENCES partner_accounts(id) ON DELETE CASCADE,
+    company_name TEXT NOT NULL,
+    contact_name TEXT NOT NULL DEFAULT '',
+    phone TEXT NOT NULL DEFAULT '',
+    email TEXT NOT NULL DEFAULT '',
+    service TEXT NOT NULL,
+    value REAL NOT NULL DEFAULT 0,
+    stage TEXT NOT NULL DEFAULT 'new',
+    probability INTEGER NOT NULL DEFAULT 20,
+    next_action TEXT NOT NULL DEFAULT '',
+    follow_up_at TEXT NOT NULL DEFAULT '',
+    notes TEXT NOT NULL DEFAULT '',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS partner_deal_activities (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    deal_id INTEGER NOT NULL REFERENCES partner_deals(id) ON DELETE CASCADE,
+    partner_id INTEGER NOT NULL REFERENCES partner_accounts(id) ON DELETE CASCADE,
+    kind TEXT NOT NULL DEFAULT 'note',
+    detail TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS partner_deals_partner_idx ON partner_deals(partner_id, stage, updated_at);
+  CREATE INDEX IF NOT EXISTS partner_deal_activities_deal_idx ON partner_deal_activities(deal_id, created_at);
 `);
 
 function ensureColumn(table, name, definition) {
@@ -5307,6 +5334,73 @@ async function handleApi(req, res, url) {
     const result = db.prepare("INSERT INTO partner_quotes (partner_id, customer_name, service, amount, notes, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'draft', ?, ?)").run(partner.id, customerName, service, amount, notes, now, now);
     logAudit({ actorType: "partner", actorId: partner.id, actorLabel: partner.email, action: "partner_quote_create", detail: `${customerName} · ${service} · ${amount} TL`, ip: requestIp(req) });
     return json(res, 201, { ok: true, id: Number(result.lastInsertRowid) });
+  }
+
+  const partnerDealMatch = url.pathname.match(/^\/api\/partners\/crm\/deals\/(\d+)$/);
+  const partnerDealActivityMatch = url.pathname.match(/^\/api\/partners\/crm\/deals\/(\d+)\/activities$/);
+  const dealStages = new Set(["new", "qualified", "proposal", "negotiation", "won", "lost"]);
+
+  if (req.method === "GET" && url.pathname === "/api/partners/crm/deals") {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    const deals = db.prepare(`SELECT d.*, (SELECT COUNT(*) FROM partner_deal_activities a WHERE a.deal_id = d.id) AS activity_count FROM partner_deals d WHERE d.partner_id = ? ORDER BY d.updated_at DESC LIMIT 300`).all(partner.id);
+    const activities = db.prepare(`SELECT a.id, a.deal_id, a.kind, a.detail, a.created_at FROM partner_deal_activities a JOIN partner_deals d ON d.id = a.deal_id WHERE a.partner_id = ? AND d.partner_id = ? ORDER BY a.created_at DESC LIMIT 500`).all(partner.id, partner.id);
+    return json(res, 200, { deals, activities });
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/partners/crm/deals") {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    if (rateLimited(req, `partner-crm-create-${partner.id}`, 60, 60 * 60 * 1000)) return json(res, 429, { error: "Çok fazla CRM kaydı oluşturdunuz." });
+    const body = await readJson(req, 20_000);
+    const companyName = cleanText(body.companyName, 120);
+    const contactName = cleanText(body.contactName, 120);
+    const phone = cleanText(body.phone, 40);
+    const email = cleanText(body.email, 160).toLowerCase();
+    const service = cleanText(body.service, 160);
+    const value = numberValue(body.value, 100_000_000);
+    const nextAction = cleanText(body.nextAction, 240);
+    const followUpAt = cleanText(body.followUpAt, 40);
+    const notes = cleanText(body.notes, 1500);
+    if (companyName.length < 2 || service.length < 2 || value < 0) return json(res, 400, { error: "Firma adı, hizmet ve geçerli fırsat tutarı zorunludur." });
+    const now = nowIso();
+    const result = db.prepare(`INSERT INTO partner_deals (partner_id, company_name, contact_name, phone, email, service, value, stage, probability, next_action, follow_up_at, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'new', 20, ?, ?, ?, ?, ?)`).run(partner.id, companyName, contactName, phone, email, service, value, nextAction, followUpAt, notes, now, now);
+    const dealId = Number(result.lastInsertRowid);
+    db.prepare("INSERT INTO partner_deal_activities (deal_id, partner_id, kind, detail, created_at) VALUES (?, ?, 'created', ?, ?)").run(dealId, partner.id, "Satış fırsatı oluşturuldu.", now);
+    logAudit({ actorType: "partner", actorId: partner.id, actorLabel: partner.email, action: "crm_deal_create", detail: `${companyName} · ${value} TL`, ip: requestIp(req) });
+    return json(res, 201, { ok: true, id: dealId });
+  }
+
+  if (req.method === "PATCH" && partnerDealMatch) {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    const dealId = Number(partnerDealMatch[1]);
+    const existing = db.prepare("SELECT id, stage FROM partner_deals WHERE id = ? AND partner_id = ?").get(dealId, partner.id);
+    if (!existing) return json(res, 404, { error: "CRM fırsatı bulunamadı." });
+    const body = await readJson(req, 15_000);
+    const stage = cleanText(body.stage, 30);
+    if (!dealStages.has(stage)) return json(res, 400, { error: "Geçersiz satış aşaması." });
+    const probabilityByStage = { new: 20, qualified: 40, proposal: 60, negotiation: 80, won: 100, lost: 0 };
+    const now = nowIso();
+    db.prepare("UPDATE partner_deals SET stage = ?, probability = ?, updated_at = ? WHERE id = ? AND partner_id = ?").run(stage, probabilityByStage[stage], now, dealId, partner.id);
+    db.prepare("INSERT INTO partner_deal_activities (deal_id, partner_id, kind, detail, created_at) VALUES (?, ?, 'stage', ?, ?)").run(dealId, partner.id, `Aşama ${existing.stage} → ${stage} olarak güncellendi.`, now);
+    return json(res, 200, { ok: true });
+  }
+
+  if (req.method === "POST" && partnerDealActivityMatch) {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    const dealId = Number(partnerDealActivityMatch[1]);
+    const deal = db.prepare("SELECT id FROM partner_deals WHERE id = ? AND partner_id = ?").get(dealId, partner.id);
+    if (!deal) return json(res, 404, { error: "CRM fırsatı bulunamadı." });
+    const body = await readJson(req, 10_000);
+    const detail = cleanText(body.detail, 800);
+    if (detail.length < 2) return json(res, 400, { error: "Aktivite notu boş olamaz." });
+    const kind = ["note", "call", "meeting", "email"].includes(String(body.kind)) ? String(body.kind) : "note";
+    const now = nowIso();
+    db.prepare("INSERT INTO partner_deal_activities (deal_id, partner_id, kind, detail, created_at) VALUES (?, ?, ?, ?, ?)").run(dealId, partner.id, kind, detail, now);
+    db.prepare("UPDATE partner_deals SET updated_at = ? WHERE id = ? AND partner_id = ?").run(now, dealId, partner.id);
+    return json(res, 201, { ok: true });
   }
 
   const partnerQuotePdfMatch = url.pathname.match(/^\/api\/partners\/quotes\/(\d+)\.pdf$/);

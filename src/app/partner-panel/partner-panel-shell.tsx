@@ -21,6 +21,7 @@ import {
   ChevronRight,
   CircleCheck,
   Sparkles,
+  Target,
 } from "lucide-react";
 import { Link } from "react-router";
 import { SiteLogo } from "../components/site-logo";
@@ -29,8 +30,9 @@ import type { PartnerPanelTab } from "./partner-panel-types";
 const NAV: { title: string; items: { id: PartnerPanelTab; label: string; icon: typeof LayoutDashboard; accent?: boolean }[] }[] = [
   { title: "Genel", items: [
     { id: "dashboard", label: "Yönetim özeti", icon: LayoutDashboard },
+    { id: "crm", label: "CRM satış pipeline", icon: Target, accent: true },
     { id: "referrals", label: "Müşterilerim", icon: Users },
-    { id: "quotes", label: "Teklif oluştur", icon: FileText, accent: true },
+    { id: "quotes", label: "Teklif oluştur", icon: FileText },
   ] },
   { title: "Büyüme merkezi", items: [
     { id: "calculator", label: "Kazanç simülatörü", icon: Calculator },
