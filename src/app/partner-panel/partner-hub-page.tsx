@@ -62,7 +62,7 @@ export function PartnerHubPage() {
       ) : hub ? (
         <>
           {tab === "dashboard" ? <PartnerDashboardSection hub={hub} /> : null}
-          {tab === "referrals" ? <PartnerReferralsSection referrals={hub.referrals} /> : null}
+          {tab === "referrals" ? <PartnerReferralsSection referrals={hub.referrals} onRefresh={loadHub} /> : null}
           {tab === "calculator" ? <PartnerEarningsCalculator /> : null}
           {tab === "commissions" ? <PartnerCommissionsSection commissions={hub.commissions} /> : null}
           {tab === "payment" ? <PartnerPaymentSection hub={hub} onRefresh={loadHub} /> : null}
