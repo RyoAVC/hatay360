@@ -57,6 +57,8 @@ test("SQLite API giriş, içerik, hit ve başvuru akışını çalıştırır", 
     body: JSON.stringify({ content: {} }),
   });
   assert.equal(unauthorizedSave.status, 401);
+  const unauthorizedTerms = await fetch(`${base}/api/admin/franchise-terms/hatay360`);
+  assert.equal(unauthorizedTerms.status, 401);
 
   const wrongLogin = await fetch(`${base}/api/auth/login`, {
     method: "POST",
@@ -91,6 +93,28 @@ test("SQLite API giriş, içerik, hit ve başvuru akışını çalıştırır", 
   const savedContent = await fetch(`${base}/api/content`).then((response) => response.json());
   assert.equal(savedContent.content.settings.siteTitle, "Hatay360 Test");
   assert.equal(savedContent.content.settings.aiApiKey, "");
+
+  const initialTerms = await fetch(`${base}/api/admin/franchise-terms/hatay360`, { headers: { Cookie: cookie } }).then((response) => response.json());
+  assert.equal(initialTerms.terms.brandId, "hatay360");
+  assert.equal(initialTerms.terms.ornekPlaceholder, true);
+  const savedTermsResponse = await fetch(`${base}/api/admin/franchise-terms/hatay360`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({
+      terms: {
+        katilimUcretiTl: 12500,
+        odemePeriyodu: "ceyreklik",
+        ornekPlaceholder: false,
+        kategoriler: [{ id: "web", ad: "Web Tasarım", tekrarTipi: "tek_seferlik", komisyonOrani: 22.5 }],
+      },
+    }),
+  });
+  assert.equal(savedTermsResponse.status, 200);
+  const savedTerms = await savedTermsResponse.json();
+  assert.equal(savedTerms.terms.katilimUcretiTl, 12500);
+  assert.equal(savedTerms.terms.kategoriler[0].komisyonOrani, 22.5);
+  const persistedTerms = await fetch(`${base}/api/admin/franchise-terms/hatay360`, { headers: { Cookie: cookie } }).then((response) => response.json());
+  assert.equal(persistedTerms.terms.odemePeriyodu, "ceyreklik");
 
   const pageviewResponse = await fetch(`${base}/api/analytics/pageview`, {
     method: "POST",
@@ -705,6 +729,9 @@ test("SQLite API giriş, içerik, hit ve başvuru akışını çalıştırır", 
   assert.equal(partnerLogin.status, 200);
   const partnerCookie = partnerLogin.headers.get("set-cookie")?.split(";")[0];
   assert.ok(partnerCookie?.startsWith("hatay360_partner_session="));
+  const partnerTerms = await fetch(`${base}/api/partners/franchise-terms/hatay360`, { headers: { Cookie: partnerCookie } }).then((response) => response.json());
+  assert.equal(partnerTerms.terms.katilimUcretiTl, 12500);
+  assert.equal(partnerTerms.terms.kategoriler[0].komisyonOrani, 22.5);
 
   // Onay endpoint'i kayıt şifresini korumalı (şifre yeniden üretmemeli)
   const partnerRegister2 = await fetch(`${base}/api/partners/register`, {

@@ -29,6 +29,7 @@ import {
   paymentGatewayStatus,
   startIyzicoCheckout,
 } from "./src/app/lib/iyzico-checkout.ts";
+import { createExampleBayilikSartlari, normalizeBayilikSartlari } from "./src/app/lib/bayilik-sartlari.ts";
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(ROOT, "dist");
@@ -121,6 +122,11 @@ db.exec(`
   );
   CREATE TABLE IF NOT EXISTS content_sections (
     key TEXT PRIMARY KEY,
+    json TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS franchise_terms (
+    brand_id TEXT PRIMARY KEY,
     json TEXT NOT NULL,
     updated_at TEXT NOT NULL
   );
@@ -5370,6 +5376,16 @@ async function handleApi(req, res, url) {
     return json(res, 200, buildPartnerHubPayload(partner));
   }
 
+  const partnerFranchiseTermsMatch = url.pathname.match(/^\/api\/partners\/franchise-terms\/(hatay360|adana360)$/);
+  if (req.method === "GET" && partnerFranchiseTermsMatch) {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    const brandId = partnerFranchiseTermsMatch[1];
+    const row = db.prepare("SELECT json FROM franchise_terms WHERE brand_id = ?").get(brandId);
+    const raw = row ? JSON.parse(row.json) : createExampleBayilikSartlari(brandId);
+    return json(res, 200, { terms: normalizeBayilikSartlari(raw, brandId) });
+  }
+
   if (req.method === "POST" && url.pathname === "/api/partners/payment-requests") {
     const partner = requirePartner(req, res);
     if (!partner) return;
@@ -5416,6 +5432,39 @@ async function handleApi(req, res, url) {
       )
       .all();
     return json(res, 200, { partners });
+  }
+
+  const adminFranchiseTermsMatch = url.pathname.match(/^\/api\/admin\/franchise-terms\/(hatay360|adana360)$/);
+  if (req.method === "GET" && adminFranchiseTermsMatch) {
+    if (!requireUser(req, res)) return;
+    const brandId = adminFranchiseTermsMatch[1];
+    const row = db.prepare("SELECT json FROM franchise_terms WHERE brand_id = ?").get(brandId);
+    const raw = row ? JSON.parse(row.json) : createExampleBayilikSartlari(brandId);
+    return json(res, 200, { terms: normalizeBayilikSartlari(raw, brandId) });
+  }
+
+  if (req.method === "PUT" && adminFranchiseTermsMatch) {
+    const user = requireUser(req, res);
+    if (!user) return;
+    const brandId = adminFranchiseTermsMatch[1];
+    const body = await readJson(req, 50_000);
+    const terms = normalizeBayilikSartlari(
+      { ...body.terms, brandId, ornekPlaceholder: Boolean(body.terms?.ornekPlaceholder), updatedAt: nowIso() },
+      brandId,
+    );
+    db.prepare(
+      `INSERT INTO franchise_terms (brand_id, json, updated_at) VALUES (?, ?, ?)
+       ON CONFLICT(brand_id) DO UPDATE SET json = excluded.json, updated_at = excluded.updated_at`,
+    ).run(brandId, JSON.stringify(terms), terms.updatedAt);
+    logAudit({
+      actorType: "admin",
+      actorId: user.id,
+      actorLabel: user.username,
+      action: "franchise_terms_update",
+      detail: `${brandId} bayilik şartları güncellendi`,
+      ip: requestIp(req),
+    });
+    return json(res, 200, { ok: true, terms });
   }
 
   const partnerMatch = url.pathname.match(/^\/api\/admin\/partners\/(\d+)$/);

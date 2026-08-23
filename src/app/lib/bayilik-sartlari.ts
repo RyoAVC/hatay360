@@ -1,18 +1,16 @@
 /**
  * Bayilik şartları — marka bazlı veri modeli + okuma API’si.
  * Placeholder / örnek değerler; resmi oran sanılmamalı.
- * getBayilikSartlari(brandId) ileride bayi paneli ve sözleşme modülü için hazırdır;
- * şimdilik başka modül tarafından çağrılmamalı.
+ * Veriler SQLite backend üzerinden okunur ve kalıcı olarak saklanır.
  */
 
 import {
   brandLabel,
-  getBrandSlice,
   isBrandId,
-  patchBrandSlice,
   type BrandId,
   DEFAULT_BRAND_ID,
-} from "./brand-config";
+} from "./brand-config.ts";
+import { apiRequest } from "./api.ts";
 
 export type BayilikTekrarTipi = "tek_seferlik" | "aylik_tekrarlayan";
 
@@ -140,14 +138,17 @@ export function normalizeBayilikSartlari(raw: unknown, brandId: BrandId): Bayili
  * İleride: bayi paneli + sözleşme modülü burayı çağıracak.
  * Şimdilik başka yerde kullanmayın — yalnızca altyapı.
  */
-export function getBayilikSartlari(brandId: BrandId | string): BayilikSartlari {
+export async function getBayilikSartlari(
+  brandId: BrandId | string,
+  scope: "admin" | "partners" = "admin",
+): Promise<BayilikSartlari> {
   const id = isBrandId(brandId) ? brandId : DEFAULT_BRAND_ID;
-  const slice = getBrandSlice(id);
-  return normalizeBayilikSartlari(slice.bayilikSartlari, id);
+  const response = await apiRequest<{ terms: BayilikSartlari }>(`/api/${scope}/franchise-terms/${id}`);
+  return normalizeBayilikSartlari(response.terms, id);
 }
 
 /** Admin kaydı — brand config dilimine yazar */
-export function saveBayilikSartlari(brandId: BrandId, data: BayilikSartlari): BayilikSartlari {
+export async function saveBayilikSartlari(brandId: BrandId, data: BayilikSartlari): Promise<BayilikSartlari> {
   const next = normalizeBayilikSartlari(
     {
       ...data,
@@ -159,15 +160,21 @@ export function saveBayilikSartlari(brandId: BrandId, data: BayilikSartlari): Ba
   );
   // Admin kaydettiğinde "örnek" bayrağını kaldır — değerler artık bilinçli girilmiş sayılır;
   // yine de UI notu kalır. Kullanıcı isterse sıfırla ile örneklere döner.
-  patchBrandSlice(brandId, { bayilikSartlari: next });
-  return next;
+  const response = await apiRequest<{ terms: BayilikSartlari }>(`/api/admin/franchise-terms/${brandId}`, {
+    method: "PUT",
+    body: JSON.stringify({ terms: next }),
+  });
+  return normalizeBayilikSartlari(response.terms, brandId);
 }
 
 /** Örnek placeholder’lara geri al (marka bazında) */
-export function resetBayilikSartlariToExample(brandId: BrandId): BayilikSartlari {
+export async function resetBayilikSartlariToExample(brandId: BrandId): Promise<BayilikSartlari> {
   const example = createExampleBayilikSartlari(brandId);
-  patchBrandSlice(brandId, { bayilikSartlari: example });
-  return example;
+  const response = await apiRequest<{ terms: BayilikSartlari }>(`/api/admin/franchise-terms/${brandId}`, {
+    method: "PUT",
+    body: JSON.stringify({ terms: example }),
+  });
+  return normalizeBayilikSartlari(response.terms, brandId);
 }
 
 export function emptyBayilikKategori(): BayilikHizmetKategorisi {

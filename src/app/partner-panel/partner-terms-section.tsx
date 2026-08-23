@@ -1,5 +1,7 @@
 import { AlertTriangle, BadgePercent, CalendarClock, CircleDollarSign } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
+  createExampleBayilikSartlari,
   getBayilikSartlari,
   ODEME_PERIYODU_LABEL,
   TEKRAR_TIPI_LABEL,
@@ -8,7 +10,18 @@ import { DEFAULT_BRAND_ID } from "../lib/brand-config";
 import { formatTry } from "./partner-panel-format";
 
 export function PartnerTermsSection() {
-  const terms = getBayilikSartlari(DEFAULT_BRAND_ID);
+  const [terms, setTerms] = useState(() => createExampleBayilikSartlari(DEFAULT_BRAND_ID));
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    void getBayilikSartlari(DEFAULT_BRAND_ID, "partners")
+      .then((next) => { if (active) setTerms(next); })
+      .catch((nextError) => { if (active) setError(nextError instanceof Error ? nextError.message : "Şartlar yüklenemedi."); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -19,6 +32,9 @@ export function PartnerTermsSection() {
           Güncel katılım, komisyon ve ödeme dönemi bilgilerinizi buradan takip edin.
         </p>
       </header>
+
+      {loading ? <p className="text-[13px] font-semibold text-indigo-100/55">Bayilik şartları yükleniyor…</p> : null}
+      {error ? <p className="rounded-xl border border-rose-400/30 bg-rose-400/10 px-4 py-3 text-[13px] font-semibold text-rose-100">{error}</p> : null}
 
       {terms.ornekPlaceholder ? (
         <div className="flex gap-3 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 text-amber-100">

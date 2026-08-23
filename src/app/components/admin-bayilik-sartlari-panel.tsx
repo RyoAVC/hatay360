@@ -8,6 +8,7 @@ import { Handshake, Plus, Trash2, AlertTriangle, Save } from "lucide-react";
 import { BRAND_LIST, type BrandId, DEFAULT_BRAND_ID } from "../lib/brand-config";
 import {
   emptyBayilikKategori,
+  createExampleBayilikSartlari,
   formatBayilikBrandTitle,
   getBayilikSartlari,
   ODEME_PERIYODU_LABEL,
@@ -24,28 +25,53 @@ const EXAMPLE_NOTE =
 
 export function AdminBayilikSartlariPanel() {
   const [brandId, setBrandId] = useState<BrandId>(DEFAULT_BRAND_ID);
-  const [draft, setDraft] = useState<BayilikSartlari>(() => getBayilikSartlari(DEFAULT_BRAND_ID));
+  const [draft, setDraft] = useState<BayilikSartlari>(() => createExampleBayilikSartlari(DEFAULT_BRAND_ID));
   const [savedFlash, setSavedFlash] = useState(false);
+  const [busy, setBusy] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    setDraft(getBayilikSartlari(brandId));
+    let active = true;
+    setBusy(true);
+    setError("");
+    void getBayilikSartlari(brandId)
+      .then((terms) => { if (active) setDraft(terms); })
+      .catch((nextError) => { if (active) setError(nextError instanceof Error ? nextError.message : "Şartlar yüklenemedi."); })
+      .finally(() => { if (active) setBusy(false); });
     setSavedFlash(false);
+    return () => { active = false; };
   }, [brandId]);
 
   const patch = (partial: Partial<BayilikSartlari>) => {
     setDraft((prev) => ({ ...prev, ...partial }));
   };
 
-  const onSave = () => {
-    const next = saveBayilikSartlari(brandId, draft);
-    setDraft(next);
-    setSavedFlash(true);
-    window.setTimeout(() => setSavedFlash(false), 2200);
+  const onSave = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      const next = await saveBayilikSartlari(brandId, draft);
+      setDraft(next);
+      setSavedFlash(true);
+      window.setTimeout(() => setSavedFlash(false), 2200);
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : "Şartlar kaydedilemedi.");
+    } finally {
+      setBusy(false);
+    }
   };
 
-  const onResetExample = () => {
+  const onResetExample = async () => {
     if (!window.confirm(`${formatBayilikBrandTitle(brandId)} örnek placeholder değerlerine sıfırlansın mı?`)) return;
-    setDraft(resetBayilikSartlariToExample(brandId));
+    setBusy(true);
+    setError("");
+    try {
+      setDraft(await resetBayilikSartlariToExample(brandId));
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : "Şartlar sıfırlanamadı.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -70,7 +96,7 @@ export function AdminBayilikSartlariPanel() {
               <p className="text-[15px] font-black text-white">Bayilik şartları</p>
               <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-white/50">
                 Marka bazlı komisyon kategorileri, katılım ücreti ve ödeme periyodu. Hatay360 ile Adana360 ayrı
-                saklanır. Bayi paneli / sözleşme henüz bu veriyi okumaz — altyapı hazırlığıdır.
+                SQLite veritabanında kalıcı saklanır ve bayi panelinde aynı kaynaktan gösterilir.
               </p>
             </div>
           </div>
@@ -224,29 +250,32 @@ export function AdminBayilikSartlariPanel() {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
+        {error ? <p className="w-full rounded-xl border border-red-400/25 bg-red-400/10 px-3 py-2 text-[12px] font-bold text-red-200">{error}</p> : null}
         <button
           type="button"
           onClick={onSave}
+          disabled={busy}
           className="inline-flex items-center gap-2 rounded-xl bg-[#00a8c4] px-4 py-2.5 text-[13px] font-black text-white hover:bg-[#008fac]"
         >
           <Save className="h-4 w-4" />
-          {brandId === "hatay360" ? "Hatay360 kaydet" : "Adana360 kaydet"}
+          {busy ? "İşleniyor…" : brandId === "hatay360" ? "Hatay360 kaydet" : "Adana360 kaydet"}
         </button>
         <button
           type="button"
           onClick={onResetExample}
+          disabled={busy}
           className="rounded-xl border border-white/15 px-4 py-2.5 text-[12px] font-bold text-white/70 hover:bg-white/5"
         >
           Örnek değerlere sıfırla
         </button>
         {savedFlash ? (
-          <span className="text-[12px] font-bold text-emerald-300">Kaydedildi (marka config).</span>
+          <span className="text-[12px] font-bold text-emerald-300">SQLite veritabanına kaydedildi.</span>
         ) : null}
       </div>
 
       <p className="text-[11px] leading-relaxed text-white/35">
-        API: <code className="text-white/50">getBayilikSartlari(&quot;{brandId}&quot;)</code> — ileride bayi paneli ve
-        sözleşme bu fonksiyonu kullanacak. Şu an başka modül bağlamayın.
+        Kalıcı kaynak: <code className="text-white/50">franchise_terms / {brandId}</code>. Güncellemeler admin
+        oturumu gerektirir ve denetim günlüğüne yazılır.
       </p>
     </div>
   );
