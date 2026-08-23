@@ -3,6 +3,7 @@ import {
   Banknote,
   Calculator,
   FileSignature,
+  FileText,
   LayoutDashboard,
   Link2,
   LogOut,
@@ -18,6 +19,7 @@ import type { PartnerPanelTab } from "./partner-panel-types";
 const NAV: { id: PartnerPanelTab; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Özet", icon: LayoutDashboard },
   { id: "referrals", label: "Müşterilerim", icon: Users },
+  { id: "quotes", label: "Teklif oluştur", icon: FileText },
   { id: "calculator", label: "Kazanç simülatörü", icon: Calculator },
   { id: "commissions", label: "Komisyon geçmişi", icon: Banknote },
   { id: "payment", label: "Ödeme talebi", icon: Wallet },

@@ -744,6 +744,18 @@ test("SQLite API giriş, içerik, hit ve başvuru akışını çalıştırır", 
     body: JSON.stringify({ fullName: "Ali Bayi", accepted: true }),
   });
   assert.equal(blockedContractAccept.status, 409);
+  const partnerQuoteCreate = await fetch(`${base}/api/partners/quotes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: partnerCookie },
+    body: JSON.stringify({ customerName: "Defne Klinik", service: "Kurumsal web sitesi", amount: 45000, notes: "Mobil uyumlu kurumsal site" }),
+  });
+  assert.equal(partnerQuoteCreate.status, 201);
+  const partnerQuoteId = (await partnerQuoteCreate.json()).id;
+  const partnerQuotes = await fetch(`${base}/api/partners/quotes`, { headers: { Cookie: partnerCookie } }).then((response) => response.json());
+  assert.equal(partnerQuotes.quotes[0].customer_name, "Defne Klinik");
+  const partnerQuotePdf = await fetch(`${base}/api/partners/quotes/${partnerQuoteId}.pdf`, { headers: { Cookie: partnerCookie } });
+  assert.equal(partnerQuotePdf.status, 200);
+  assert.equal(partnerQuotePdf.headers.get("content-type"), "application/pdf");
 
   // Onay endpoint'i kayıt şifresini korumalı (şifre yeniden üretmemeli)
   const partnerRegister2 = await fetch(`${base}/api/partners/register`, {

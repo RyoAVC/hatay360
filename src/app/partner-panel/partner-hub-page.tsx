@@ -11,6 +11,7 @@ import { PartnerMarketingSection } from "./partner-marketing-section";
 import { PartnerTermsSection } from "./partner-terms-section";
 import { PartnerContractSection } from "./partner-contract-section";
 import { PartnerEarningsCalculator } from "./partner-earnings-calculator";
+import { PartnerQuotesSection } from "./partner-quotes-section";
 import type { PartnerHubData, PartnerPanelTab } from "./partner-panel-types";
 
 export function PartnerHubPage() {
@@ -63,6 +64,7 @@ export function PartnerHubPage() {
         <>
           {tab === "dashboard" ? <PartnerDashboardSection hub={hub} /> : null}
           {tab === "referrals" ? <PartnerReferralsSection referrals={hub.referrals} onRefresh={loadHub} /> : null}
+          {tab === "quotes" ? <PartnerQuotesSection /> : null}
           {tab === "calculator" ? <PartnerEarningsCalculator /> : null}
           {tab === "commissions" ? <PartnerCommissionsSection commissions={hub.commissions} /> : null}
           {tab === "payment" ? <PartnerPaymentSection hub={hub} onRefresh={loadHub} /> : null}

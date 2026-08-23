@@ -294,6 +294,17 @@ db.exec(`
     user_agent TEXT NOT NULL DEFAULT '',
     UNIQUE(partner_id, brand_id, terms_updated_at)
   );
+  CREATE TABLE IF NOT EXISTS partner_quotes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    partner_id INTEGER NOT NULL REFERENCES partner_accounts(id) ON DELETE CASCADE,
+    customer_name TEXT NOT NULL,
+    service TEXT NOT NULL,
+    amount REAL NOT NULL,
+    notes TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'draft',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
 `);
 
 function ensureColumn(table, name, definition) {
@@ -5257,6 +5268,45 @@ async function handleApi(req, res, url) {
       partnerId: partner.id,
     });
     return json(res, 201, { ok: true, id: Number(result.lastInsertRowid) });
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/partners/quotes") {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    const quotes = db.prepare("SELECT id, customer_name, service, amount, notes, status, created_at, updated_at FROM partner_quotes WHERE partner_id = ? ORDER BY id DESC LIMIT 100").all(partner.id);
+    return json(res, 200, { quotes });
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/partners/quotes") {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    if (rateLimited(req, `partner-quote-${partner.id}`, 30, 60 * 60 * 1000)) return json(res, 429, { error: "Çok fazla teklif oluşturdunuz." });
+    const body = await readJson(req, 20_000);
+    const customerName = cleanText(body.customerName, 120);
+    const service = cleanText(body.service, 160);
+    const amount = numberValue(body.amount, 10_000_000);
+    const notes = cleanText(body.notes, 1200);
+    if (customerName.length < 2 || service.length < 2 || amount <= 0) return json(res, 400, { error: "Müşteri, hizmet ve geçerli teklif tutarı zorunludur." });
+    const now = nowIso();
+    const result = db.prepare("INSERT INTO partner_quotes (partner_id, customer_name, service, amount, notes, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'draft', ?, ?)").run(partner.id, customerName, service, amount, notes, now, now);
+    logAudit({ actorType: "partner", actorId: partner.id, actorLabel: partner.email, action: "partner_quote_create", detail: `${customerName} · ${service} · ${amount} TL`, ip: requestIp(req) });
+    return json(res, 201, { ok: true, id: Number(result.lastInsertRowid) });
+  }
+
+  const partnerQuotePdfMatch = url.pathname.match(/^\/api\/partners\/quotes\/(\d+)\.pdf$/);
+  if (req.method === "GET" && partnerQuotePdfMatch) {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    const row = db.prepare("SELECT * FROM partner_quotes WHERE id = ? AND partner_id = ?").get(Number(partnerQuotePdfMatch[1]), partner.id);
+    if (!row) return json(res, 404, { error: "Teklif bulunamadı." });
+    const pdf = buildQuotePdf({
+      title: `${row.service} Teklifi`,
+      body: `Hizmet: ${row.service}\nTeklif tutarı: ${Number(row.amount).toLocaleString("tr-TR")} TL\n\n${row.notes || "Hizmet kapsamı görüşme sonrasında kesinleştirilecektir."}\n\nBu belge taslak satış teklifidir; sözleşme ve fatura yerine geçmez.`,
+      companyName: row.customer_name,
+      contactName: `${partner.company_name} · ${partner.contact_name}`,
+      issuedAt: row.created_at,
+    });
+    return sendPdfBuffer(res, pdf, `teklif-${row.id}.pdf`);
   }
 
   if (req.method === "POST" && url.pathname === "/api/partners/password") {
