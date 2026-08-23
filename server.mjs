@@ -5277,6 +5277,22 @@ async function handleApi(req, res, url) {
     return json(res, 200, { quotes });
   }
 
+  if (req.method === "GET" && url.pathname === "/api/partners/certificate.pdf") {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    const code = ensurePartnerReferralCode(partner.id);
+    const issuedAt = nowIso();
+    const pdf = buildQuotePdf({
+      title: "Yetkili Çözüm Ortağı Sertifikası",
+      body: `${partner.company_name}, Hatay360 yetkili çözüm ortağı olarak kayıtlıdır.\n\nYetkili: ${partner.contact_name}\nDoğrulama kodu: ${code}\nDurum: Aktif bayi\n\nBu belge bayi hesabının mevcut durumunu gösterir. Yetki durumu Hatay360 kayıtlarından doğrulanmalıdır.`,
+      companyName: partner.company_name,
+      contactName: partner.contact_name,
+      issuedAt,
+    });
+    logAudit({ actorType: "partner", actorId: partner.id, actorLabel: partner.email, action: "partner_certificate_download", detail: code, ip: requestIp(req) });
+    return sendPdfBuffer(res, pdf, "hatay360-yetkili-bayi-sertifikasi.pdf");
+  }
+
   if (req.method === "POST" && url.pathname === "/api/partners/quotes") {
     const partner = requirePartner(req, res);
     if (!partner) return;

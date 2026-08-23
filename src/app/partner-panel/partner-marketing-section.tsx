@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Copy, FileImage, FileText, Link2 } from "lucide-react";
+import { Award, Copy, Download, FileImage, FileText, Link2, ShieldCheck } from "lucide-react";
 import type { PartnerHubData } from "./partner-panel-types";
 
 export function PartnerMarketingSection({ hub }: { hub: PartnerHubData }) {
@@ -20,6 +20,7 @@ export function PartnerMarketingSection({ hub }: { hub: PartnerHubData }) {
     { title: "Sosyal medya görsel paketi", icon: FileImage },
     { title: "Hizmet özeti broşürü", icon: FileText },
   ];
+  const badgeHtml = `<a href="https://hatay360.com/firma/dogrula?code=${hub.referralCode}" target="_blank" rel="noopener"><img src="https://hatay360.com/brands/hatay360.png" alt="Hatay360 Yetkili Çözüm Ortağı" width="180"></a>`;
 
   return (
     <div className="space-y-6">
@@ -59,6 +60,19 @@ export function PartnerMarketingSection({ hub }: { hub: PartnerHubData }) {
           ))}
         </div>
       </article>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <article className="rounded-2xl border border-violet-400/25 bg-gradient-to-br from-violet-500/15 to-indigo-500/10 p-6">
+          <div className="flex items-center gap-3"><span className="rounded-xl bg-violet-400/15 p-2.5 text-violet-200"><Award className="h-5 w-5" /></span><div><p className="text-[10px] font-black uppercase tracking-wider text-violet-200/60">Premium belge</p><h2 className="mt-1 text-[15px] font-black">Yetkili Çözüm Ortağı Sertifikası</h2></div></div>
+          <p className="mt-4 text-xs leading-relaxed text-indigo-100/55">Firma adınız, yetkiliniz ve doğrulama kodunuzla hazırlanan kurumsal PDF.</p>
+          <a href="/api/partners/certificate.pdf" className="mt-5 inline-flex items-center gap-2 rounded-xl bg-violet-500 px-4 py-2.5 text-xs font-black text-white hover:bg-violet-400"><Download className="h-4 w-4" /> Sertifikayı indir</a>
+        </article>
+        <article className="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-6">
+          <div className="flex items-center gap-3"><span className="rounded-xl bg-emerald-400/15 p-2.5 text-emerald-200"><ShieldCheck className="h-5 w-5" /></span><div><p className="text-[10px] font-black uppercase tracking-wider text-emerald-200/60">Web rozeti</p><h2 className="mt-1 text-[15px] font-black">Doğrulanmış bayi rozeti</h2></div></div>
+          <code className="mt-4 block max-h-20 overflow-auto rounded-xl bg-black/25 p-3 text-[10px] leading-relaxed text-emerald-100/65">{badgeHtml}</code>
+          <button type="button" onClick={() => copy("badge", badgeHtml)} className="mt-3 inline-flex items-center gap-2 rounded-xl border border-emerald-400/25 px-4 py-2.5 text-xs font-black text-emerald-100"><Copy className="h-4 w-4" /> {copied === "badge" ? "Kod kopyalandı" : "Rozet kodunu kopyala"}</button>
+        </article>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         {assets.map((asset) => {

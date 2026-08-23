@@ -756,6 +756,9 @@ test("SQLite API giriş, içerik, hit ve başvuru akışını çalıştırır", 
   const partnerQuotePdf = await fetch(`${base}/api/partners/quotes/${partnerQuoteId}.pdf`, { headers: { Cookie: partnerCookie } });
   assert.equal(partnerQuotePdf.status, 200);
   assert.equal(partnerQuotePdf.headers.get("content-type"), "application/pdf");
+  const partnerCertificate = await fetch(`${base}/api/partners/certificate.pdf`, { headers: { Cookie: partnerCookie } });
+  assert.equal(partnerCertificate.status, 200);
+  assert.equal(partnerCertificate.headers.get("content-type"), "application/pdf");
 
   // Onay endpoint'i kayıt şifresini korumalı (şifre yeniden üretmemeli)
   const partnerRegister2 = await fetch(`${base}/api/partners/register`, {
