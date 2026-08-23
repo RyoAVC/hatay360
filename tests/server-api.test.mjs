@@ -732,6 +732,18 @@ test("SQLite API giriş, içerik, hit ve başvuru akışını çalıştırır", 
   const partnerTerms = await fetch(`${base}/api/partners/franchise-terms/hatay360`, { headers: { Cookie: partnerCookie } }).then((response) => response.json());
   assert.equal(partnerTerms.terms.katilimUcretiTl, 12500);
   assert.equal(partnerTerms.terms.kategoriler[0].komisyonOrani, 22.5);
+  const contractData = await fetch(`${base}/api/partners/contract`, { headers: { Cookie: partnerCookie } }).then((response) => response.json());
+  assert.equal(contractData.legalTextReady, false);
+  assert.equal(contractData.terms.katilimUcretiTl, 12500);
+  const contractPdf = await fetch(`${base}/api/partners/contract.pdf`, { headers: { Cookie: partnerCookie } });
+  assert.equal(contractPdf.status, 200);
+  assert.equal(contractPdf.headers.get("content-type"), "application/pdf");
+  const blockedContractAccept = await fetch(`${base}/api/partners/contract/accept`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: partnerCookie },
+    body: JSON.stringify({ fullName: "Ali Bayi", accepted: true }),
+  });
+  assert.equal(blockedContractAccept.status, 409);
 
   // Onay endpoint'i kayıt şifresini korumalı (şifre yeniden üretmemeli)
   const partnerRegister2 = await fetch(`${base}/api/partners/register`, {

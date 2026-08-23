@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import {
   Banknote,
+  FileSignature,
   LayoutDashboard,
   Link2,
   LogOut,
@@ -19,6 +20,7 @@ const NAV: { id: PartnerPanelTab; label: string; icon: typeof LayoutDashboard }[
   { id: "commissions", label: "Komisyon geçmişi", icon: Banknote },
   { id: "payment", label: "Ödeme talebi", icon: Wallet },
   { id: "terms", label: "Bayilik şartları", icon: ScrollText },
+  { id: "contract", label: "Sözleşmem", icon: FileSignature },
   { id: "marketing", label: "Pazarlama", icon: Megaphone },
 ];
 

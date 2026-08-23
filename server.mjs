@@ -282,6 +282,18 @@ db.exec(`
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   );
+  CREATE TABLE IF NOT EXISTS partner_contract_acceptances (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    partner_id INTEGER NOT NULL REFERENCES partner_accounts(id) ON DELETE CASCADE,
+    brand_id TEXT NOT NULL,
+    full_name TEXT NOT NULL,
+    terms_snapshot TEXT NOT NULL,
+    terms_updated_at TEXT NOT NULL,
+    accepted_at TEXT NOT NULL,
+    ip TEXT NOT NULL,
+    user_agent TEXT NOT NULL DEFAULT '',
+    UNIQUE(partner_id, brand_id, terms_updated_at)
+  );
 `);
 
 function ensureColumn(table, name, definition) {
@@ -5384,6 +5396,63 @@ async function handleApi(req, res, url) {
     const row = db.prepare("SELECT json FROM franchise_terms WHERE brand_id = ?").get(brandId);
     const raw = row ? JSON.parse(row.json) : createExampleBayilikSartlari(brandId);
     return json(res, 200, { terms: normalizeBayilikSartlari(raw, brandId) });
+  }
+
+  function partnerContractPayload(partner, brandId = "hatay360") {
+    const termsRow = db.prepare("SELECT json FROM franchise_terms WHERE brand_id = ?").get(brandId);
+    const raw = termsRow ? JSON.parse(termsRow.json) : createExampleBayilikSartlari(brandId);
+    const terms = normalizeBayilikSartlari(raw, brandId);
+    const acceptance = db
+      .prepare("SELECT id, full_name, accepted_at, terms_updated_at FROM partner_contract_acceptances WHERE partner_id = ? AND brand_id = ? AND terms_updated_at = ? ORDER BY id DESC LIMIT 1")
+      .get(partner.id, brandId, terms.updatedAt) || null;
+    return {
+      title: `${brandId === "adana360" ? "Adana360" : "Hatay360"} Bayilik Sözleşmesi`,
+      legalTextReady: false,
+      legalNotice: "Hukuki sözleşme metni henüz hukuk danışmanı tarafından sisteme yüklenmemiştir. Bu ekran yalnızca teknik onay altyapısıdır.",
+      terms,
+      acceptance,
+    };
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/partners/contract") {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    return json(res, 200, partnerContractPayload(partner));
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/partners/contract/accept") {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    const body = await readJson(req, 10_000);
+    const fullName = cleanText(body.fullName, 120);
+    if (!body.accepted || fullName.length < 3) return json(res, 400, { error: "Ad soyad ve kabul onayı zorunludur." });
+    const payload = partnerContractPayload(partner);
+    if (!payload.legalTextReady) return json(res, 409, { error: "Hukuki sözleşme metni yüklenmeden dijital onay alınamaz." });
+    const acceptedAt = nowIso();
+    db.prepare(
+      `INSERT OR IGNORE INTO partner_contract_acceptances
+       (partner_id, brand_id, full_name, terms_snapshot, terms_updated_at, accepted_at, ip, user_agent)
+       VALUES (?, 'hatay360', ?, ?, ?, ?, ?, ?)`,
+    ).run(partner.id, fullName, JSON.stringify(payload.terms), payload.terms.updatedAt, acceptedAt, requestIp(req), cleanText(req.headers["user-agent"], 300));
+    logAudit({ actorType: "partner", actorId: partner.id, actorLabel: partner.email, action: "partner_contract_accept", detail: payload.title, ip: requestIp(req) });
+    return json(res, 200, { ok: true, ...partnerContractPayload(partner) });
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/partners/contract.pdf") {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    const payload = partnerContractPayload(partner);
+    const categoryLines = payload.terms.kategoriler.map((item) => `${item.ad}: %${item.komisyonOrani} (${item.tekrarTipi})`).join("\n");
+    const body = `${payload.legalNotice}\n\nKatılım ücreti: ${payload.terms.katilimUcretiTl} TL\nÖdeme periyodu: ${payload.terms.odemePeriyodu}\n\n${categoryLines}`;
+    const pdf = buildContractPdf({
+      title: payload.title,
+      body,
+      companyName: partner.company_name,
+      contactName: payload.acceptance?.full_name || partner.contact_name,
+      signedAt: payload.acceptance?.accepted_at || "",
+      statusLabel: payload.acceptance ? "Dijital onay kaydedildi" : "Onay bekliyor",
+    });
+    return sendPdfBuffer(res, pdf, "bayilik-sozlesmesi.pdf");
   }
 
   if (req.method === "POST" && url.pathname === "/api/partners/payment-requests") {

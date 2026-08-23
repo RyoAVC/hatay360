@@ -9,6 +9,7 @@ import { PartnerCommissionsSection } from "./partner-commissions-section";
 import { PartnerPaymentSection } from "./partner-payment-section";
 import { PartnerMarketingSection } from "./partner-marketing-section";
 import { PartnerTermsSection } from "./partner-terms-section";
+import { PartnerContractSection } from "./partner-contract-section";
 import type { PartnerHubData, PartnerPanelTab } from "./partner-panel-types";
 
 export function PartnerHubPage() {
@@ -64,6 +65,7 @@ export function PartnerHubPage() {
           {tab === "commissions" ? <PartnerCommissionsSection commissions={hub.commissions} /> : null}
           {tab === "payment" ? <PartnerPaymentSection hub={hub} onRefresh={loadHub} /> : null}
           {tab === "terms" ? <PartnerTermsSection /> : null}
+          {tab === "contract" ? <PartnerContractSection contactName={partner.contact_name} /> : null}
           {tab === "marketing" ? <PartnerMarketingSection hub={hub} /> : null}
         </>
       ) : null}
