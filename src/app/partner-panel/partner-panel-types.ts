@@ -1,4 +1,4 @@
-export type PartnerPanelTab = "dashboard" | "referrals" | "quotes" | "calculator" | "commissions" | "payment" | "terms" | "contract" | "marketing";
+export type PartnerPanelTab = "dashboard" | "referrals" | "quotes" | "calculator" | "growthTools" | "commissions" | "payment" | "terms" | "contract" | "marketing";
 
 export type PartnerTier = {
   level: "bronze" | "silver" | "gold";
