@@ -332,6 +332,28 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS partner_deals_partner_idx ON partner_deals(partner_id, stage, updated_at);
   CREATE INDEX IF NOT EXISTS partner_deal_activities_deal_idx ON partner_deal_activities(deal_id, created_at);
+  CREATE TABLE IF NOT EXISTS partner_support_conversations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    partner_id INTEGER NOT NULL REFERENCES partner_accounts(id) ON DELETE CASCADE,
+    subject TEXT NOT NULL,
+    category TEXT NOT NULL DEFAULT 'general',
+    priority TEXT NOT NULL DEFAULT 'normal',
+    status TEXT NOT NULL DEFAULT 'open',
+    assigned_to TEXT NOT NULL DEFAULT '',
+    last_message_at TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS partner_support_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    conversation_id INTEGER NOT NULL REFERENCES partner_support_conversations(id) ON DELETE CASCADE,
+    sender_type TEXT NOT NULL,
+    sender_name TEXT NOT NULL,
+    body TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS partner_support_conversations_partner_idx ON partner_support_conversations(partner_id, updated_at);
+  CREATE INDEX IF NOT EXISTS partner_support_messages_conversation_idx ON partner_support_messages(conversation_id, created_at);
 `);
 
 function ensureColumn(table, name, definition) {
@@ -5403,6 +5425,34 @@ async function handleApi(req, res, url) {
     return json(res, 201, { ok: true });
   }
 
+  const partnerSupportMessageMatch = url.pathname.match(/^\/api\/partners\/support\/conversations\/(\d+)\/messages$/);
+  if (req.method === "GET" && url.pathname === "/api/partners/support/conversations") {
+    const partner = requirePartner(req, res); if (!partner) return;
+    const conversations = db.prepare("SELECT * FROM partner_support_conversations WHERE partner_id = ? ORDER BY last_message_at DESC LIMIT 100").all(partner.id);
+    const messages = db.prepare(`SELECT m.* FROM partner_support_messages m JOIN partner_support_conversations c ON c.id = m.conversation_id WHERE c.partner_id = ? ORDER BY m.created_at ASC LIMIT 1000`).all(partner.id);
+    return json(res, 200, { conversations, messages });
+  }
+  if (req.method === "POST" && url.pathname === "/api/partners/support/conversations") {
+    const partner = requirePartner(req, res); if (!partner) return;
+    if (rateLimited(req, `partner-support-${partner.id}`, 30, 60 * 60 * 1000)) return json(res, 429, { error: "Çok fazla destek konuşması açtınız." });
+    const body = await readJson(req, 20_000); const subject = cleanText(body.subject, 160); const message = cleanText(body.message, 3000);
+    const category = ["technical","sales","finance","contract","general"].includes(body.category) ? body.category : "general";
+    const priority = ["normal","high","urgent"].includes(body.priority) ? body.priority : "normal";
+    if (subject.length < 3 || message.length < 5) return json(res, 400, { error: "Konu ve ilk mesaj zorunludur." });
+    const now = nowIso(); const result = db.prepare("INSERT INTO partner_support_conversations (partner_id, subject, category, priority, status, last_message_at, created_at, updated_at) VALUES (?, ?, ?, ?, 'open', ?, ?, ?)").run(partner.id, subject, category, priority, now, now, now);
+    const id = Number(result.lastInsertRowid); db.prepare("INSERT INTO partner_support_messages (conversation_id, sender_type, sender_name, body, created_at) VALUES (?, 'partner', ?, ?, ?)").run(id, partner.contact_name, message, now);
+    logAudit({ actorType:"partner", actorId:partner.id, actorLabel:partner.email, action:"partner_support_open", detail:subject, ip:requestIp(req) });
+    return json(res, 201, { ok:true, id });
+  }
+  if (req.method === "POST" && partnerSupportMessageMatch) {
+    const partner = requirePartner(req, res); if (!partner) return; const id = Number(partnerSupportMessageMatch[1]);
+    const conversation = db.prepare("SELECT id, status FROM partner_support_conversations WHERE id = ? AND partner_id = ?").get(id, partner.id); if (!conversation) return json(res, 404, { error:"Konuşma bulunamadı." });
+    const body = await readJson(req, 15_000); const message = cleanText(body.message, 3000); if (message.length < 2) return json(res, 400, { error:"Mesaj boş olamaz." });
+    const now = nowIso(); db.prepare("INSERT INTO partner_support_messages (conversation_id, sender_type, sender_name, body, created_at) VALUES (?, 'partner', ?, ?, ?)").run(id, partner.contact_name, message, now);
+    db.prepare("UPDATE partner_support_conversations SET status = 'open', last_message_at = ?, updated_at = ? WHERE id = ? AND partner_id = ?").run(now, now, id, partner.id);
+    return json(res, 201, { ok:true });
+  }
+
   const partnerQuotePdfMatch = url.pathname.match(/^\/api\/partners\/quotes\/(\d+)\.pdf$/);
   if (req.method === "GET" && partnerQuotePdfMatch) {
     const partner = requirePartner(req, res);
@@ -7323,6 +7373,28 @@ async function handleApi(req, res, url) {
   }
 
   const adminTicketMatch = url.pathname.match(/^\/api\/admin\/tickets\/(\d+)$/);
+  const adminPartnerSupportMessageMatch = url.pathname.match(/^\/api\/admin\/partner-support\/(\d+)\/messages$/);
+  if (req.method === "GET" && url.pathname === "/api/admin/partner-support") {
+    if (!requireUser(req, res)) return;
+    const conversations = db.prepare(`SELECT c.*, p.company_name, p.contact_name, p.email FROM partner_support_conversations c JOIN partner_accounts p ON p.id = c.partner_id ORDER BY CASE c.status WHEN 'open' THEN 0 WHEN 'pending' THEN 1 ELSE 2 END, c.last_message_at DESC LIMIT 300`).all();
+    const messages = db.prepare("SELECT * FROM partner_support_messages ORDER BY created_at ASC LIMIT 3000").all();
+    return json(res, 200, { conversations, messages });
+  }
+  if (req.method === "POST" && adminPartnerSupportMessageMatch) {
+    const user = requireUser(req, res); if (!user) return; const id = Number(adminPartnerSupportMessageMatch[1]);
+    const conversation = db.prepare("SELECT id FROM partner_support_conversations WHERE id = ?").get(id); if (!conversation) return json(res, 404, { error:"Konuşma bulunamadı." });
+    const body = await readJson(req, 15_000); const message = cleanText(body.message, 3000); if (message.length < 2) return json(res, 400, { error:"Yanıt boş olamaz." });
+    const now = nowIso(); const senderName = cleanText(user.name || user.email || "Hatay360 Destek", 120);
+    db.prepare("INSERT INTO partner_support_messages (conversation_id, sender_type, sender_name, body, created_at) VALUES (?, 'admin', ?, ?, ?)").run(id, senderName, message, now);
+    db.prepare("UPDATE partner_support_conversations SET status = 'pending', assigned_to = ?, last_message_at = ?, updated_at = ? WHERE id = ?").run(senderName, now, now, id);
+    return json(res, 201, { ok:true });
+  }
+  if (req.method === "PATCH" && adminPartnerSupportMessageMatch) {
+    if (!requireUser(req, res)) return; const id = Number(adminPartnerSupportMessageMatch[1]); const body = await readJson(req, 10_000);
+    const status = ["open","pending","resolved","closed"].includes(body.status) ? body.status : "open";
+    const result = db.prepare("UPDATE partner_support_conversations SET status = ?, updated_at = ? WHERE id = ?").run(status, nowIso(), id);
+    if (!result.changes) return json(res, 404, { error:"Konuşma bulunamadı." }); return json(res, 200, { ok:true });
+  }
   if (req.method === "PATCH" && adminTicketMatch) {
     if (!requireUser(req, res)) return;
     const body = await readJson(req, 30_000);

@@ -22,6 +22,7 @@ import {
   CircleCheck,
   Sparkles,
   Target,
+  LifeBuoy,
 } from "lucide-react";
 import { Link } from "react-router";
 import { SiteLogo } from "../components/site-logo";
@@ -31,6 +32,7 @@ const NAV: { title: string; items: { id: PartnerPanelTab; label: string; icon: t
   { title: "Genel", items: [
     { id: "dashboard", label: "Yönetim özeti", icon: LayoutDashboard },
     { id: "crm", label: "CRM satış pipeline", icon: Target, accent: true },
+    { id: "support", label: "Destek merkezi", icon: LifeBuoy },
     { id: "referrals", label: "Müşterilerim", icon: Users },
     { id: "quotes", label: "Teklif oluştur", icon: FileText },
   ] },

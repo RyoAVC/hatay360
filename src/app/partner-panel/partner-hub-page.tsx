@@ -19,6 +19,7 @@ import { PartnerPremiumToolsSection } from "./partner-premium-tools-section";
 import { PartnerCorporateToolsSection } from "./partner-corporate-tools-section";
 import { PartnerSmartToolsSection } from "./partner-smart-tools-section";
 import { PartnerCrmSection } from "./partner-crm-section";
+import { PartnerSupportCenter } from "./partner-support-center";
 import type { PartnerHubData, PartnerPanelTab } from "./partner-panel-types";
 
 export function PartnerHubPage() {
@@ -71,6 +72,7 @@ export function PartnerHubPage() {
         <>
           {tab === "dashboard" ? <PartnerDashboardSection hub={hub} /> : null}
           {tab === "crm" ? <PartnerCrmSection /> : null}
+          {tab === "support" ? <PartnerSupportCenter /> : null}
           {tab === "referrals" ? <PartnerReferralsSection referrals={hub.referrals} onRefresh={loadHub} /> : null}
           {tab === "quotes" ? <PartnerQuotesSection /> : null}
           {tab === "calculator" ? <PartnerEarningsCalculator /> : null}

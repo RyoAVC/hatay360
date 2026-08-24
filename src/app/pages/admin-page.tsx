@@ -61,6 +61,7 @@ import {
   SlidersHorizontal,
   Scale,
   Handshake,
+  Headphones,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../context/auth-context";
@@ -87,6 +88,7 @@ import { MAX_LOGO_FILE_BYTES, processLogoFile } from "../lib/logo-image";
 import { sanitizePhoneInput, normalizeSupportHours, DEFAULT_SUPPORT_WEEKDAY_HOURS } from "../lib/contact";
 import { emptyLoginBanner, bannerMediaUrl, type LoginPromoBanner } from "../lib/login-promo";
 import { AdminHeroSlidesPanel } from "../components/admin-hero-slides-panel";
+import { AdminPartnerSupportPanel } from "../components/admin-partner-support-panel";
 import { AttentionEffectPicker, MediaFileField } from "../components/attention-effect-picker";
 import type { AttentionEffectId } from "../lib/attention-effects";
 
@@ -126,6 +128,7 @@ type AdminTab =
   | "signups"
   | "customers"
   | "tickets"
+  | "partnerSupport"
   | "approvals"
   | "quotes"
   | "renewals"
@@ -154,6 +157,7 @@ const ADMIN_NAV: { group: string; items: { id: AdminTab; label: string; icon: ty
       { id: "insights", label: "Metrikler", icon: BarChart3 },
       { id: "customers", label: "Müşteriler", icon: Users },
       { id: "tickets", label: "Ticket / sıra", icon: MessageSquareText },
+      { id: "partnerSupport", label: "Bayi destek", icon: Headphones },
       { id: "approvals", label: "Onay Takibi", icon: ClipboardCheck },
       { id: "quotes", label: "Teklifler", icon: PenLine },
       { id: "renewals", label: "Yenilemeler", icon: CalendarClock },
@@ -1076,6 +1080,7 @@ export function AdminPage() {
         {activeTab === "signups" && <AdminSignupsPanel opsJump={opsJump} onOpenCustomerForm={() => setActiveTab("customers")} />}
         {activeTab === "customers" && <AdminCustomerPanel focus="customers" opsJump={opsJump} />}
         {activeTab === "tickets" && <AdminCustomerPanel focus="tickets" opsJump={opsJump} />}
+        {activeTab === "partnerSupport" && <AdminPartnerSupportPanel />}
         {activeTab === "approvals" && <AdminApprovalsPanel opsJump={opsJump} />}
         {activeTab === "quotes" && <AdminQuotesPanel opsJump={opsJump} />}
         {activeTab === "renewals" && <AdminRenewalsPanel opsJump={opsJump} />}
