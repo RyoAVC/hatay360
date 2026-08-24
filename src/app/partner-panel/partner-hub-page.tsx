@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { usePartnerAuth } from "../context/partner-auth-context";
 import { apiRequest } from "../lib/api";
@@ -21,6 +21,7 @@ import { PartnerSmartToolsSection } from "./partner-smart-tools-section";
 import { PartnerCrmSection } from "./partner-crm-section";
 import { PartnerSupportCenter } from "./partner-support-center";
 import type { PartnerHubData, PartnerPanelTab } from "./partner-panel-types";
+import { playNotificationSound } from "../lib/notification-sound";
 
 export function PartnerHubPage() {
   const { partner, logout } = usePartnerAuth();
@@ -29,6 +30,8 @@ export function PartnerHubPage() {
   const [hub, setHub] = useState<PartnerHubData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [supportUnread, setSupportUnread] = useState(0);
+  const previousSupportUnread = useRef<number | null>(null);
 
   const loadHub = useCallback(async () => {
     setError("");
@@ -47,6 +50,18 @@ export function PartnerHubPage() {
     void loadHub();
   }, [loadHub]);
 
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const data = await apiRequest<{ unread: number }>("/api/partners/support/unread");
+        if (previousSupportUnread.current !== null && data.unread > previousSupportUnread.current) playNotificationSound("partner");
+        previousSupportUnread.current = data.unread;
+        setSupportUnread(data.unread);
+      } catch { /* Oturum yenilenirken sessizce tekrar dene. */ }
+    };
+    void check(); const timer = window.setInterval(() => void check(), 10000); return () => window.clearInterval(timer);
+  }, []);
+
   const handleLogout = async () => {
     await logout();
     navigate("/firma/giris", { replace: true });
@@ -61,6 +76,7 @@ export function PartnerHubPage() {
       companyName={partner.company_name}
       contactName={partner.contact_name}
       onLogout={() => void handleLogout()}
+      supportUnread={supportUnread}
     >
       {loading ? (
         <p className="text-[14px] font-semibold text-indigo-100/60">Panel yükleniyor…</p>

@@ -91,6 +91,8 @@ import { AdminHeroSlidesPanel } from "../components/admin-hero-slides-panel";
 import { AdminPartnerSupportPanel } from "../components/admin-partner-support-panel";
 import { AttentionEffectPicker, MediaFileField } from "../components/attention-effect-picker";
 import type { AttentionEffectId } from "../lib/attention-effects";
+import { playNotificationSound } from "../lib/notification-sound";
+import { apiRequest } from "../lib/api";
 
 type AdminHeaderChrome = {
   showReset: boolean;
@@ -411,6 +413,8 @@ export function AdminPage() {
   } = useContent();
 
   const [activeTab, setActiveTab] = useState<AdminTab>("insights");
+  const [partnerSupportUnread, setPartnerSupportUnread] = useState(0);
+  const previousPartnerSupportUnread = useRef<number | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
   const [headerChrome, setHeaderChrome] = useState<AdminHeaderChrome>(() => readAdminHeaderChrome());
@@ -420,6 +424,18 @@ export function AdminPage() {
     setActiveTab(tab);
     setMobileNavOpen(false);
   };
+
+  useEffect(() => {
+    const checkPartnerSupport = async () => {
+      try {
+        const data = await apiRequest<{ unread: number }>("/api/admin/partner-support/unread");
+        if (previousPartnerSupportUnread.current !== null && data.unread > previousPartnerSupportUnread.current) playNotificationSound("admin");
+        previousPartnerSupportUnread.current = data.unread;
+        setPartnerSupportUnread(data.unread);
+      } catch { /* Admin oturumu hazır olunca yeniden denenir. */ }
+    };
+    void checkPartnerSupport(); const timer = window.setInterval(() => void checkPartnerSupport(), 10000); return () => window.clearInterval(timer);
+  }, []);
 
   const [plansState, setPlansState] = useState<Plan[]>(plans);
   const [slidesState, setSlidesState] = useState<Slide[]>(slides);
@@ -1032,6 +1048,8 @@ export function AdminPage() {
                   const badge =
                     item.id === "inbox"
                       ? inboxItems.length
+                      : item.id === "partnerSupport"
+                        ? partnerSupportUnread
                       : item.id === "tickets" || item.id === "customers" || item.id === "signups" || item.id === "approvals" || item.id === "quotes" || item.id === "renewals" || item.id === "extras"
                         ? opsNavBadge(opsAlerts, item.id)
                         : 0;

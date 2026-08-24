@@ -373,6 +373,8 @@ ensureColumn("leads", "website", "TEXT NOT NULL DEFAULT ''");
 ensureColumn("leads", "notes", "TEXT NOT NULL DEFAULT ''");
 ensureColumn("leads", "sms_ok", "INTEGER NOT NULL DEFAULT 1");
 ensureColumn("leads", "partner_id", "INTEGER");
+ensureColumn("partner_support_messages", "read_by_partner", "INTEGER NOT NULL DEFAULT 0");
+ensureColumn("partner_support_messages", "read_by_admin", "INTEGER NOT NULL DEFAULT 0");
 ensureColumn("partner_accounts", "referral_code", "TEXT NOT NULL DEFAULT ''");
 ensureColumn("partner_sessions", "ip", "TEXT NOT NULL DEFAULT ''");
 ensureColumn("partner_sessions", "user_agent", "TEXT NOT NULL DEFAULT ''");
@@ -5432,6 +5434,17 @@ async function handleApi(req, res, url) {
     const messages = db.prepare(`SELECT m.* FROM partner_support_messages m JOIN partner_support_conversations c ON c.id = m.conversation_id WHERE c.partner_id = ? ORDER BY m.created_at ASC LIMIT 1000`).all(partner.id);
     return json(res, 200, { conversations, messages });
   }
+  if (req.method === "GET" && url.pathname === "/api/partners/support/unread") {
+    const partner = requirePartner(req, res); if (!partner) return;
+    const row = db.prepare(`SELECT COUNT(*) AS count FROM partner_support_messages m JOIN partner_support_conversations c ON c.id = m.conversation_id WHERE c.partner_id = ? AND m.sender_type = 'admin' AND m.read_by_partner = 0`).get(partner.id);
+    return json(res, 200, { unread: Number(row?.count || 0) });
+  }
+  const partnerSupportReadMatch = url.pathname.match(/^\/api\/partners\/support\/conversations\/(\d+)\/read$/);
+  if (req.method === "PATCH" && partnerSupportReadMatch) {
+    const partner = requirePartner(req, res); if (!partner) return; const id = Number(partnerSupportReadMatch[1]);
+    const own = db.prepare("SELECT id FROM partner_support_conversations WHERE id = ? AND partner_id = ?").get(id, partner.id); if (!own) return json(res, 404, { error:"Konuşma bulunamadı." });
+    db.prepare("UPDATE partner_support_messages SET read_by_partner = 1 WHERE conversation_id = ? AND sender_type = 'admin'").run(id); return json(res, 200, { ok:true });
+  }
   if (req.method === "POST" && url.pathname === "/api/partners/support/conversations") {
     const partner = requirePartner(req, res); if (!partner) return;
     if (rateLimited(req, `partner-support-${partner.id}`, 30, 60 * 60 * 1000)) return json(res, 429, { error: "Çok fazla destek konuşması açtınız." });
@@ -7379,6 +7392,15 @@ async function handleApi(req, res, url) {
     const conversations = db.prepare(`SELECT c.*, p.company_name, p.contact_name, p.email FROM partner_support_conversations c JOIN partner_accounts p ON p.id = c.partner_id ORDER BY CASE c.status WHEN 'open' THEN 0 WHEN 'pending' THEN 1 ELSE 2 END, c.last_message_at DESC LIMIT 300`).all();
     const messages = db.prepare("SELECT * FROM partner_support_messages ORDER BY created_at ASC LIMIT 3000").all();
     return json(res, 200, { conversations, messages });
+  }
+  if (req.method === "GET" && url.pathname === "/api/admin/partner-support/unread") {
+    if (!requireUser(req, res)) return; const row = db.prepare("SELECT COUNT(*) AS count FROM partner_support_messages WHERE sender_type = 'partner' AND read_by_admin = 0").get();
+    return json(res, 200, { unread:Number(row?.count || 0) });
+  }
+  const adminPartnerSupportReadMatch = url.pathname.match(/^\/api\/admin\/partner-support\/(\d+)\/read$/);
+  if (req.method === "PATCH" && adminPartnerSupportReadMatch) {
+    if (!requireUser(req, res)) return; const id = Number(adminPartnerSupportReadMatch[1]); const own = db.prepare("SELECT id FROM partner_support_conversations WHERE id = ?").get(id); if (!own) return json(res, 404, { error:"Konuşma bulunamadı." });
+    db.prepare("UPDATE partner_support_messages SET read_by_admin = 1 WHERE conversation_id = ? AND sender_type = 'partner'").run(id); return json(res, 200, { ok:true });
   }
   if (req.method === "POST" && adminPartnerSupportMessageMatch) {
     const user = requireUser(req, res); if (!user) return; const id = Number(adminPartnerSupportMessageMatch[1]);

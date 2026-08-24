@@ -64,6 +64,7 @@ type Props = {
   companyName: string;
   contactName: string;
   onLogout: () => void;
+  supportUnread?: number;
   children: ReactNode;
 };
 
@@ -73,6 +74,7 @@ export function PartnerPanelShell({
   companyName,
   contactName,
   onLogout,
+  supportUnread = 0,
   children,
 }: Props) {
   return (
@@ -102,7 +104,8 @@ export function PartnerPanelShell({
           <nav className="mt-5 flex gap-2 overflow-x-auto pb-1 lg:block lg:space-y-5 lg:overflow-visible" aria-label="Bayilik menüsü">
             {NAV.map((group) => <div key={group.title} className="shrink-0"><p className="mb-1.5 hidden px-3 text-[9px] font-black uppercase tracking-[0.22em] text-slate-600 lg:block">{group.title}</p><div className="flex gap-1.5 lg:block lg:space-y-1">{group.items.map((item) => {
               const Icon = item.icon; const active = activeTab === item.id;
-              return <button key={item.id} type="button" onClick={() => onTabChange(item.id)} className={`group relative inline-flex shrink-0 items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-[12px] font-bold transition lg:w-full ${active ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-[0_10px_28px_rgba(79,70,229,.28)]" : item.accent ? "border border-teal-300/15 bg-teal-400/[0.07] text-teal-100 hover:bg-teal-400/10" : "text-slate-400 hover:bg-white/[0.045] hover:text-slate-100"}`}><span className={`grid h-7 w-7 place-items-center rounded-lg ${active ? "bg-white/15" : "bg-white/[0.04] group-hover:bg-white/[0.07]"}`}><Icon className="h-3.5 w-3.5" /></span><span>{item.label}</span>{active ? <ChevronRight className="ml-auto hidden h-3.5 w-3.5 opacity-65 lg:block" /> : null}</button>;
+              const badge = item.id === "support" ? supportUnread : 0;
+              return <button key={item.id} type="button" onClick={() => onTabChange(item.id)} className={`group relative inline-flex shrink-0 items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-[12px] font-bold transition lg:w-full ${active ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-[0_10px_28px_rgba(79,70,229,.28)]" : item.accent ? "border border-teal-300/15 bg-teal-400/[0.07] text-teal-100 hover:bg-teal-400/10" : "text-slate-400 hover:bg-white/[0.045] hover:text-slate-100"}`}><span className={`grid h-7 w-7 place-items-center rounded-lg ${active ? "bg-white/15" : "bg-white/[0.04] group-hover:bg-white/[0.07]"}`}><Icon className="h-3.5 w-3.5" /></span><span>{item.label}</span>{badge > 0 ? <span className="ml-auto grid min-h-5 min-w-5 place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white shadow-[0_0_14px_rgba(244,63,94,.55)]">{badge}</span> : active ? <ChevronRight className="ml-auto hidden h-3.5 w-3.5 opacity-65 lg:block" /> : null}</button>;
             })}</div></div>)}
           </nav>
           <Link
