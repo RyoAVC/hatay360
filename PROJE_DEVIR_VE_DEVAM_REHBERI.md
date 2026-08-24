@@ -4,7 +4,7 @@ Son güncelleme: 24 Ağustos 2026
 Çalışma dizini: `C:\Users\User\Desktop\Hatay360 yeni`  
 GitHub: https://github.com/RyoAVC/hatay360  
 Aktif branch: `cursor/maps-leads-and-partner-hub`  
-Son commit: `4e54e01 Add support unread badges and notification sounds`
+Son commit: `a81dde8 Fix support layout and live message refresh`
 
 ## 1. Projenin amacı
 
@@ -100,6 +100,8 @@ Kullanıcıya ait veya ilgisiz değişiklikleri silme. `git reset --hard` ve ben
    - 10 saniyelik bildirim kontrolü
    - Bayi için iki tonlu, admin için üç tonlu farklı bildirim sesi
    - Menüde okunmamış mesaj sayısı rozeti
+   - Bayi ve admin mesajları 2,5 saniyede bir otomatik yenilenir; sayfa yenilemek gerekmez
+   - Konuşma alanı ekran yüksekliğiyle sınırlandırılmıştır; mesajlar kendi alanında kayar
 
 3. Bayilik şartları
    - SQLite'ta `franchise_terms`
@@ -146,6 +148,8 @@ Not: Araç setlerindeki bazı modüller tarayıcı içi yardımcı hesaplayıcı
 
 ## 8. Son önemli commitler
 
+- `a81dde8` Destek kutusu yükseklik ve canlı mesaj yenileme düzeltmesi
+- `df10cf4` Proje devir ve devam rehberi
 - `4e54e01` Destek okunmamış rozetleri ve bildirim sesleri
 - `ed0fc48` Kalıcı bayi destek merkezi
 - `2cb19ee` Kalıcı CRM satış pipeline
@@ -201,10 +205,9 @@ Ana öncelik bayi sistemidir. Yeni basit metin araçları ekleme; SQLite/backend
 - [ ] Rehber tamamen okundu
 - [ ] `git status --short` kontrol edildi
 - [ ] Aktif branch doğrulandı
-- [ ] Son commit `4e54e01` veya daha yenisi
+- [ ] Son commit `a81dde8` veya daha yenisi
 - [ ] 3600 frontend çalışıyor
 - [ ] 3601 API çalışıyor
 - [ ] `/api/health` SQLite bağlı gösteriyor
 - [ ] Hassas bilgiler paylaşılmadı
 - [ ] Yeni geliştirme öncesi mevcut kod incelendi
-
