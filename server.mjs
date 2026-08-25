@@ -1952,6 +1952,7 @@ function numberValue(value, max = 1_000_000_000) {
 function sameOrigin(req) {
   const origin = String(req.headers.origin || "");
   if (!origin) return !IS_PRODUCTION;
+  if (!IS_PRODUCTION && /^http:\/\/(?:127\.0\.0\.1|localhost):\d{2,5}$/.test(origin)) return true;
   const host = String(req.headers.host || "");
   const protocol = String(req.headers["x-forwarded-proto"] || (IS_PRODUCTION ? "https" : "http"));
   const allowed = new Set([
