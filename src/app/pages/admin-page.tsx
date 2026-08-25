@@ -816,16 +816,16 @@ export function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f12] text-white font-sans">
+    <div className="min-h-screen bg-[#080b12] text-white font-sans [background-image:radial-gradient(circle_at_75%_-10%,rgba(6,182,212,.13),transparent_30%),radial-gradient(circle_at_10%_30%,rgba(79,70,229,.08),transparent_26%)]">
       {/* Admin Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#18181f]/95 px-4 py-3 backdrop-blur-md sm:px-6">
-        <div className="mx-auto flex max-w-7xl items-center gap-3">
+      <header className="sticky top-0 z-50 border-b border-white/[.07] bg-[#090c13]/90 px-4 py-3.5 shadow-[0_12px_40px_rgba(0,0,0,.22)] backdrop-blur-xl sm:px-6">
+        <div className="mx-auto flex max-w-[1600px] items-center gap-3">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <span className="flex shrink-0 items-center">
               <SiteLogo variant="onDark" preview={{ logoDarkHeight: 28 }} />
             </span>
             <div className="min-w-0">
-              <h1 className="truncate text-[15px] font-black text-white sm:text-[17px]">Hatay360 Yönetim</h1>
+              <div className="flex items-center gap-2"><h1 className="truncate text-[15px] font-black tracking-[-.02em] text-white sm:text-[17px]">Hatay360 Yönetim</h1><span className="hidden rounded-md border border-cyan-300/15 bg-cyan-300/[.07] px-2 py-1 text-[8px] font-black uppercase tracking-[.16em] text-cyan-200 md:inline">Admin OS</span></div>
               {headerChrome.showSubtitle ? (
                 <p className="hidden truncate text-[11px] text-white/55 sm:block">Sayfalar, paketler ve site ayarları</p>
               ) : null}
@@ -964,8 +964,8 @@ export function AdminPage() {
         </div>
       )}
 
-      <section className="border-b border-amber-300/15 bg-amber-300/[0.04] px-6 py-3">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
+      <section className="border-b border-amber-300/10 bg-amber-300/[0.025] px-6 py-2.5">
+        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3">
           <div className="flex max-w-2xl items-start gap-2 text-[12px] leading-relaxed text-white/65">
             <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
             <span>
@@ -1023,8 +1023,8 @@ export function AdminPage() {
         </div>
       )}
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start">
+      <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:py-8">
+        <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start xl:gap-8">
         <button
           type="button"
           onClick={() => setMobileNavOpen((open) => !open)}
@@ -1037,10 +1037,13 @@ export function AdminPage() {
           </span>
           {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </button>
-        <nav className={`${mobileNavOpen ? "block" : "hidden"} rounded-3xl border border-white/10 bg-[#18181f] p-3 lg:block lg:sticky lg:top-24`}>
+        <nav className={`${mobileNavOpen ? "block" : "hidden"} overflow-hidden rounded-[26px] border border-white/[.08] bg-[#10141e]/95 p-3 shadow-[0_24px_70px_rgba(0,0,0,.28)] backdrop-blur-xl lg:sticky lg:top-24 lg:block lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto`}>
+          <div className="mb-3 rounded-2xl border border-white/[.07] bg-gradient-to-br from-cyan-400/[.10] via-white/[.025] to-indigo-400/[.08] p-3.5">
+            <div className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-xl bg-cyan-400 text-[#071116] shadow-[0_8px_24px_rgba(34,211,238,.22)]"><ShieldCheck className="h-4 w-4"/></span><div><p className="text-[11px] font-black text-white">Kontrol Merkezi</p><p className="mt-0.5 text-[9px] text-white/40">Tüm operasyon tek panelde</p></div></div>
+          </div>
           {ADMIN_NAV.map((section) => (
             <div key={section.group} className="mb-3 last:mb-0">
-              <p className="px-2 pb-1.5 pt-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#70dce9]">{section.group}</p>
+              <p className="px-2 pb-1.5 pt-2 text-[9px] font-black uppercase tracking-[0.20em] text-white/35">{section.group}</p>
               <div className="grid grid-cols-2 gap-1 sm:grid-cols-3 lg:grid-cols-1">
                 {section.items.map((item) => {
                   const Icon = item.icon;
@@ -1058,8 +1061,8 @@ export function AdminPage() {
                       key={item.id}
                       type="button"
                       onClick={() => selectTab(item.id)}
-                      className={`flex items-center gap-2 rounded-xl px-3 py-2 text-left text-[12px] font-extrabold transition-all cursor-pointer ${
-                        active ? "bg-[#00a8c4] text-white shadow-md" : "bg-white/5 text-white/70 hover:bg-white/10"
+                      className={`group flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[12px] font-extrabold transition-all cursor-pointer ${
+                        active ? "bg-gradient-to-r from-cyan-500 to-cyan-400 text-[#071116] shadow-[0_10px_25px_rgba(6,182,212,.18)]" : "text-white/58 hover:bg-white/[.055] hover:text-white"
                       }`}
                     >
                       <Icon className="h-4 w-4 shrink-0" />
@@ -1082,6 +1085,13 @@ export function AdminPage() {
         </nav>
 
         <div className="min-w-0">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/[.07] bg-white/[.025] px-4 py-3 shadow-[0_16px_50px_rgba(0,0,0,.12)]">
+          <div className="flex min-w-0 items-center gap-3">
+            {activeNavItem ? <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cyan-300/15 bg-cyan-300/[.08] text-cyan-300"><activeNavItem.icon className="h-5 w-5"/></span> : null}
+            <div className="min-w-0"><p className="text-[9px] font-black uppercase tracking-[.18em] text-cyan-300/65">Yönetim alanı</p><p className="truncate text-[15px] font-black tracking-[-.02em] text-white">{activeNavItem?.label || "Dashboard"}</p></div>
+          </div>
+          <div className="flex items-center gap-2 text-[9px] font-bold text-white/35"><span className={`h-2 w-2 rounded-full ${databaseStatus === "connected" ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,.8)]" : "bg-rose-400"}`}/>{databaseStatus === "connected" ? "Sistemler çalışıyor" : "Bağlantı kontrol ediliyor"}</div>
+        </div>
         {activeTab === "inbox" && (
           <AdminInboxPanel
             items={inboxItems}
