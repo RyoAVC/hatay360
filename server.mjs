@@ -375,6 +375,9 @@ ensureColumn("leads", "sms_ok", "INTEGER NOT NULL DEFAULT 1");
 ensureColumn("leads", "partner_id", "INTEGER");
 ensureColumn("partner_support_messages", "read_by_partner", "INTEGER NOT NULL DEFAULT 0");
 ensureColumn("partner_support_messages", "read_by_admin", "INTEGER NOT NULL DEFAULT 0");
+ensureColumn("partner_support_conversations", "department", "TEXT NOT NULL DEFAULT 'technical'");
+ensureColumn("partner_support_conversations", "sla_due_at", "TEXT NOT NULL DEFAULT ''");
+ensureColumn("partner_support_conversations", "first_response_at", "TEXT NOT NULL DEFAULT ''");
 ensureColumn("partner_accounts", "referral_code", "TEXT NOT NULL DEFAULT ''");
 ensureColumn("partner_sessions", "ip", "TEXT NOT NULL DEFAULT ''");
 ensureColumn("partner_sessions", "user_agent", "TEXT NOT NULL DEFAULT ''");
@@ -5452,7 +5455,8 @@ async function handleApi(req, res, url) {
     const category = ["technical","sales","finance","contract","general"].includes(body.category) ? body.category : "general";
     const priority = ["normal","high","urgent"].includes(body.priority) ? body.priority : "normal";
     if (subject.length < 3 || message.length < 5) return json(res, 400, { error: "Konu ve ilk mesaj zorunludur." });
-    const now = nowIso(); const result = db.prepare("INSERT INTO partner_support_conversations (partner_id, subject, category, priority, status, last_message_at, created_at, updated_at) VALUES (?, ?, ?, ?, 'open', ?, ?, ?)").run(partner.id, subject, category, priority, now, now, now);
+    const now = nowIso(); const slaHours = priority === "urgent" ? 1 : priority === "high" ? 4 : 8; const slaDueAt = new Date(Date.now() + slaHours * 60 * 60 * 1000).toISOString();
+    const result = db.prepare("INSERT INTO partner_support_conversations (partner_id, subject, category, department, priority, status, sla_due_at, last_message_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'open', ?, ?, ?, ?)").run(partner.id, subject, category, category, priority, slaDueAt, now, now, now);
     const id = Number(result.lastInsertRowid); db.prepare("INSERT INTO partner_support_messages (conversation_id, sender_type, sender_name, body, created_at) VALUES (?, 'partner', ?, ?, ?)").run(id, partner.contact_name, message, now);
     logAudit({ actorType:"partner", actorId:partner.id, actorLabel:partner.email, action:"partner_support_open", detail:subject, ip:requestIp(req) });
     return json(res, 201, { ok:true, id });
@@ -7391,7 +7395,8 @@ async function handleApi(req, res, url) {
     if (!requireUser(req, res)) return;
     const conversations = db.prepare(`SELECT c.*, p.company_name, p.contact_name, p.email FROM partner_support_conversations c JOIN partner_accounts p ON p.id = c.partner_id ORDER BY CASE c.status WHEN 'open' THEN 0 WHEN 'pending' THEN 1 ELSE 2 END, c.last_message_at DESC LIMIT 300`).all();
     const messages = db.prepare("SELECT * FROM partner_support_messages ORDER BY created_at ASC LIMIT 3000").all();
-    return json(res, 200, { conversations, messages });
+    const agents = db.prepare("SELECT username FROM admin_users ORDER BY username ASC").all().map((row) => row.username);
+    return json(res, 200, { conversations, messages, agents });
   }
   if (req.method === "GET" && url.pathname === "/api/admin/partner-support/unread") {
     if (!requireUser(req, res)) return; const row = db.prepare("SELECT COUNT(*) AS count FROM partner_support_messages WHERE sender_type = 'partner' AND read_by_admin = 0").get();
@@ -7408,13 +7413,19 @@ async function handleApi(req, res, url) {
     const body = await readJson(req, 15_000); const message = cleanText(body.message, 3000); if (message.length < 2) return json(res, 400, { error:"Yanıt boş olamaz." });
     const now = nowIso(); const senderName = cleanText(user.name || user.email || "Hatay360 Destek", 120);
     db.prepare("INSERT INTO partner_support_messages (conversation_id, sender_type, sender_name, body, created_at) VALUES (?, 'admin', ?, ?, ?)").run(id, senderName, message, now);
-    db.prepare("UPDATE partner_support_conversations SET status = 'pending', assigned_to = ?, last_message_at = ?, updated_at = ? WHERE id = ?").run(senderName, now, now, id);
+    db.prepare("UPDATE partner_support_conversations SET status = 'pending', assigned_to = CASE WHEN assigned_to = '' THEN ? ELSE assigned_to END, first_response_at = CASE WHEN first_response_at = '' THEN ? ELSE first_response_at END, last_message_at = ?, updated_at = ? WHERE id = ?").run(senderName, now, now, now, id);
     return json(res, 201, { ok:true });
   }
   if (req.method === "PATCH" && adminPartnerSupportMessageMatch) {
     if (!requireUser(req, res)) return; const id = Number(adminPartnerSupportMessageMatch[1]); const body = await readJson(req, 10_000);
-    const status = ["open","pending","resolved","closed"].includes(body.status) ? body.status : "open";
-    const result = db.prepare("UPDATE partner_support_conversations SET status = ?, updated_at = ? WHERE id = ?").run(status, nowIso(), id);
+    const existing = db.prepare("SELECT * FROM partner_support_conversations WHERE id = ?").get(id); if (!existing) return json(res, 404, { error:"Konuşma bulunamadı." });
+    const status = ["open","pending","resolved","closed"].includes(body.status) ? body.status : existing.status;
+    const department = ["technical","sales","finance","contract","general"].includes(body.department) ? body.department : existing.department;
+    const priority = ["normal","high","urgent"].includes(body.priority) ? body.priority : existing.priority;
+    const assignedTo = body.assignedTo === undefined ? existing.assigned_to : cleanText(body.assignedTo, 120);
+    const slaHours = priority === "urgent" ? 1 : priority === "high" ? 4 : 8;
+    const slaDueAt = priority === existing.priority ? existing.sla_due_at : new Date(Date.now() + slaHours * 60 * 60 * 1000).toISOString();
+    const result = db.prepare("UPDATE partner_support_conversations SET status = ?, department = ?, category = ?, priority = ?, assigned_to = ?, sla_due_at = ?, updated_at = ? WHERE id = ?").run(status, department, department, priority, assignedTo, slaDueAt, nowIso(), id);
     if (!result.changes) return json(res, 404, { error:"Konuşma bulunamadı." }); return json(res, 200, { ok:true });
   }
   if (req.method === "PATCH" && adminTicketMatch) {
