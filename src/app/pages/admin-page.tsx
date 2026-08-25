@@ -816,16 +816,16 @@ export function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080b12] text-white font-sans [background-image:radial-gradient(circle_at_75%_-10%,rgba(6,182,212,.13),transparent_30%),radial-gradient(circle_at_10%_30%,rgba(79,70,229,.08),transparent_26%)]">
+    <div className="admin-enterprise min-h-screen bg-[#f4f7fb] text-slate-900 font-sans">
       {/* Admin Header */}
-      <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-[#090c13]/90 px-4 py-3 shadow-[0_12px_40px_rgba(0,0,0,.22)] backdrop-blur-xl sm:px-6">
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 px-4 py-3 shadow-[0_8px_30px_rgba(15,23,42,.06)] backdrop-blur-xl sm:px-6">
         <div className="mx-auto flex max-w-[1600px] items-center gap-3">
           <div className="flex min-w-0 flex-1 items-center gap-3">
-            <span className="flex h-10 shrink-0 items-center rounded-xl border border-white/[.07] bg-white/[.035] px-3">
+            <span className="flex h-10 shrink-0 items-center rounded-xl border border-slate-200 bg-slate-950 px-3">
               <SiteLogo variant="onDark" preview={{ logoDarkHeight: 28 }} />
             </span>
             <div className="min-w-0">
-              <div className="flex items-center gap-2"><h1 className="truncate text-[15px] font-black tracking-[-.02em] text-white sm:text-[17px]">Yönetim Konsolu</h1><span className="hidden rounded-md border border-cyan-300/15 bg-cyan-300/[.07] px-2 py-1 text-[8px] font-black uppercase tracking-[.16em] text-cyan-200 md:inline">Hatay360 OS</span></div>
+              <div className="flex items-center gap-2"><h1 className="truncate text-[15px] font-black tracking-[-.02em] text-slate-950 sm:text-[17px]">Yönetim Konsolu</h1><span className="hidden rounded-md border border-cyan-200 bg-cyan-50 px-2 py-1 text-[8px] font-black uppercase tracking-[.16em] text-cyan-700 md:inline">Hatay360 OS</span></div>
               {headerChrome.showSubtitle ? (
                 <p className="hidden truncate text-[11px] text-white/55 sm:block">Sayfalar, paketler ve site ayarları</p>
               ) : null}
@@ -964,7 +964,7 @@ export function AdminPage() {
         </div>
       )}
 
-      <section className="border-b border-slate-800/70 bg-[#0c1018] px-6 py-2.5">
+      <section className="border-b border-slate-200 bg-white px-6 py-2.5">
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3">
           <div className="flex max-w-2xl items-start gap-2 text-[11px] leading-relaxed text-slate-400">
             <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
@@ -1037,13 +1037,13 @@ export function AdminPage() {
           </span>
           {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </button>
-        <nav className={`${mobileNavOpen ? "block" : "hidden"} admin-scrollbar overflow-hidden rounded-[22px] border border-slate-800/80 bg-[#0d111a]/95 p-3 shadow-[0_24px_70px_rgba(0,0,0,.28)] backdrop-blur-xl lg:sticky lg:top-24 lg:block lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto`}>
-          <div className="mb-4 rounded-2xl border border-cyan-400/15 bg-[linear-gradient(135deg,rgba(6,182,212,.14),rgba(99,102,241,.08))] p-3.5">
-            <div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-cyan-400 text-[#071116] shadow-[0_8px_24px_rgba(34,211,238,.22)]"><ShieldCheck className="h-4 w-4"/></span><div><p className="text-[11px] font-black text-white">Kontrol Merkezi</p><p className="mt-0.5 text-[9px] text-slate-400">Operasyonlar çevrimiçi</p></div><span className="ml-auto h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]"/></div>
+        <nav className={`${mobileNavOpen ? "block" : "hidden"} admin-scrollbar overflow-hidden rounded-[22px] border border-slate-200 bg-white p-3 shadow-[0_18px_55px_rgba(15,23,42,.08)] lg:sticky lg:top-24 lg:block lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto`}>
+          <div className="mb-4 rounded-2xl border border-cyan-100 bg-gradient-to-br from-cyan-50 to-indigo-50 p-3.5">
+            <div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-cyan-500 text-white shadow-[0_8px_24px_rgba(6,182,212,.22)]"><ShieldCheck className="h-4 w-4"/></span><div><p className="text-[11px] font-black text-slate-950">Kontrol Merkezi</p><p className="mt-0.5 text-[9px] text-slate-500">Operasyonlar çevrimiçi</p></div><span className="ml-auto h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#34d399]"/></div>
           </div>
           {ADMIN_NAV.map((section) => (
             <div key={section.group} className="mb-3 last:mb-0">
-              <p className="px-2 pb-1.5 pt-2 text-[9px] font-black uppercase tracking-[0.20em] text-white/35">{section.group}</p>
+              <p className="px-2 pb-1.5 pt-2 text-[9px] font-black uppercase tracking-[0.20em] text-slate-400">{section.group}</p>
               <div className="grid grid-cols-2 gap-1 sm:grid-cols-3 lg:grid-cols-1">
                 {section.items.map((item) => {
                   const Icon = item.icon;
@@ -1062,10 +1062,10 @@ export function AdminPage() {
                       type="button"
                       onClick={() => selectTab(item.id)}
                       className={`group relative flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[12px] font-bold transition-all cursor-pointer ${
-                        active ? "bg-cyan-400/[.11] text-cyan-100 ring-1 ring-inset ring-cyan-300/15" : "text-slate-400 hover:bg-white/[.045] hover:text-slate-100"
+                        active ? "bg-slate-950 text-white shadow-sm" : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
                       }`}
                     >
-                      {active?<span className="absolute bottom-2 left-0 top-2 w-0.5 rounded-full bg-cyan-300"/>:null}<span className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg ${active?"bg-cyan-300/15 text-cyan-300":"bg-white/[.035] text-slate-500 group-hover:text-slate-200"}`}><Icon className="h-3.5 w-3.5" /></span>
+                      {active?<span className="absolute bottom-2 left-0 top-2 w-0.5 rounded-full bg-cyan-400"/>:null}<span className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg ${active?"bg-white/10 text-cyan-300":"bg-slate-100 text-slate-500 group-hover:text-slate-900"}`}><Icon className="h-3.5 w-3.5" /></span>
                       <span className="min-w-0 flex-1 truncate">{item.label}</span>
                       {badge > 0 ? (
                         <span
@@ -1084,11 +1084,11 @@ export function AdminPage() {
           ))}
         </nav>
 
-        <div className="min-w-0 rounded-[24px] border border-slate-800/70 bg-[#0b0f17]/80 p-4 shadow-[0_24px_80px_rgba(0,0,0,.20)] sm:p-5">
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/70 pb-4">
+        <div className="admin-workspace min-w-0 rounded-[24px] border border-slate-200 bg-white p-4 shadow-[0_18px_55px_rgba(15,23,42,.06)] sm:p-5">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
           <div className="flex min-w-0 items-center gap-3">
-            {activeNavItem ? <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-slate-700/80 bg-slate-800/50 text-cyan-300"><activeNavItem.icon className="h-5 w-5"/></span> : null}
-            <div className="min-w-0"><p className="text-[9px] font-black uppercase tracking-[.18em] text-slate-500">Workspace / Yönetim</p><p className="truncate text-[16px] font-black tracking-[-.025em] text-white">{activeNavItem?.label || "Dashboard"}</p></div>
+            {activeNavItem ? <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-slate-200 bg-slate-50 text-cyan-600"><activeNavItem.icon className="h-5 w-5"/></span> : null}
+            <div className="min-w-0"><p className="text-[9px] font-black uppercase tracking-[.18em] text-slate-400">Workspace / Yönetim</p><p className="truncate text-[16px] font-black tracking-[-.025em] text-slate-950">{activeNavItem?.label || "Dashboard"}</p></div>
           </div>
           <div className="flex items-center gap-2 text-[9px] font-bold text-white/35"><span className={`h-2 w-2 rounded-full ${databaseStatus === "connected" ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,.8)]" : "bg-rose-400"}`}/>{databaseStatus === "connected" ? "Sistemler çalışıyor" : "Bağlantı kontrol ediliyor"}</div>
         </div>

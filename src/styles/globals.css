@@ -16,3 +16,64 @@
   border-radius: 999px;
   background: rgba(71, 85, 105, 0.55);
 }
+
+/* Admin modules were built over time with dark utility classes. This scoped
+   layer gives every module one coherent Material/shadcn light workspace. */
+.admin-enterprise .admin-workspace {
+  color: #172033;
+}
+
+.admin-enterprise .admin-workspace [class*="bg-[#"],
+.admin-enterprise .admin-workspace [class*="bg-black"] {
+  background-color: #ffffff !important;
+}
+
+.admin-enterprise .admin-workspace [class*="bg-white/"] {
+  background-color: #f8fafc !important;
+}
+
+.admin-enterprise .admin-workspace [class*="border-white"],
+.admin-enterprise .admin-workspace [class*="border-slate-8"] {
+  border-color: #e2e8f0 !important;
+}
+
+.admin-enterprise .admin-workspace [class*="text-white"] {
+  color: #334155 !important;
+}
+
+.admin-enterprise .admin-workspace h1,
+.admin-enterprise .admin-workspace h2,
+.admin-enterprise .admin-workspace h3,
+.admin-enterprise .admin-workspace h4 {
+  color: #0f172a !important;
+}
+
+.admin-enterprise .admin-workspace input,
+.admin-enterprise .admin-workspace textarea,
+.admin-enterprise .admin-workspace select {
+  border-color: #dbe3ee !important;
+  background: #ffffff !important;
+  color: #172033 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+
+.admin-enterprise .admin-workspace input::placeholder,
+.admin-enterprise .admin-workspace textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.admin-enterprise .admin-workspace article {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.045);
+}
+
+.admin-enterprise > header button:not([class*="bg-gradient"]) {
+  border-color: #e2e8f0 !important;
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+}
+
+.admin-enterprise > section button {
+  border-color: #e2e8f0 !important;
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+}
