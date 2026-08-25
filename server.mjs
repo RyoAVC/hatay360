@@ -5452,6 +5452,8 @@ async function handleApi(req, res, url) {
   if (req.method === "POST" && url.pathname === "/api/partners/support/conversations") {
     const partner = requirePartner(req, res); if (!partner) return;
     if (rateLimited(req, `partner-support-${partner.id}`, 30, 60 * 60 * 1000)) return json(res, 429, { error: "Çok fazla destek konuşması açtınız." });
+    const activeConversation = db.prepare("SELECT id, subject FROM partner_support_conversations WHERE partner_id = ? AND status IN ('open', 'pending') ORDER BY last_message_at DESC LIMIT 1").get(partner.id);
+    if (activeConversation) return json(res, 409, { error: "Açık görüşmeniz kapanmadan yeni bir görüşme başlatamazsınız.", conversationId: Number(activeConversation.id) });
     const body = await readJson(req, 20_000); const subject = cleanText(body.subject, 160); const message = cleanText(body.message, 3000);
     const category = ["technical","sales","finance","contract","general"].includes(body.category) ? body.category : "general";
     const priority = ["normal","high","urgent"].includes(body.priority) ? body.priority : "normal";
@@ -7397,7 +7399,26 @@ async function handleApi(req, res, url) {
     const conversations = db.prepare(`SELECT c.*, p.company_name, p.contact_name, p.email FROM partner_support_conversations c JOIN partner_accounts p ON p.id = c.partner_id ORDER BY CASE c.status WHEN 'open' THEN 0 WHEN 'pending' THEN 1 ELSE 2 END, c.last_message_at DESC LIMIT 300`).all();
     const messages = db.prepare("SELECT * FROM partner_support_messages ORDER BY created_at ASC LIMIT 3000").all();
     const agents = db.prepare("SELECT username FROM admin_users ORDER BY username ASC").all().map((row) => row.username);
-    return json(res, 200, { conversations, messages, agents });
+    const partners = db.prepare("SELECT id, company_name, contact_name, email FROM partner_accounts ORDER BY company_name ASC LIMIT 1000").all();
+    return json(res, 200, { conversations, messages, agents, partners });
+  }
+  if (req.method === "POST" && url.pathname === "/api/admin/partner-support") {
+    const user = requireUser(req, res); if (!user) return;
+    const body = await readJson(req, 20_000); const partnerId = Number(body.partnerId);
+    const partner = db.prepare("SELECT id, company_name FROM partner_accounts WHERE id = ?").get(partnerId);
+    if (!partner) return json(res, 404, { error: "Bayi hesabı bulunamadı." });
+    const subject = cleanText(body.subject, 160); const message = cleanText(body.message, 3000);
+    const department = ["technical","sales","finance","contract","general"].includes(body.department) ? body.department : "general";
+    const priority = ["normal","high","urgent"].includes(body.priority) ? body.priority : "normal";
+    if (subject.length < 3 || message.length < 5) return json(res, 400, { error: "Konu ve ilk mesaj zorunludur." });
+    const now = nowIso(); const slaHours = priority === "urgent" ? 1 : priority === "high" ? 4 : 8;
+    const slaDueAt = new Date(Date.now() + slaHours * 60 * 60 * 1000).toISOString();
+    const senderName = cleanText(user.name || user.email || "Hatay360 Destek", 120);
+    const result = db.prepare("INSERT INTO partner_support_conversations (partner_id, subject, category, department, priority, status, assigned_to, sla_due_at, first_response_at, last_message_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?)").run(partnerId, subject, department, department, priority, senderName, slaDueAt, now, now, now, now);
+    const id = Number(result.lastInsertRowid);
+    db.prepare("INSERT INTO partner_support_messages (conversation_id, sender_type, sender_name, body, created_at) VALUES (?, 'admin', ?, ?, ?)").run(id, senderName, message, now);
+    logAudit({ actorType:"admin", actorId:user.id, actorLabel:senderName, action:"admin_partner_support_open", detail:`${partner.company_name}: ${subject}`, ip:requestIp(req) });
+    return json(res, 201, { ok:true, id });
   }
   if (req.method === "GET" && url.pathname === "/api/admin/partner-support/unread") {
     if (!requireUser(req, res)) return; const row = db.prepare("SELECT COUNT(*) AS count FROM partner_support_messages WHERE sender_type = 'partner' AND read_by_admin = 0").get();
