@@ -219,12 +219,12 @@ test("SQLite API giriş, içerik, hit ve başvuru akışını çalıştırır", 
   });
   assert.equal(packageAssign.status, 200);
 
-  const packageCatalog = await fetch(`${base}/api/admin/customers/${customerId}/catalog`, {
-    method: "POST",
+  const contractDetailsSave = await fetch(`${base}/api/admin/customers/${customerId}/contracts/details`, {
+    method: "PUT",
     headers: { "Content-Type": "application/json", Cookie: cookie },
-    body: JSON.stringify({ kind: "service", title: "Hatay360 Reklam Start", details: "Google Ads ve Meta reklam yönetimi", amount: 120000, quantity: 1 }),
+    body: JSON.stringify({ nationalId: "12345678901", packageId: "start", yearlyAmount: 120000, packageDescription: "Google Ads ve Meta reklam yönetimi", websiteUrl: "https://ornek-firma.hatay360.com" }),
   });
-  assert.equal(packageCatalog.status, 201);
+  assert.equal(contractDetailsSave.status, 200);
   const automaticContract = await fetch(`${base}/api/admin/customers/${customerId}/contracts/automatic`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Cookie: cookie },

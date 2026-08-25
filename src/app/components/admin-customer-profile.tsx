@@ -217,6 +217,7 @@ export function AdminCustomerProfile({ customerId, onClose, onChanged }: { custo
   const [renewal, setRenewal] = useState({ kind: "domain" as RenewalKind, label: "", renewDate: new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10), amount: "", note: "" });
   const [contractTitle, setContractTitle] = useState("");
   const [contractMissing, setContractMissing] = useState<string[]>([]);
+  const [contractDetails, setContractDetails] = useState({ nationalId: "", packageId: "", yearlyAmount: "", packageDescription: "", websiteUrl: "" });
   const [templates, setTemplates] = useState<ContractTemplate[]>([]);
   const [templateId, setTemplateId] = useState("");
   const [templateName, setTemplateName] = useState("");
@@ -290,6 +291,18 @@ export function AdminCustomerProfile({ customerId, onClose, onChanged }: { custo
       sslStatus: next.customer.ssl_status || "unknown",
       lastBackupAt: String(next.customer.last_backup_at || "").slice(0, 10),
       lastUpdateAt: String(next.customer.last_update_at || "").slice(0, 10),
+    });
+    const selectedPackageId = next.customer.package_id || "";
+    const selectedPackageName = selectedPackageId ? packageLabel(selectedPackageId) : "";
+    const packageRow = selectedPackageName
+      ? next.services.find((item) => item.title.trim().toLocaleLowerCase("tr-TR") === selectedPackageName.trim().toLocaleLowerCase("tr-TR"))
+      : undefined;
+    setContractDetails({
+      nationalId: next.customer.national_id || "",
+      packageId: selectedPackageId,
+      yearlyAmount: packageRow?.amount ? String(packageRow.amount * (packageRow.quantity || 1)) : "",
+      packageDescription: packageRow?.details || "",
+      websiteUrl: next.customer.website_url || "",
     });
     setAdsAccounts({
       googleAdsCustomerId: next.customer.googleAdsCustomerId || next.customer.google_ads_customer_id || "",
@@ -1020,6 +1033,24 @@ export function AdminCustomerProfile({ customerId, onClose, onChanged }: { custo
     }
   };
 
+  const saveContractDetails = async () => {
+    setBusy(true);
+    try {
+      await apiRequest(`/api/admin/customers/${customerId}/contracts/details`, {
+        method: "PUT",
+        body: JSON.stringify(contractDetails),
+      });
+      setContractMissing([]);
+      setNotice("Sözleşme bilgileri kaydedildi. Şimdi sözleşmeyi oluşturabilirsiniz.");
+      await load();
+      onChanged();
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Sözleşme bilgileri kaydedilemedi.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const saveTemplate = async () => {
     setBusy(true);
     try {
@@ -1387,8 +1418,34 @@ export function AdminCustomerProfile({ customerId, onClose, onChanged }: { custo
         <h4 className="text-[14px] font-black">Sözleşme şablonları</h4>
         <p className="mt-1 text-[10px] text-white/45">Kütüphaneden seçin; imza ve Hatay360 onay damgası PDF’te aşağıdaki kutuya basılır. Her seferinde dosya yüklemeniz gerekmez.</p>
         <div className="mt-3 rounded-xl border border-cyan-300/20 bg-cyan-300/[.06] p-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div><p className="text-[11px] font-black text-cyan-100">Otomatik müşteri sözleşmesi</p><p className="mt-1 text-[9px] text-white/45">Müşteri, paket, tutar ve uygun paketlerde domain bilgisi kayıtlı veriden doldurulur.</p></div>
+          <div><p className="text-[11px] font-black text-cyan-100">Otomatik müşteri sözleşmesi</p><p className="mt-1 text-[9px] text-white/45">Bilgileri kaydedin; PDF müşteri ve paket kayıtlarından otomatik doldurulur.</p></div>
+          <div className="mt-3 grid gap-3 md:grid-cols-2">
+            <label className={labelClass}>T.C. kimlik no / Vergi no
+              <input inputMode="numeric" maxLength={11} value={contractDetails.nationalId} onChange={(event) => setContractDetails({ ...contractDetails, nationalId: event.target.value.replace(/\D/g, "").slice(0, 11) })} className={fieldClass} placeholder="10 veya 11 hane" />
+            </label>
+            <label className={labelClass}>Paket
+              <select value={contractDetails.packageId} onChange={(event) => {
+                const packageId = event.target.value;
+                const packageName = packageId ? packageLabel(packageId) : "";
+                const row = packageName ? profile?.services.find((item) => item.title.trim().toLocaleLowerCase("tr-TR") === packageName.trim().toLocaleLowerCase("tr-TR")) : undefined;
+                setContractDetails({ ...contractDetails, packageId, yearlyAmount: row?.amount ? String(row.amount * (row.quantity || 1)) : "", packageDescription: row?.details || "" });
+              }} className={fieldClass}>
+                <option value="">Paket seçin</option>
+                {PORTAL_PACKAGE_IDS.map((id) => <option key={id} value={id}>{packageLabel(id)}</option>)}
+              </select>
+            </label>
+            <label className={labelClass}>Paket bedeli (yıllık ₺)
+              <input type="number" min="0" step="0.01" value={contractDetails.yearlyAmount} onChange={(event) => setContractDetails({ ...contractDetails, yearlyAmount: event.target.value })} className={fieldClass} placeholder="Örn. 120000" />
+            </label>
+            {/^(enterprise|shop-)/.test(contractDetails.packageId) ? <label className={labelClass}>Alan adı (domain)
+              <input value={contractDetails.websiteUrl} onChange={(event) => setContractDetails({ ...contractDetails, websiteUrl: event.target.value })} className={fieldClass} placeholder="https://firmaadi.com" />
+            </label> : null}
+            <label className={`md:col-span-2 ${labelClass}`}>Paket açıklaması
+              <textarea rows={3} value={contractDetails.packageDescription} onChange={(event) => setContractDetails({ ...contractDetails, packageDescription: event.target.value })} className={fieldClass} placeholder="Sözleşmede gösterilecek paket kapsamı" />
+            </label>
+          </div>
+          <div className="mt-3 flex flex-wrap justify-end gap-2">
+            <button type="button" disabled={busy} onClick={() => void saveContractDetails()} className="inline-flex items-center gap-2 rounded-xl border border-cyan-300/30 bg-cyan-300/10 px-4 py-2.5 text-[10px] font-black text-cyan-100 disabled:opacity-50"><Save className="h-4 w-4" /> Bilgileri Kaydet</button>
             <button type="button" disabled={busy} onClick={() => void createAutomaticContract()} className="inline-flex items-center gap-2 rounded-xl bg-cyan-400 px-4 py-2.5 text-[10px] font-black text-[#071318] disabled:opacity-50"><FileText className="h-4 w-4" /> Sözleşme Oluştur</button>
           </div>
           {contractMissing.length ? <div className="mt-3 rounded-lg border border-amber-300/25 bg-amber-300/10 px-3 py-2 text-[10px] font-bold text-amber-100">{contractMissing.map((field) => <p key={field}>Eksik bilgi: {field}</p>)}</div> : null}

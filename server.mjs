@@ -2146,6 +2146,11 @@ function normalizeNationalId(value) {
   return digits.length === 11 ? digits : "";
 }
 
+function normalizeContractIdentity(value) {
+  const digits = String(value || "").replace(/\D/g, "").slice(0, 11);
+  return digits.length === 10 || digits.length === 11 ? digits : "";
+}
+
 function isValidNationalId(value) {
   const digits = normalizeNationalId(value);
   if (!digits || digits[0] === "0") return false;
@@ -7077,6 +7082,50 @@ async function handleApi(req, res, url) {
   }
 
   const adminAutomaticContract = url.pathname.match(/^\/api\/admin\/customers\/(\d+)\/contracts\/automatic$/);
+  const adminContractDetails = url.pathname.match(/^\/api\/admin\/customers\/(\d+)\/contracts\/details$/);
+  if (req.method === "PUT" && adminContractDetails) {
+    if (!requireUser(req, res)) return;
+    const customerId = Number(adminContractDetails[1]);
+    if (!findCustomerAccount(customerId)) return json(res, 404, { error: "Müşteri bulunamadı." });
+    const body = await readJson(req, 30_000);
+    const rawIdentity = cleanText(body.nationalId, 30);
+    const nationalId = normalizeContractIdentity(rawIdentity);
+    if (rawIdentity && !nationalId) return json(res, 400, { error: "T.C. kimlik no 11, vergi no 10 haneli olmalıdır." });
+    const rawPackageId = cleanText(body.packageId, 40);
+    const packageId = normalizePackageId(rawPackageId);
+    if (rawPackageId && !packageId) return json(res, 400, { error: "Geçerli bir paket seçin." });
+    const packageName = packageId ? packageLabel(packageId) : "";
+    const yearlyAmount = roundCatalogAmount(body.yearlyAmount);
+    const packageDescription = cleanText(body.packageDescription, 2000);
+    const websiteUrl = safeHttpUrl(body.websiteUrl);
+    const updatedAt = nowIso();
+    db.exec("BEGIN IMMEDIATE");
+    try {
+      db.prepare(
+        "UPDATE customer_accounts SET national_id = ?, package_id = ?, website_url = ?, updated_at = ? WHERE id = ?",
+      ).run(nationalId, packageId, websiteUrl, updatedAt, customerId);
+      if (packageName) {
+        const existingRow = db
+          .prepare("SELECT id FROM customer_catalog WHERE customer_id = ? AND lower(trim(title)) = lower(trim(?)) ORDER BY id DESC LIMIT 1")
+          .get(customerId, packageName);
+        if (existingRow) {
+          db.prepare(
+            "UPDATE customer_catalog SET kind = 'service', details = ?, amount = ?, quantity = 1, status = 'active', updated_at = ? WHERE id = ?",
+          ).run(packageDescription, yearlyAmount, updatedAt, existingRow.id);
+        } else {
+          db.prepare(
+            `INSERT INTO customer_catalog (customer_id, kind, title, details, amount, quantity, status, created_at, updated_at)
+             VALUES (?, 'service', ?, ?, ?, 1, 'active', ?, ?)`,
+          ).run(customerId, packageName, packageDescription, yearlyAmount, updatedAt, updatedAt);
+        }
+      }
+      db.exec("COMMIT");
+    } catch (error) {
+      db.exec("ROLLBACK");
+      throw error;
+    }
+    return json(res, 200, { ok: true, ...customerRecords(customerId) });
+  }
   if (req.method === "POST" && adminAutomaticContract) {
     if (!requireUser(req, res)) return;
     const customerId = Number(adminAutomaticContract[1]);
