@@ -31,7 +31,7 @@ function jpegSize(buffer) {
   return null;
 }
 
-function wrapBody(text, width = 92) {
+function wrapBody(text, width = 92, maxLines = 48) {
   const lines = [];
   for (const raw of latinize(text).replace(/\r/g, "").split("\n")) {
     const words = raw.split(/\s+/).filter(Boolean);
@@ -49,7 +49,7 @@ function wrapBody(text, width = 92) {
     }
     if (current) lines.push(current);
   }
-  return lines.slice(0, 48);
+  return lines.slice(0, maxLines);
 }
 
 export function htmlToPlain(html) {
@@ -298,6 +298,91 @@ export function buildContractPdf({ title, body, companyName, contactName, signat
   chunks.push(xref);
   chunks.push(`trailer\n<< /Size ${bodies.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefAt}\n%%EOF`);
   return Buffer.from(chunks.join(""), "latin1");
+}
+
+/** Çok sayfalı, otomatik doldurulmuş müşteri sözleşmesi. İmza çizimi içermez. */
+export function buildAutomaticContractPdf({ title, body, logoJpeg }) {
+  const pageW = 595;
+  const pageH = 842;
+  const lines = wrapBody(`${title || "HATAY360 HIZMET VE ABONELIK SOZLESMESI"}\n\n${htmlToPlain(body)}`, 92, 10_000);
+  const perPage = 47;
+  const pages = [];
+  for (let index = 0; index < lines.length; index += perPage) pages.push(lines.slice(index, index + perPage));
+  if (!pages.length) pages.push([""]);
+
+  const jpeg = logoJpeg && jpegSize(logoJpeg) ? logoJpeg : null;
+  const objects = [];
+  const add = (content) => { objects.push(content); return objects.length; };
+  const fontId = add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
+  let logoId = 0;
+  if (jpeg) {
+    const size = jpegSize(jpeg);
+    logoId = add(`<< /Type /XObject /Subtype /Image /Width ${size.width} /Height ${size.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`);
+  }
+
+  const pageObjects = [];
+  for (let pageIndex = 0; pageIndex < pages.length; pageIndex += 1) {
+    const draw = [];
+    if (logoId) {
+      draw.push("q");
+      draw.push("112 0 0 34 48 786 cm");
+      draw.push("/Logo Do");
+      draw.push("Q");
+    } else {
+      draw.push("BT /F1 16 Tf 48 800 Td (HATAY360) Tj ET");
+    }
+    draw.push("BT /F1 13 Tf 174 800 Td (HATAY360 HIZMET VE ABONELIK SOZLESMESI) Tj ET");
+    draw.push("0.75 w 48 776 m 547 776 l S");
+    let y = 758;
+    for (const line of pages[pageIndex]) {
+      draw.push(`BT /F1 9 Tf 48 ${y} Td (${escapePdf(line)}) Tj ET`);
+      y -= 14;
+    }
+    draw.push(`BT /F1 7 Tf 48 28 Td (hatay360.com - Avci E-Ticaret) Tj ET`);
+    draw.push(`BT /F1 7 Tf 505 28 Td (${pageIndex + 1} / ${pages.length}) Tj ET`);
+    const stream = Buffer.from(draw.join("\n"), "latin1");
+    const contentId = add({ kind: "stream", prefix: `<< /Length ${stream.length} >>\nstream\n`, buffer: stream });
+    const resources = logoId
+      ? `<< /Font << /F1 ${fontId} 0 R >> /XObject << /Logo ${logoId} 0 R >> >>`
+      : `<< /Font << /F1 ${fontId} 0 R >> >>`;
+    const pageId = add({ kind: "page", contentId, resources });
+    pageObjects.push(pageId);
+  }
+  const pagesId = add(`<< /Type /Pages /Kids [${pageObjects.map((id) => `${id} 0 R`).join(" ")}] /Count ${pageObjects.length} >>`);
+  const catalogId = add(`<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
+
+  const chunks = [Buffer.from("%PDF-1.4\n", "latin1")];
+  const offsets = [0];
+  let byteLength = chunks[0].length;
+  const push = (value, encoding = "latin1") => {
+    const buffer = Buffer.isBuffer(value) ? value : Buffer.from(value, encoding);
+    chunks.push(buffer);
+    byteLength += buffer.length;
+  };
+  for (let index = 0; index < objects.length; index += 1) {
+    const id = index + 1;
+    offsets[id] = byteLength;
+    push(`${id} 0 obj\n`);
+    const object = objects[index];
+    if (id === logoId && jpeg) {
+      push(object);
+      push(jpeg);
+      push("\nendstream\nendobj\n");
+    } else if (object?.kind === "stream") {
+      push(object.prefix);
+      push(object.buffer);
+      push("\nendstream\nendobj\n");
+    } else if (object?.kind === "page") {
+      push(`<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageW} ${pageH}] /Resources ${object.resources} /Contents ${object.contentId} 0 R >>\nendobj\n`);
+    } else {
+      push(`${object}\nendobj\n`);
+    }
+  }
+  const xrefAt = byteLength;
+  push(`xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`);
+  for (let id = 1; id <= objects.length; id += 1) push(`${String(offsets[id]).padStart(10, "0")} 00000 n \n`);
+  push(`trailer\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefAt}\n%%EOF`);
+  return Buffer.concat(chunks);
 }
 
 /** Teklif PDF — kurumsal / Prime şablonlarından üretilir. */

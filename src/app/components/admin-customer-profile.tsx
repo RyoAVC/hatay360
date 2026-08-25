@@ -48,6 +48,7 @@ export type CustomerProfile = {
     contact_name: string;
     email: string;
     phone: string;
+    national_id?: string;
     status: string;
     package_id: string;
     website_url: string;
@@ -215,6 +216,7 @@ export function AdminCustomerProfile({ customerId, onClose, onChanged }: { custo
   const [paymentFilter, setPaymentFilter] = useState<PaymentFilter>("all");
   const [renewal, setRenewal] = useState({ kind: "domain" as RenewalKind, label: "", renewDate: new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10), amount: "", note: "" });
   const [contractTitle, setContractTitle] = useState("");
+  const [contractMissing, setContractMissing] = useState<string[]>([]);
   const [templates, setTemplates] = useState<ContractTemplate[]>([]);
   const [templateId, setTemplateId] = useState("");
   const [templateName, setTemplateName] = useState("");
@@ -998,6 +1000,26 @@ export function AdminCustomerProfile({ customerId, onClose, onChanged }: { custo
     }
   };
 
+  const createAutomaticContract = async () => {
+    setBusy(true);
+    setContractMissing([]);
+    try {
+      const result = await apiRequest<CustomerProfile & { missingFields?: string[] }>(`/api/admin/customers/${customerId}/contracts/automatic`, {
+        method: "POST",
+        body: JSON.stringify({}),
+      });
+      applyRecords(result);
+      const missing = result.missingFields || [];
+      setContractMissing(missing);
+      setNotice(missing.length ? "Sözleşme oluşturuldu; boş bırakılan alanları aşağıdaki listeden kontrol edin." : "Sözleşme otomatik doldurularak oluşturuldu.");
+      onChanged();
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Sözleşme oluşturulamadı.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const saveTemplate = async () => {
     setBusy(true);
     try {
@@ -1364,6 +1386,13 @@ export function AdminCustomerProfile({ customerId, onClose, onChanged }: { custo
       <form onSubmit={uploadContract} className="rounded-2xl border border-white/10 p-4">
         <h4 className="text-[14px] font-black">Sözleşme şablonları</h4>
         <p className="mt-1 text-[10px] text-white/45">Kütüphaneden seçin; imza ve Hatay360 onay damgası PDF’te aşağıdaki kutuya basılır. Her seferinde dosya yüklemeniz gerekmez.</p>
+        <div className="mt-3 rounded-xl border border-cyan-300/20 bg-cyan-300/[.06] p-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div><p className="text-[11px] font-black text-cyan-100">Otomatik müşteri sözleşmesi</p><p className="mt-1 text-[9px] text-white/45">Müşteri, paket, tutar ve uygun paketlerde domain bilgisi kayıtlı veriden doldurulur.</p></div>
+            <button type="button" disabled={busy} onClick={() => void createAutomaticContract()} className="inline-flex items-center gap-2 rounded-xl bg-cyan-400 px-4 py-2.5 text-[10px] font-black text-[#071318] disabled:opacity-50"><FileText className="h-4 w-4" /> Sözleşme Oluştur</button>
+          </div>
+          {contractMissing.length ? <div className="mt-3 rounded-lg border border-amber-300/25 bg-amber-300/10 px-3 py-2 text-[10px] font-bold text-amber-100">{contractMissing.map((field) => <p key={field}>Eksik bilgi: {field}</p>)}</div> : null}
+        </div>
         <div className="mt-3 grid gap-3 md:grid-cols-[1fr_auto_auto]">
           <label className={labelClass}>Şablon
             <select value={templateId} onChange={(event) => {

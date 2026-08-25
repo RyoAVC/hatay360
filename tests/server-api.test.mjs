@@ -141,7 +141,7 @@ test("SQLite API giriş, içerik, hit ve başvuru akışını çalıştırır", 
   const customerCreate = await fetch(`${base}/api/admin/customers`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Cookie: cookie },
-    body: JSON.stringify({ companyName: "A Firması", contactName: "Ayşe Test", email: "a@example.com", phone: "0850 308 68 37", password: "customer-test-123" }),
+    body: JSON.stringify({ companyName: "A Firması", contactName: "Ayşe Test", nationalId: "12345678901", email: "a@example.com", phone: "0850 308 68 37", password: "customer-test-123" }),
   });
   assert.equal(customerCreate.status, 201);
   const customerId = (await customerCreate.json()).id;
@@ -218,6 +218,28 @@ test("SQLite API giriş, içerik, hit ve başvuru akışını çalıştırır", 
     body: JSON.stringify({ packageId: "start", websiteUrl: "https://ornek-firma.hatay360.com", sslStatus: "active", lastBackupAt: "2026-08-18", lastUpdateAt: "2026-08-20" }),
   });
   assert.equal(packageAssign.status, 200);
+
+  const packageCatalog = await fetch(`${base}/api/admin/customers/${customerId}/catalog`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ kind: "service", title: "Hatay360 Reklam Start", details: "Google Ads ve Meta reklam yönetimi", amount: 120000, quantity: 1 }),
+  });
+  assert.equal(packageCatalog.status, 201);
+  const automaticContract = await fetch(`${base}/api/admin/customers/${customerId}/contracts/automatic`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({}),
+  });
+  assert.equal(automaticContract.status, 201);
+  const automaticPayload = await automaticContract.json();
+  assert.deepEqual(automaticPayload.missingFields, []);
+  assert.match(automaticPayload.contracts[0].bodyHtml, /120\.000,00/);
+  assert.doesNotMatch(automaticPayload.contracts[0].bodyHtml, /Alan Adı \(Domain\):/);
+  const automaticFile = await fetch(`${base}/api/admin/customers/${customerId}/contracts/${automaticPayload.id}/file`, { headers: { Cookie: cookie } });
+  assert.equal(automaticFile.status, 200);
+  const automaticPdf = Buffer.from(await automaticFile.arrayBuffer());
+  assert.equal(automaticPdf.subarray(0, 5).toString("ascii"), "%PDF-");
+  assert.ok((automaticPdf.toString("latin1").match(/\/Type \/Page\b/g) || []).length >= 3);
 
   const emptyDatePatch = await fetch(`${base}/api/admin/customers/${customerId}`, {
     method: "PATCH",

@@ -14,7 +14,8 @@ import {
   summarizePayments,
 } from "./src/app/lib/payment-balance.ts";
 import { countPortalNapIssues } from "./src/app/lib/seo.ts";
-import { buildContractPdf, buildInvoicePdf, buildQuotePdf, htmlToPlain } from "./src/app/lib/contract-pdf.mjs";
+import { buildAutomaticContractPdf, buildContractPdf, buildInvoicePdf, buildQuotePdf, htmlToPlain } from "./src/app/lib/contract-pdf.mjs";
+import { packageLabel } from "./src/app/lib/portal-package.ts";
 import {
   bindCustomerOtp,
   OTP_SMTP_UNAVAILABLE_TR,
@@ -33,6 +34,8 @@ import { createExampleBayilikSartlari, normalizeBayilikSartlari } from "./src/ap
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(ROOT, "dist");
+const AUTO_CONTRACT_TEMPLATE = path.join(ROOT, "src", "app", "templates", "sozlesme.html");
+const AUTO_CONTRACT_LOGO = path.join(ROOT, "src", "app", "templates", "hatay360-logo.jpg");
 
 function applyEnvFile(filePath) {
   if (!filePath || !existsSync(filePath)) return false;
@@ -3097,6 +3100,91 @@ function assignContractFromTemplate(customerId, templateId, title) {
     sigW: template.sig_w,
     sigH: template.sig_h,
   });
+}
+
+function formatContractMoney(value) {
+  const amount = Number(value);
+  if (!Number.isFinite(amount) || amount <= 0) return "";
+  return new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY", minimumFractionDigits: 2 }).format(amount);
+}
+
+function contractDomain(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  try {
+    return new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`).hostname.replace(/^www\./i, "");
+  } catch {
+    return "";
+  }
+}
+
+function packageHasWeb(packageId, packageName) {
+  return /^(enterprise|shop-)/.test(String(packageId || "")) || /(web|site|mağaza|magaza|e-ticaret|eticaret)/i.test(String(packageName || ""));
+}
+
+function fillAutomaticContractTemplate(customerId) {
+  const account = findCustomerAccount(customerId);
+  if (!account) return { error: "Müşteri bulunamadı." };
+  if (!existsSync(AUTO_CONTRACT_TEMPLATE)) return { error: "Sözleşme şablonu bulunamadı." };
+  const packageName = account.package_id ? packageLabel(account.package_id) : "";
+  const packageRow = packageName
+    ? db.prepare("SELECT * FROM customer_catalog WHERE customer_id = ? AND status = 'active' AND lower(trim(title)) = lower(trim(?)) ORDER BY id DESC LIMIT 1").get(Number(customerId), packageName)
+    : null;
+  const yearlyAmount = packageRow ? Number(packageRow.amount || 0) * Number(packageRow.quantity || 1) : 0;
+  const webPackage = packageHasWeb(account.package_id, packageName);
+  const domain = webPackage ? contractDomain(account.website_url) : "";
+  const missingFields = [];
+  const required = [
+    ["Müşteri unvanı", account.company_name],
+    ["Müşteri yetkilisi", account.contact_name],
+    ["T.C. kimlik no / vergi no", account.national_id],
+    ["Paket adı", packageName],
+    ["Paket bedeli", yearlyAmount > 0 ? String(yearlyAmount) : ""],
+    ["Paket açıklaması", packageRow?.details],
+  ];
+  if (webPackage) required.push(["Alan adı (domain)", domain]);
+  for (const [label, value] of required) if (!String(value || "").trim()) missingFields.push(label);
+  const today = new Date();
+  const isoDay = today.toISOString().slice(0, 10);
+  const values = {
+    sozlesme_no: `H360-${Number(customerId)}-${isoDay.replace(/-/g, "")}`,
+    sozlesme_tarihi: new Intl.DateTimeFormat("tr-TR", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "Europe/Istanbul" }).format(today),
+    musteri_unvan: account.company_name || "",
+    musteri_yetkili: account.contact_name || "",
+    musteri_kimlik_vergi_no: account.national_id || "",
+    paket_adi: packageName,
+    paket_bedeli_yillik: formatContractMoney(yearlyAmount),
+    paket_bedeli_aylik: formatContractMoney(yearlyAmount > 0 ? yearlyAmount / 12 : 0),
+    paket_aciklama: packageRow?.details || "",
+    alan_adi_satiri: webPackage ? `Alan Adı (Domain): ${domain}` : "",
+  };
+  let bodyHtml = readFileSync(AUTO_CONTRACT_TEMPLATE, "utf8");
+  for (const [key, value] of Object.entries(values)) bodyHtml = bodyHtml.split(`{{${key}}}`).join(String(value || ""));
+  return { account, bodyHtml, missingFields, contractNo: values.sozlesme_no };
+}
+
+function createAutomaticCustomerContract(customerId) {
+  const filled = fillAutomaticContractTemplate(customerId);
+  if (filled.error) return filled;
+  const logoJpeg = existsSync(AUTO_CONTRACT_LOGO) ? readFileSync(AUTO_CONTRACT_LOGO) : null;
+  const pdf = buildAutomaticContractPdf({
+    title: "Hatay360 Hizmet ve Abonelik Sözleşmesi",
+    body: filled.bodyHtml,
+    logoJpeg,
+  });
+  const storedName = `${randomBytes(16).toString("hex")}.pdf`;
+  const saved = saveContractFile(customerId, {
+    originalName: `${filled.contractNo}.pdf`,
+    storedName,
+    mimeType: "application/pdf",
+    buffer: pdf,
+  }, {
+    title: "Hatay360 Hizmet ve Abonelik Sözleşmesi",
+    uploadedBy: "admin",
+    bodyHtml: filled.bodyHtml,
+    signStatus: "pending",
+  });
+  return saved.error ? saved : { ...saved, missingFields: filled.missingFields };
 }
 
 function applyContractSignature(customerId, contractId, signatureJpeg, uploadedBy) {
@@ -6986,6 +7074,15 @@ async function handleApi(req, res, url) {
     const saved = assignContractFromTemplate(customerId, body.templateId, body.title);
     if (saved.error) return json(res, saved.error.includes("bulunamadı") ? 404 : 400, { error: saved.error });
     return json(res, 201, { ok: true, id: saved.id, ...customerRecords(customerId) });
+  }
+
+  const adminAutomaticContract = url.pathname.match(/^\/api\/admin\/customers\/(\d+)\/contracts\/automatic$/);
+  if (req.method === "POST" && adminAutomaticContract) {
+    if (!requireUser(req, res)) return;
+    const customerId = Number(adminAutomaticContract[1]);
+    const saved = createAutomaticCustomerContract(customerId);
+    if (saved.error) return json(res, saved.error.includes("bulunamadı") ? 404 : 400, { error: saved.error });
+    return json(res, 201, { ok: true, id: saved.id, missingFields: saved.missingFields, ...customerRecords(customerId) });
   }
 
   const adminContractReview = url.pathname.match(/^\/api\/admin\/customers\/(\d+)\/contracts\/(\d+)\/review$/);
