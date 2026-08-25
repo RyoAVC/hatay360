@@ -816,12 +816,12 @@ export function AdminPage() {
   };
 
   return (
-    <div className="admin-enterprise min-h-screen bg-[#f4f7fb] text-slate-900 font-sans">
+    <div className="admin-enterprise min-h-screen bg-[#f5f7fb] text-slate-900 font-sans lg:pl-[282px]">
       {/* Admin Header */}
-      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 px-4 py-3 shadow-[0_8px_30px_rgba(15,23,42,.06)] backdrop-blur-xl sm:px-6">
-        <div className="mx-auto flex max-w-[1600px] items-center gap-3">
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 px-4 py-3 shadow-[0_8px_30px_rgba(15,23,42,.06)] backdrop-blur-xl sm:px-6 lg:left-[282px]">
+        <div className="flex w-full items-center gap-3">
           <div className="flex min-w-0 flex-1 items-center gap-3">
-            <span className="flex h-10 shrink-0 items-center rounded-xl border border-slate-200 bg-slate-950 px-3">
+            <span className="flex h-10 shrink-0 items-center rounded-xl border border-slate-200 bg-slate-950 px-3 lg:hidden">
               <SiteLogo variant="onDark" preview={{ logoDarkHeight: 28 }} />
             </span>
             <div className="min-w-0">
@@ -965,7 +965,7 @@ export function AdminPage() {
       )}
 
       <section className="border-b border-slate-200 bg-white px-6 py-2.5">
-        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3">
+        <div className="flex w-full flex-wrap items-center justify-between gap-3">
           <div className="flex max-w-2xl items-start gap-2 text-[11px] leading-relaxed text-slate-400">
             <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
             <span>
@@ -1023,8 +1023,8 @@ export function AdminPage() {
         </div>
       )}
 
-      <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:py-8">
-        <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start xl:gap-8">
+      <div className="w-full px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
+        <div className="flex flex-col gap-6 lg:block">
         <button
           type="button"
           onClick={() => setMobileNavOpen((open) => !open)}
@@ -1037,7 +1037,11 @@ export function AdminPage() {
           </span>
           {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </button>
-        <nav className={`${mobileNavOpen ? "block" : "hidden"} admin-scrollbar overflow-hidden rounded-[22px] border border-slate-200 bg-white p-3 shadow-[0_18px_55px_rgba(15,23,42,.08)] lg:sticky lg:top-24 lg:block lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto`}>
+        <nav className={`${mobileNavOpen ? "block" : "hidden"} admin-scrollbar overflow-hidden rounded-[22px] border border-slate-200 bg-white p-3 shadow-[0_18px_55px_rgba(15,23,42,.08)] lg:fixed lg:bottom-4 lg:left-4 lg:top-4 lg:z-[60] lg:block lg:w-[250px] lg:overflow-y-auto`}>
+          <div className="mb-3 flex h-14 items-center gap-3 border-b border-slate-100 px-2 pb-3">
+            <span className="flex h-10 items-center rounded-xl bg-slate-950 px-3"><SiteLogo variant="onDark" preview={{ logoDarkHeight: 25 }} /></span>
+            <div><p className="text-[12px] font-black tracking-[-.02em] text-slate-950">Hatay360</p><p className="text-[8px] font-bold uppercase tracking-[.16em] text-slate-400">Admin workspace</p></div>
+          </div>
           <div className="mb-4 rounded-2xl border border-cyan-100 bg-gradient-to-br from-cyan-50 to-indigo-50 p-3.5">
             <div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-cyan-500 text-white shadow-[0_8px_24px_rgba(6,182,212,.22)]"><ShieldCheck className="h-4 w-4"/></span><div><p className="text-[11px] font-black text-slate-950">Kontrol Merkezi</p><p className="mt-0.5 text-[9px] text-slate-500">Operasyonlar çevrimiçi</p></div><span className="ml-auto h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#34d399]"/></div>
           </div>
@@ -1084,13 +1088,13 @@ export function AdminPage() {
           ))}
         </nav>
 
-        <div className="admin-workspace min-w-0 rounded-[24px] border border-slate-200 bg-white p-4 shadow-[0_18px_55px_rgba(15,23,42,.06)] sm:p-5">
+        <main className="admin-workspace min-w-0">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
           <div className="flex min-w-0 items-center gap-3">
             {activeNavItem ? <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-slate-200 bg-slate-50 text-cyan-600"><activeNavItem.icon className="h-5 w-5"/></span> : null}
             <div className="min-w-0"><p className="text-[9px] font-black uppercase tracking-[.18em] text-slate-400">Workspace / Yönetim</p><p className="truncate text-[16px] font-black tracking-[-.025em] text-slate-950">{activeNavItem?.label || "Dashboard"}</p></div>
           </div>
-          <div className="flex items-center gap-2 text-[9px] font-bold text-white/35"><span className={`h-2 w-2 rounded-full ${databaseStatus === "connected" ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,.8)]" : "bg-rose-400"}`}/>{databaseStatus === "connected" ? "Sistemler çalışıyor" : "Bağlantı kontrol ediliyor"}</div>
+          <div className="flex items-center gap-2 text-[9px] font-bold text-slate-400"><span className={`h-2 w-2 rounded-full ${databaseStatus === "connected" ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,.8)]" : "bg-rose-400"}`}/>{databaseStatus === "connected" ? "Sistemler çalışıyor" : "Bağlantı kontrol ediliyor"}</div>
         </div>
         {activeTab === "inbox" && (
           <AdminInboxPanel
@@ -2315,7 +2319,7 @@ export function AdminPage() {
         {activeTab === "seo" && (
           <AdminSeoPanel settings={settingsState} onChange={setSettingsState} />
         )}
-        </div>
+        </main>
         </div>
       </div>
     </div>
