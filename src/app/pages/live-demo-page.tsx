@@ -72,7 +72,7 @@ function RentCarDemo() {
       <header className="bg-[#111827] text-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <p className="text-[18px] font-black">HATAY<span className="text-[#f59e0b]">RENT</span></p>
-          <a href={`${AVCLABS_VITRINE}/yazilim/rent-a-car-yazilimi`} className="text-[12px] font-bold text-[#fbbf24]">
+          <a href={`${AVCLABS_VITRINE}/yazilim/avcnova-arac-kiralama`} className="text-[12px] font-bold text-[#fbbf24]">
             Lisanslı yazılım
           </a>
         </div>
@@ -203,7 +203,7 @@ export function LiveDemoPage() {
       {ads[key].node}
       {bung && (
         <div className="border-t border-black/10 bg-[#071b22] px-5 py-6 text-center text-[12px] text-white/70">
-          Örnek ekran. Bu ürün AvcNova’nın BUNG lisanslı yazılımıdır; kurumsal ve büyük projeler içindir. Asıl sistem {AVCLABS_VITRINE.replace("http://", "")} üzerinde.
+          Örnek ekran. Bu ürün AvcNova’nın BUNG lisanslı yazılımıdır; kurumsal ve büyük projeler içindir. Asıl sistem {AVCLABS_VITRINE.replace(/^https?:\/\//, "")} üzerinde.
           {" "}
           <a href={`${AVCLABS_VITRINE}${bung.vitrinePath}`} className="font-bold text-[#70dce9]" target="_blank" rel="noreferrer">
             Yazılımı aç <ExternalLink className="ml-1 inline h-3 w-3" />

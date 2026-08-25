@@ -1,4 +1,4 @@
-export const AVCLABS_VITRINE = "http://localhost:4120";
+export const AVCLABS_VITRINE = "https://avcnova.com";
 
 export const AVC_SISTER_SYSTEMS = [
   {
@@ -93,7 +93,7 @@ export const AVCLABS_PRODUCTS = [
     text: "Filo, takvim, dinamik fiyat, dijital sözleşme, hasar ve çoklu şube.",
     image: DEMO_PHOTOS.rentHero,
     accent: "#111827",
-    vitrinePath: "/yazilim/rent-a-car-yazilimi",
+    vitrinePath: "/yazilim/avcnova-arac-kiralama",
     modules: ["Araç Filosu", "Kiralama Takvimi", "Dinamik Fiyatlandırma", "Dijital Kira Sözleşmeleri", "Hasar ve Ekspertiz", "Online Tahsilat"],
   },
   {
@@ -104,7 +104,7 @@ export const AVCLABS_PRODUCTS = [
     text: "Tatil DNA’sı, canlı kokpit, mahremiyet endeksi, ön ödeme ve çoklu dil.",
     image: DEMO_PHOTOS.bungalow,
     accent: "#0f766e",
-    vitrinePath: "/yazilim/bung-travel",
+    vitrinePath: "/yazilim/avcnova-konaklama",
     modules: ["Temel Rezervasyon", "Tatil DNA'sı", "Canlı Tatil Kokpiti", "Mahremiyet Endeksi", "Esnek Tarih Önerici", "Online Ön Ödeme"],
   },
   {
