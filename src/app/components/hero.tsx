@@ -21,12 +21,13 @@ import {
   Zap,
   Layers,
 } from "lucide-react";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { Link } from "react-router";
 import { LiveDashboard } from "./live-dashboard";
 import { BrandLogo } from "./brand-logo";
 import { useContent } from "../context/content-context";
 import { attentionEffectClass } from "../lib/attention-effects";
+import { useSiteReducedMotion } from "../lib/site-motion";
 
 // --- SLIDE 2 VISUAL: Google Ads & Meta Ads Simulation ---
 function AdsDashboardSimulation() {
@@ -99,7 +100,7 @@ function AdsDashboardSimulation() {
 
 // --- SLIDE 3 VISUAL: Desktop + phone studio preview ---
 function WebAndAppSimulation() {
-  const reducedMotion = useReducedMotion() ?? false;
+  const reducedMotion = useSiteReducedMotion();
 
   return (
     <div className="relative overflow-hidden rounded-3xl border border-[#d7e8ee] bg-[#eef7f9] p-4 sm:p-5">
@@ -358,7 +359,7 @@ function HeroAmbientBackground({ reducedMotion }: { reducedMotion: boolean }) {
 
 /** Ana sayfada hero hemen altındaki ilk bölüm — scroll ile belirir. */
 export function BelowHeroReveal({ children }: { children: ReactNode }) {
-  const reducedMotion = useReducedMotion() ?? false;
+  const reducedMotion = useSiteReducedMotion();
   return (
     <motion.div
       initial={{ opacity: reducedMotion ? 1 : 0, y: reducedMotion ? 0 : 32 }}
@@ -389,7 +390,7 @@ function VisualFrame({ children, index }: { children: ReactNode; index: number }
 export function Hero() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
-  const reducedMotion = useReducedMotion() ?? false;
+  const reducedMotion = useSiteReducedMotion();
   const { slides: contentSlides } = useContent();
 
   const slides = useMemo(() => {

@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { ArrowLeft, ArrowRight, Handshake, LockKeyhole, ShieldAlert, TrendingUp } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { Link, Navigate, useNavigate } from "react-router";
 import { SiteLogo } from "../components/site-logo";
 import { FormError } from "../components/form-error";
 import { LoginPromoBannerSlider, LoginPromoLineChart, LoginPromoStats } from "../components/login-promo-panel";
 import { turkishFormProps } from "../lib/form-validation";
+import { useSiteReducedMotion } from "../lib/site-motion";
 import { usePartnerAuth } from "../context/partner-auth-context";
 import { useContent } from "../context/content-context";
 import {
@@ -186,7 +187,7 @@ export function PartnerLoginPage() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [autoHint, setAutoHint] = useState(Boolean(trusted));
-  const reducedMotion = useReducedMotion() ?? false;
+  const reducedMotion = useSiteReducedMotion();
   const autoTried = useRef(false);
 
   const runLogin = async (nextEmail: string, nextPassword: string, trust: boolean) => {

@@ -124,13 +124,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .h360-fx-glow,
-  .h360-fx-neon,
-  .h360-fx-float,
-  .h360-fx-drift,
-  .h360-fx-shimmer,
-  .h360-fx-wiggle,
-  .h360-fx-spotlight::after {
+  html:not([data-h360-motion="full"]) .h360-fx-glow,
+  html:not([data-h360-motion="full"]) .h360-fx-neon,
+  html:not([data-h360-motion="full"]) .h360-fx-float,
+  html:not([data-h360-motion="full"]) .h360-fx-drift,
+  html:not([data-h360-motion="full"]) .h360-fx-shimmer,
+  html:not([data-h360-motion="full"]) .h360-fx-wiggle,
+  html:not([data-h360-motion="full"]) .h360-fx-spotlight::after {
     animation: none !important;
+  }
+
+  html[data-h360-motion="full"] .sector-stack__inner {
+    animation: sectorStackRecede linear both !important;
+    animation-timeline: view() !important;
+    animation-range: exit 0% exit 100% !important;
   }
 }

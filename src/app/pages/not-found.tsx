@@ -1,6 +1,7 @@
 import { Link } from "react-router";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { Home, MapPinned, PhoneCall, Layers, Wrench, CarFront, CakeSlice, Stethoscope, Compass, Navigation } from "lucide-react";
+import { useSiteReducedMotion } from "../lib/site-motion";
 
 const LINK_BASE =
   "inline-flex min-h-11 items-center gap-2 rounded-xl px-5 py-3 text-[15px] font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#00a8c4] focus-visible:ring-offset-2";
@@ -22,7 +23,7 @@ const SECTORS = [
 ] as const;
 
 export function NotFoundPage() {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSiteReducedMotion();
   const motionOff = { initial: false as const, animate: undefined, whileHover: undefined, transition: undefined };
 
   return (

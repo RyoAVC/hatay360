@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { ArrowLeft, ArrowRight, BarChart3, LockKeyhole, MessagesSquare, ShieldCheck } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router";
 import { SiteLogo } from "../components/site-logo";
 import { FormError } from "../components/form-error";
 import { LoginPromoBannerSlider, LoginPromoLineChart, LoginPromoStats } from "../components/login-promo-panel";
 import { turkishFormProps } from "../lib/form-validation";
+import { useSiteReducedMotion } from "../lib/site-motion";
 import { useCustomerAuth } from "../context/customer-auth-context";
 import { useContent } from "../context/content-context";
 import { apiRequest } from "../lib/api";
@@ -144,7 +145,7 @@ export function CustomerLoginPage() {
   const [needsOtp, setNeedsOtp] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const reducedMotion = useReducedMotion() ?? false;
+  const reducedMotion = useSiteReducedMotion();
 
   useEffect(() => {
     const ito = searchParams.get("ito");

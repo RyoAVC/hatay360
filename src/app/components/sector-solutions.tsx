@@ -12,7 +12,8 @@ import {
   Calendar,
   Clock3,
 } from "lucide-react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import { useSiteReducedMotion } from "../lib/site-motion";
 import { Link } from "react-router";
 import { BrandLogo } from "./brand-logo";
 import { BrushLead } from "./brush-lead";
@@ -144,7 +145,7 @@ function PhoneChrome({ children }: { children: ReactNode }) {
 }
 
 function SceneArt({ id }: { id: SectorId; accent: string }) {
-  const reduced = useReducedMotion() ?? false;
+  const reduced = useSiteReducedMotion();
   const calls = useLiveCount(48, reduced);
   const [toast, setToast] = useState(0);
 

@@ -1,7 +1,8 @@
 import { Link } from "react-router";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { ArrowRight, ClipboardCheck, FileBarChart, MessagesSquare, ShieldCheck, LockKeyhole } from "lucide-react";
 import { Reveal } from "./motion-primitives";
+import { useSiteReducedMotion } from "../lib/site-motion";
 
 const DELIVERABLES = [
   {
@@ -25,7 +26,7 @@ const DELIVERABLES = [
 ];
 
 export function IntegrationsShowcase() {
-  const reduced = useReducedMotion() ?? false;
+  const reduced = useSiteReducedMotion();
 
   return (
     <section className="mx-auto max-w-7xl px-5 py-24 sm:px-8">

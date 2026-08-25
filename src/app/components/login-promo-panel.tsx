@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { attentionEffectClass } from "../lib/attention-effects";
+import { useSiteReducedMotion } from "../lib/site-motion";
 import {
   bannerMediaUrl,
   type LoginPromoBanner,
@@ -37,7 +38,7 @@ export function LoginPromoBannerSlider({
   accentDot: string;
   borderClass?: string;
 }) {
-  const reducedMotion = useReducedMotion() ?? false;
+  const reducedMotion = useSiteReducedMotion();
   const list = banners.length ? banners : [];
   const [index, setIndex] = useState(0);
 
@@ -133,7 +134,7 @@ export function LoginPromoStats({
   tone: string;
   cardClass?: string;
 }) {
-  const reducedMotion = useReducedMotion() ?? false;
+  const reducedMotion = useSiteReducedMotion();
   return (
     <div className="mt-5 grid grid-cols-3 gap-2.5">
       {stats.map((stat) => (
@@ -176,7 +177,7 @@ export function LoginPromoLineChart({
   title: string;
   borderClass?: string;
 }) {
-  const reducedMotion = useReducedMotion() ?? false;
+  const reducedMotion = useSiteReducedMotion();
   const w = 280;
   const h = 88;
   const pad = 8;

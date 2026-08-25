@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import { ArrowRight, CheckCircle2, Handshake, MessageCircle } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { SiteLogo } from "../components/site-logo";
 import { FormError } from "../components/form-error";
 import { PhoneField } from "../components/phone-field";
@@ -11,6 +11,7 @@ import { useContent } from "../context/content-context";
 import { apiRequest } from "../lib/api";
 import { isValidTrPhone, PHONE_ERROR, toWhatsAppHref } from "../lib/contact";
 import { turkishFormProps } from "../lib/form-validation";
+import { useSiteReducedMotion } from "../lib/site-motion";
 import {
   DEFAULT_PARTNER_LOGIN_CHART,
   DEFAULT_PARTNER_LOGIN_STATS,
@@ -75,7 +76,7 @@ function PartnerSignupAmbient({ reducedMotion }: { reducedMotion: boolean }) {
 
 export function PartnerSignupPage() {
   const { settings } = useContent();
-  const reducedMotion = useReducedMotion() ?? false;
+  const reducedMotion = useSiteReducedMotion();
   const [form, setForm] = useState({
     companyName: "",
     contactName: "",

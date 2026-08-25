@@ -1,6 +1,7 @@
-import { useReducedMotion, motion } from "motion/react";
+import { motion } from "motion/react";
 import { ArrowRight, PhoneCall } from "lucide-react";
 import { Link } from "react-router";
+import { useSiteReducedMotion } from "../lib/site-motion";
 
 /** Header / mobil ‘Sizi Arayalım’ dikkat çekici CTA */
 export function HeaderCallCta({
@@ -14,7 +15,7 @@ export function HeaderCallCta({
   className?: string;
   onClick?: () => void;
 }) {
-  const reduced = useReducedMotion() ?? false;
+  const reduced = useSiteReducedMotion();
 
   return (
     <Link to={to} onClick={onClick} className={`relative inline-flex ${className}`}>

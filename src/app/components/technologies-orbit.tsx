@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { HelpCircle, Bot, Sparkles, X } from "lucide-react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { BrushLead } from "./brush-lead";
+import { useSiteReducedMotion } from "../lib/site-motion";
 
 /** simpleicons CDN — https://github.com/simple-icons/simple-icons */
 const icon = (slug: string, color: string) =>
@@ -341,7 +342,7 @@ function buildOrbitItems(seeds: TechSeed[]): TechItem[] {
 }
 
 export function TechnologiesOrbit() {
-  const reduced = useReducedMotion() ?? false;
+  const reduced = useSiteReducedMotion();
   const techs = useMemo(() => buildOrbitItems(TECH_SEEDS), []);
   const [active, setActive] = useState<TechItem | null>(techs[0] ?? null);
 
