@@ -63,7 +63,7 @@ import {
   Handshake,
   Headphones,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { useAuth } from "../context/auth-context";
 import { SiteLogo } from "../components/site-logo";
 import { AdminSeoPanel } from "./admin-seo-panel";
@@ -150,6 +150,12 @@ type AdminTab =
   | "corporate"
   | "bayilikSartlari"
   | "seo";
+
+const ADMIN_TABS: AdminTab[] = ["inbox", "insights", "signups", "customers", "tickets", "partnerSupport", "approvals", "quotes", "renewals", "extras", "referrals", "seoTrack", "audit", "security", "connections", "sites", "plans", "slides", "services", "sectors", "references", "settings", "corporate", "bayilikSartlari", "seo"];
+
+function readAdminTab(value: string | null): AdminTab {
+  return ADMIN_TABS.includes(value as AdminTab) ? (value as AdminTab) : "inbox";
+}
 
 const ADMIN_NAV: { group: string; items: { id: AdminTab; label: string; icon: typeof Settings }[] }[] = [
   {
@@ -412,7 +418,8 @@ export function AdminPage() {
     resetAll,
   } = useContent();
 
-  const [activeTab, setActiveTab] = useState<AdminTab>("insights");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<AdminTab>(() => readAdminTab(new URLSearchParams(window.location.search).get("tab")));
   const [partnerSupportUnread, setPartnerSupportUnread] = useState(0);
   const previousPartnerSupportUnread = useRef<number | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -420,10 +427,30 @@ export function AdminPage() {
   const [headerChrome, setHeaderChrome] = useState<AdminHeaderChrome>(() => readAdminHeaderChrome());
   const [headerChromeOpen, setHeaderChromeOpen] = useState(false);
   const activeNavItem = ADMIN_NAV.flatMap((section) => section.items).find((item) => item.id === activeTab);
+  useEffect(() => {
+    const nextTab = readAdminTab(searchParams.get("tab"));
+    setActiveTab((current) => (current === nextTab ? current : nextTab));
+  }, [searchParams]);
+
   const selectTab = (tab: AdminTab) => {
     setActiveTab(tab);
     setMobileNavOpen(false);
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (tab === "inbox") next.delete("tab");
+      else next.set("tab", tab);
+      return next;
+    });
   };
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileNavOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [mobileNavOpen]);
 
   useEffect(() => {
     const checkPartnerSupport = async () => {
@@ -1005,7 +1032,7 @@ export function AdminPage() {
         error={opsError}
         onNavigate={(target) => {
           setOpsJump({ target, token: Date.now() });
-          setActiveTab(opsTargetTab(target));
+          selectTab(opsTargetTab(target));
         }}
         onRefresh={reloadOps}
       />
@@ -1029,6 +1056,7 @@ export function AdminPage() {
           type="button"
           onClick={() => setMobileNavOpen((open) => !open)}
           aria-expanded={mobileNavOpen}
+          aria-controls="admin-navigation"
           className="sticky top-[68px] z-40 flex items-center justify-between gap-2 rounded-2xl border border-white/10 bg-[#18181f] px-4 py-3 text-left text-[13px] font-black text-white shadow-lg lg:hidden"
         >
           <span className="flex items-center gap-2 truncate">
@@ -1037,7 +1065,7 @@ export function AdminPage() {
           </span>
           {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </button>
-        <nav className={`${mobileNavOpen ? "block" : "hidden"} admin-scrollbar overflow-hidden rounded-[22px] border border-white/[.08] bg-[#0d1326] p-3 shadow-[0_18px_55px_rgba(0,0,0,.28)] lg:fixed lg:bottom-4 lg:left-4 lg:top-4 lg:z-[60] lg:block lg:w-[250px] lg:overflow-y-auto`}>
+        <nav id="admin-navigation" aria-label="Yönetim menüsü" className={`${mobileNavOpen ? "block" : "hidden"} admin-scrollbar overflow-hidden rounded-[22px] border border-white/[.08] bg-[#0d1326] p-3 shadow-[0_18px_55px_rgba(0,0,0,.28)] lg:fixed lg:bottom-4 lg:left-4 lg:top-4 lg:z-[60] lg:block lg:w-[250px] lg:overflow-y-auto`}>
           <div className="mb-3 flex h-14 items-center gap-3 border-b border-white/[.07] px-2 pb-3">
             <span className="flex h-10 items-center rounded-xl bg-slate-950 px-3"><SiteLogo variant="onDark" preview={{ logoDarkHeight: 25 }} /></span>
             <div><p className="text-[12px] font-black tracking-[-.02em] text-white">Hatay360</p><p className="text-[8px] font-bold uppercase tracking-[.16em] text-slate-500">Admin workspace</p></div>
@@ -1065,7 +1093,8 @@ export function AdminPage() {
                       key={item.id}
                       type="button"
                       onClick={() => selectTab(item.id)}
-                      className={`group relative flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[12px] font-bold transition-all cursor-pointer ${
+                      aria-current={active ? "page" : undefined}
+                      className={`group relative flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[12px] font-bold outline-none transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-300/70 ${
                         active ? "bg-cyan-400 text-[#07111e] shadow-sm" : "text-slate-400 hover:bg-white/[.055] hover:text-white"
                       }`}
                     >
@@ -1104,12 +1133,12 @@ export function AdminPage() {
             onRefresh={reloadInbox}
             onOpen={(target) => {
               setOpsJump({ target, token: Date.now() });
-              setActiveTab(opsTargetTab(target));
+              selectTab(opsTargetTab(target));
             }}
           />
         )}
         {activeTab === "insights" && <AdminInsightsPanel />}
-        {activeTab === "signups" && <AdminSignupsPanel opsJump={opsJump} onOpenCustomerForm={() => setActiveTab("customers")} />}
+        {activeTab === "signups" && <AdminSignupsPanel opsJump={opsJump} onOpenCustomerForm={() => selectTab("customers")} />}
         {activeTab === "customers" && <AdminCustomerPanel focus="customers" opsJump={opsJump} />}
         {activeTab === "tickets" && <AdminCustomerPanel focus="tickets" opsJump={opsJump} />}
         {activeTab === "partnerSupport" && <AdminPartnerSupportPanel />}

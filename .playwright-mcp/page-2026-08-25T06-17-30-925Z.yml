@@ -1,0 +1,1081 @@
+- generic [ref=e4]:
+  - link "İçeriğe geç" [ref=e5] [cursor=pointer]:
+    - /url: "#icerik"
+  - banner [ref=e6]:
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - link [ref=e10] [cursor=pointer]:
+          - /url: /
+          - img "Hatay360" [ref=e12]
+        - group [ref=e14]:
+          - generic "AVC doğrulanmış ekosistem bilgilerini aç" [ref=e15] [cursor=pointer]: AVC Kayıtlı
+      - navigation "Ana menü" [ref=e33]:
+        - generic [ref=e34]:
+          - link "Ana Sayfa" [ref=e35] [cursor=pointer]:
+            - /url: /
+          - link "Demolar" [ref=e36] [cursor=pointer]:
+            - /url: /demolar
+          - link "Araçlar" [ref=e37] [cursor=pointer]:
+            - /url: /araclar
+          - link "Harita" [ref=e38] [cursor=pointer]:
+            - /url: /google-maps-harita-kaydi
+          - link "Özellikler" [ref=e39] [cursor=pointer]:
+            - /url: /ozellikler
+          - link "Paketler" [ref=e40] [cursor=pointer]:
+            - /url: /paketler
+          - link "Referanslar" [ref=e41] [cursor=pointer]:
+            - /url: /referanslar
+      - generic [ref=e42]:
+        - link "Hesabım / Giriş" [ref=e43] [cursor=pointer]:
+          - /url: /hesap
+        - link "İletişim" [ref=e44] [cursor=pointer]:
+          - /url: /iletisim
+        - link "Sizi Arayalım" [ref=e45] [cursor=pointer]:
+          - /url: /iletisim
+  - main [ref=e54]:
+    - generic [ref=e56]:
+      - generic [ref=e57]:
+        - generic [ref=e59]:
+          - button "Google Ads & Meta Reklam" [ref=e60]:
+            - generic [ref=e61]: Büyüme
+          - button "360° Dijital Reklam & Medya" [ref=e67]:
+            - generic [ref=e68]: Reklam
+          - button "Kurumsal Görünürlük & Landing Page" [ref=e73]:
+            - generic [ref=e74]: Web & App
+        - generic [ref=e79]:
+          - generic [ref=e80]: 03/03
+          - generic [ref=e81]:
+            - button "Önceki slayt" [ref=e82]
+            - button "Sonraki slayt" [ref=e86]
+      - generic [ref=e89]:
+        - generic [ref=e90]:
+          - paragraph [ref=e91]: Kurumsal Görünürlük & Landing Page
+          - heading "Markanız için net mesaj, güçlü sayfa ve yüksek dönüşüm." [level=1] [ref=e92]
+          - paragraph [ref=e93]: Reklam kadar doğru sayfa da önemlidir. Sektörünüze özel landing page, kurumsal içerik ve web görünürlüğüyle müşteri karar sürecini hızlandırıyoruz.
+          - generic [ref=e94]:
+            - link "Teklif İsteyin" [ref=e95] [cursor=pointer]:
+              - /url: /iletisim
+            - link "Özellikleri Keşfet" [ref=e98] [cursor=pointer]:
+              - /url: /ozellikler
+          - list [ref=e99]:
+            - listitem [ref=e100]:
+              - generic [ref=e103]: Premium tasarım dili
+            - listitem [ref=e104]:
+              - generic [ref=e107]: Mobil öncelikli deneyim
+            - listitem [ref=e108]:
+              - generic [ref=e111]: Seo uyumlu yapı
+        - generic [ref=e112]:
+          - generic [ref=e114]:
+            - generic [ref=e115]:
+              - generic [ref=e116]:
+                - paragraph [ref=e117]: Studio önizleme
+                - paragraph [ref=e118]: Marka sitesi · canlı iskelet
+              - generic [ref=e119]:
+                - generic [ref=e120]: Web
+                - generic [ref=e121]: Mobil
+            - generic [ref=e122]:
+              - generic [ref=e123]:
+                - generic [ref=e124]: hatay360.com/proje
+                - generic [ref=e133]:
+                  - generic [ref=e144]:
+                    - generic [ref=e145]: Teklif al
+                    - generic [ref=e146]: Demo
+                  - generic [ref=e162]:
+                    - paragraph [ref=e164]: Hero
+                    - paragraph [ref=e165]: Premiumarayüz
+              - generic [ref=e171]:
+                - paragraph [ref=e178]: Markanız cebinde
+                - generic [ref=e180]: Ara
+              - generic [ref=e190]:
+                - generic [ref=e191]:
+                  - paragraph [ref=e192]: LCP
+                  - paragraph [ref=e193]: 0.6s
+                - generic [ref=e194]:
+                  - paragraph [ref=e195]: SEO
+                  - paragraph [ref=e196]: A+
+                - generic [ref=e197]:
+                  - paragraph [ref=e198]: CWV
+                  - paragraph [ref=e199]: Pass
+          - paragraph [ref=e200]: önizleme · mod_3
+      - generic [ref=e202]:
+        - generic [ref=e207]:
+          - paragraph [ref=e208]: Tasarım
+          - paragraph [ref=e209]: Özgün
+          - paragraph [ref=e210]: Markaya göre arayüz
+        - generic [ref=e215]:
+          - paragraph [ref=e216]: Teknik
+          - paragraph [ref=e217]: Hızlı
+          - paragraph [ref=e218]: Performans odaklı geliştirme
+        - generic [ref=e223]:
+          - paragraph [ref=e224]: Uyum
+          - paragraph [ref=e225]: Mobil
+          - paragraph [ref=e226]: Her ekrana uygun deneyim
+    - generic [ref=e228]:
+      - generic [ref=e229]:
+        - text: Hatay360 ne yapar?
+        - heading "Reklam, web ve Google Maps tek bir kurumsal stratejiyle büyür." [level=2] [ref=e230]
+        - paragraph [ref=e231]: Antakya merkezli dijital ajans olarak çalışıyoruz; hedefimiz daha çok arama, daha çok çağrı ve daha çok dönüşüm. Google Ads, kurumsal web ve işletme harita kaydı bir arada çalışır.
+      - generic [ref=e232]:
+        - link [ref=e234] [cursor=pointer]:
+          - /url: /iletisim?needs=ads
+          - heading "Google Ads & Meta" [level=3] [ref=e239]
+          - paragraph [ref=e240]: "Reklam yönetimi: bütçe sizin hesapta kalır, yönetim ücreti ayrıdır."
+          - generic [ref=e241]: Reklam teklifi
+        - link [ref=e245] [cursor=pointer]:
+          - /url: /iletisim?needs=site
+          - heading "Web tasarım" [level=3] [ref=e253]
+          - paragraph [ref=e254]: Landing ve kurumsal siteler; telefon, WhatsApp ve form dönüşümüne odaklı net mesaj.
+          - generic [ref=e255]: Site teklifi
+        - link [ref=e259] [cursor=pointer]:
+          - /url: /google-maps-harita-kaydi
+          - heading "Google Maps" [level=3] [ref=e265]
+          - paragraph [ref=e266]: İşletme profili, NAP tutarlılığı ve yerel aramada harita görünürlüğü.
+          - generic [ref=e267]: Harita kaydı
+        - link [ref=e271] [cursor=pointer]:
+          - /url: /iletisim?needs=shop
+          - heading "E-ticaret (isteğe bağlı)" [level=3] [ref=e278]
+          - paragraph [ref=e279]: Teklifte ayrı kalem. Pazarla ayrı üründür; her pakete dahil değildir.
+          - generic [ref=e280]: E-ticaret teklifi
+    - generic [ref=e283]:
+      - generic [ref=e284]:
+        - text: Sektör çözümleri
+        - heading "Sektöre özel satış ekranı" [level=2] [ref=e285]
+        - paragraph [ref=e286]: Kaydırınca kartlar üst üste biner; sağda gerçekçi arama, çağrı ve randevu önizlemeleri görürsünüz.
+      - generic [ref=e287]:
+        - article [ref=e288]:
+          - generic [ref=e289]:
+            - generic [ref=e290]:
+              - generic [ref=e296]:
+                - paragraph [ref=e297]: 01 / 04
+                - heading "Taksi & Transfer" [level=3] [ref=e298]
+              - paragraph [ref=e299]: “Taksi” arayan yolcuyu telefonunuza getirin.
+              - paragraph [ref=e300]: Hatay, İskenderun ve Antakya’da arama + harita görünürlüğü ile çağrı ve WhatsApp rezervasyonlarını büyütürüz. Gece ve gündüz arayanlar aynı funnel’da toplanır.
+              - generic [ref=e301]:
+                - generic [ref=e302]:
+                  - paragraph [ref=e303]: Hedef
+                  - paragraph [ref=e304]: Çağrı
+                - generic [ref=e305]:
+                  - paragraph [ref=e306]: Kanal
+                  - paragraph [ref=e307]: Ads + Maps
+                - generic [ref=e308]:
+                  - paragraph [ref=e309]: Tempo
+                  - paragraph [ref=e310]: 7/24
+              - generic [ref=e311]:
+                - generic [ref=e312]: Hatay taksi
+                - generic [ref=e313]: İskenderun taksi
+                - generic [ref=e314]: Havaalanı transfer
+              - link "Taksi paketini incele" [ref=e315] [cursor=pointer]:
+                - /url: /sektor/taksi
+            - generic [ref=e318]:
+              - generic [ref=e321]:
+                - generic [ref=e322]:
+                  - generic [ref=e323]: 09:41
+                  - generic [ref=e325]: 5G
+                - generic [ref=e326]:
+                  - generic [ref=e327]:
+                    - generic [ref=e328]:
+                      - generic "Google" [ref=e329]:
+                        - img "Google" [ref=e330]
+                      - generic [ref=e331]: Google · Sponsorlu
+                    - paragraph [ref=e332]: Hatay Taksi | 7/24 Transfer
+                    - paragraph [ref=e333]: Hemen ara · Antakya & İskenderun · WhatsApp rezervasyon
+                    - generic [ref=e334]:
+                      - generic [ref=e335]: Ara
+                      - generic [ref=e338]: Yol tarifi
+                  - generic [ref=e342]:
+                    - paragraph [ref=e343]: Bugün
+                    - paragraph [ref=e344]: "44"
+                    - paragraph [ref=e345]: gelen çağrı / rezervasyon
+              - generic [ref=e348]:
+                - paragraph [ref=e349]: Gelen çağrı
+                - paragraph [ref=e350]: İskenderun · 2 dk önce
+        - article [ref=e351]:
+          - generic [ref=e352]:
+            - generic [ref=e353]:
+              - generic [ref=e361]:
+                - paragraph [ref=e362]: 02 / 04
+                - heading "Nakliyat" [level=3] [ref=e363]
+              - paragraph [ref=e364]: Taşıma arayan müşteriye net teklif formu.
+              - paragraph [ref=e365]: Evden eve ve ofis taşıma aramalarında landing + yerel reklam ile teklif taleplerini toplayıp WhatsApp’a yönlendiririz. Fiyat şeffaflığı dönüşümü artırır.
+              - generic [ref=e366]:
+                - generic [ref=e367]:
+                  - paragraph [ref=e368]: Hedef
+                  - paragraph [ref=e369]: Teklif
+                - generic [ref=e370]:
+                  - paragraph [ref=e371]: Kanal
+                  - paragraph [ref=e372]: Arama
+                - generic [ref=e373]:
+                  - paragraph [ref=e374]: Alan
+                  - paragraph [ref=e375]: Yerel
+              - generic [ref=e376]:
+                - generic [ref=e377]: Hatay nakliyat
+                - generic [ref=e378]: Evden eve
+                - generic [ref=e379]: Ofis taşıma
+              - link "Nakliyat paketini incele" [ref=e380] [cursor=pointer]:
+                - /url: /sektor/nakliyat
+            - generic [ref=e384]:
+              - generic [ref=e385]:
+                - generic [ref=e386]:
+                  - paragraph [ref=e387]: Teklif formu · canlı
+                  - generic [ref=e388]: Yeni
+                - generic [ref=e389]:
+                  - generic [ref=e390]: Evden eve · Antakya → İskenderun
+                  - generic [ref=e391]: 2+1 daire · asansör var
+                  - generic [ref=e392]: "Tercih: hafta sonu"
+                - button "WhatsApp’tan teklif al" [ref=e393]
+              - generic [ref=e396]:
+                - generic [ref=e397]:
+                  - generic "Google" [ref=e398]:
+                    - img "Google" [ref=e399]
+                  - paragraph [ref=e400]: Hatay Evden Eve Nakliyat
+                - paragraph [ref=e401]: Ücretsiz keşif · aynı gün fiyat · sigortalı taşıma
+        - article [ref=e402]:
+          - generic [ref=e403]:
+            - generic [ref=e404]:
+              - generic [ref=e411]:
+                - paragraph [ref=e412]: 03 / 04
+                - heading "Klinik & Sağlık" [level=3] [ref=e413]
+              - paragraph [ref=e414]: Randevu arayan hastayı doğru klinik sayfasına alın.
+              - paragraph [ref=e415]: Diş, estetik ve uzman hekimlerde Google arama + Maps ile randevu formunu dolduran başvuru hedefleriz. Güven sinyali ve net iletişim zorunlu.
+              - generic [ref=e416]:
+                - generic [ref=e417]:
+                  - paragraph [ref=e418]: Hedef
+                  - paragraph [ref=e419]: Randevu
+                - generic [ref=e420]:
+                  - paragraph [ref=e421]: Kanal
+                  - paragraph [ref=e422]: SEO + Ads
+                - generic [ref=e423]:
+                  - paragraph [ref=e424]: Güven
+                  - paragraph [ref=e425]: Yüksek
+              - generic [ref=e426]:
+                - generic [ref=e427]: Hatay diş
+                - generic [ref=e428]: Antakya estetik
+                - generic [ref=e429]: Doktor randevu
+              - link "Sağlık paketini incele" [ref=e430] [cursor=pointer]:
+                - /url: /sektor/klinik
+            - generic [ref=e434]:
+              - generic [ref=e441]:
+                - paragraph [ref=e442]: Klinik randevu ekranı
+                - generic [ref=e443]: 4.9 · Maps yorumları
+              - paragraph [ref=e446]: Bugün müsait
+              - generic [ref=e447]:
+                - generic [ref=e448]: 09:30
+                - generic [ref=e451]: 11:00
+                - generic [ref=e454]: 14:15
+                - generic [ref=e457]: 16:45
+              - generic [ref=e460]:
+                - generic [ref=e461]: Online başvuru
+                - generic [ref=e462]: +12 bu hafta
+        - article [ref=e463]:
+          - generic [ref=e464]:
+            - generic [ref=e465]:
+              - generic [ref=e470]:
+                - paragraph [ref=e471]: 04 / 04
+                - heading "Servis & Tamirat" [level=3] [ref=e472]
+              - paragraph [ref=e473]: Acil arayan müşteriyi anında yakalayın.
+              - paragraph [ref=e474]: Klima, oto ve elektronik serviste ‘şimdi açık’ aramalarına hızlı dönüşüm sayfası kurarız. Telefon ve WhatsApp CTA’ları her ekranda önde.
+              - generic [ref=e475]:
+                - generic [ref=e476]:
+                  - paragraph [ref=e477]: Hedef
+                  - paragraph [ref=e478]: Acil çağrı
+                - generic [ref=e479]:
+                  - paragraph [ref=e480]: Kanal
+                  - paragraph [ref=e481]: Yerel Ads
+                - generic [ref=e482]:
+                  - paragraph [ref=e483]: Hız
+                  - paragraph [ref=e484]: Anında
+              - generic [ref=e485]:
+                - generic [ref=e486]: Klima servisi
+                - generic [ref=e487]: Oto tamir
+                - generic [ref=e488]: Elektronik servis
+              - link "Servis paketini incele" [ref=e489] [cursor=pointer]:
+                - /url: /sektor/servis
+            - generic [ref=e495]:
+              - generic [ref=e496]:
+                - generic [ref=e497]: 09:41
+                - generic [ref=e499]: 5G
+              - generic [ref=e500]:
+                - generic [ref=e506]:
+                  - paragraph [ref=e507]: Acil çağrı
+                  - paragraph [ref=e508]: Klima servisi · şimdi açık
+                - generic [ref=e516]:
+                  - generic [ref=e517]: Ortalama yanıt
+                  - paragraph [ref=e521]: < 45 sn
+                  - paragraph [ref=e522]: Yerel Ads + WhatsApp CTA
+    - generic [ref=e524]:
+      - generic [ref=e525]:
+        - text: Nasıl çalışır?
+        - heading "Dört adımda görünürlük ve çağrı" [level=2] [ref=e526]
+        - paragraph [ref=e527]: "Keşif, site, reklam ve harita: hedefiniz görünürlük, çağrı ve dönüşüm."
+      - generic [ref=e528]:
+        - generic [ref=e529]:
+          - text: "01"
+          - heading "Sizi arayalım" [level=3] [ref=e535]
+          - paragraph [ref=e536]: Numaranızı bırakın. Hedef, bütçe ve hangi hizmetin size uyduğunu 15 dakikada netleştiririz. Kredi kartı gerekmez.
+        - generic [ref=e537]:
+          - text: "02"
+          - heading "Site ve görünürlük" [level=3] [ref=e545]
+          - paragraph [ref=e546]: Kurumsal site veya landing sayfası ile harita planını birlikte çizeriz. Yayın takvimi keşifte netleşir.
+        - generic [ref=e547]:
+          - text: "03"
+          - heading "Reklam ve harita" [level=3] [ref=e553]
+          - paragraph [ref=e554]: Google Ads ve Meta kampanyaları; Google Maps kaydı ve yerel görünürlük aynı planda yürür.
+        - generic [ref=e555]:
+          - text: "04"
+          - heading "Takip ederiz" [level=3] [ref=e562]
+          - paragraph [ref=e563]: Arama, çağrı ve WhatsApp dönüşlerini izleriz. 15 gün deneme; kredi kartı gerekmez.
+      - paragraph [ref=e564]:
+        - 'link "İlk adım: sizi arayalım →" [ref=e565] [cursor=pointer]':
+          - /url: /iletisim
+    - generic [ref=e566]:
+      - generic [ref=e567]:
+        - text: Özellikler
+        - heading "Görünürlük, çağrı ve web" [level=2] [ref=e568]
+        - paragraph [ref=e569]: Hatay reklam, web tasarım, e-ticaret ve yazılım. Antakya merkezli tek ekip.
+      - generic [ref=e570]:
+        - generic [ref=e571]:
+          - heading "Web ve landing tasarım" [level=3] [ref=e577]
+          - paragraph [ref=e578]: Kurumsal site, çağrı sayfası veya kampanya landing’i. Sektöre göre net mesaj, net iletişim.
+        - generic [ref=e579]:
+          - heading "Google Ads ve Meta" [level=3] [ref=e584]
+          - paragraph [ref=e585]: Arama, görüntülü ve sosyal reklam. Hedef kitle, bütçe ve dönüşüm takibi tek ekiple.
+        - generic [ref=e586]:
+          - heading "Google Maps ve yerel" [level=3] [ref=e591]
+          - paragraph [ref=e592]: İşletme kaydı, NAP tutarlılığı ve Haritalar’da doğru görünüm. Yerel aramada bulunurluk.
+        - generic [ref=e593]:
+          - heading "SSL ve güvenlik" [level=3] [ref=e598]
+          - paragraph [ref=e599]: Siteniz HTTPS ile açılır. Ziyaretçi ve form verisi şifreli gider.
+        - generic [ref=e600]:
+          - heading "Mobil uyumlu siteler" [level=3] [ref=e604]
+          - paragraph [ref=e605]: Telefon, tablet ve masaüstünde okunur, tıklanır. Hızlı yükleme, net arama butonu.
+        - generic [ref=e606]:
+          - heading "SEO uyumlu altyapı" [level=3] [ref=e611]
+          - paragraph [ref=e612]: Doğru başlık, hız, sitemap ve yapılandırılmış veri. Organik görünürlük için teknik temel.
+        - generic [ref=e613]:
+          - heading "Yerel destek" [level=3] [ref=e617]
+          - paragraph [ref=e618]: Antakya ekibi kurulum, revizyon ve reklamda yanınızda. Numaranızı bırakın, sizi arayalım.
+        - generic [ref=e619]:
+          - heading "E-ticaret isteğe bağlı" [level=3] [ref=e624]
+          - paragraph [ref=e625]: Katalog ve POS ihtiyacı olan işletmeye açılır. Pazaryeri senkronu çekirdek özellik değildir.
+    - generic [ref=e627]:
+      - generic [ref=e628]:
+        - text: Özel tasarım stüdyosu
+        - heading "Fikrinizi önce görün, sonra yayına alın." [level=2] [ref=e629]
+        - paragraph [ref=e630]: Keşiften tasarım onayına, teknik kurulumdan yayına kadar her adımı görünür yürütüyoruz. Sağdaki simülasyondan proje akışını inceleyin.
+        - list [ref=e631]:
+          - listitem [ref=e632]: Markanıza özel, kopya olmayan arayüz
+          - listitem [ref=e636]: Mobil uyumlu ve hızlı açılış
+          - listitem [ref=e640]: SEO ve dönüşüm odaklı sayfa kurgusu
+          - listitem [ref=e644]: Tasarım onayı alınmadan yayına geçmeme
+        - link "Tasarım keşfi başlat" [ref=e648] [cursor=pointer]:
+          - /url: /iletisim
+      - generic [ref=e652]:
+        - generic [ref=e653]: studio.hatay360 / canlı önizleme
+        - generic [ref=e659]:
+          - generic [ref=e660]:
+            - paragraph [ref=e661]: Proje akışı
+            - generic [ref=e662]:
+              - button "01 Keşif" [ref=e663]
+              - button "02 Tasarım" [ref=e669]
+              - button "03 Yayın" [ref=e676]
+          - generic [ref=e685]:
+            - generic [ref=e687]:
+              - paragraph [ref=e688]: Strateji dosyası
+              - heading "Keşif aşaması" [level=3] [ref=e689]
+            - paragraph [ref=e694]: Hedef, müşteri profili ve rakip görünümü netleşir.
+            - generic [ref=e709]:
+              - generic [ref=e710]: Proje ilerlemesi
+              - generic [ref=e711]: 28%
+    - generic [ref=e714]:
+      - generic [ref=e715]:
+        - generic [ref=e716]:
+          - text: Ajans çalışma standardı
+          - heading "Sadece teslim etmiyoruz; süreci görünür yönetiyoruz." [level=2] [ref=e717]
+          - paragraph [ref=e718]: Tekrarlanan hizmet listeleri yerine, bizimle çalışırken ne yaşayacağınızı açıkça gösteriyoruz.
+          - link "Çalışma biçimimizi incele" [ref=e719] [cursor=pointer]:
+            - /url: /hakkimizda
+        - generic [ref=e722]:
+          - article [ref=e723]:
+            - generic [ref=e724]: "01"
+            - heading "Net iş kapsamı" [level=3] [ref=e730]
+            - paragraph [ref=e731]: Başlamadan önce hedefi, teslimleri, zamanlamayı ve sorumlulukları tek sayfada netleştiririz.
+          - article [ref=e732]:
+            - generic [ref=e733]: "02"
+            - heading "Tek iletişim noktası" [level=3] [ref=e738]
+            - paragraph [ref=e739]: Tasarım, reklam ve yazılım ekipleri dağılmaz; proje sorumlunuz üzerinden düzenli bilgi alırsınız.
+          - article [ref=e740]:
+            - generic [ref=e741]: "03"
+            - heading "Görünür raporlama" [level=3] [ref=e746]
+            - paragraph [ref=e747]: Yapılan işler, reklam harcaması ve ölçülebilen sonuçlar müşteri panelinde kayıt altında kalır.
+      - link "Müşteri verileri firma hesabına göre ayrılır Admin kayıtlarıyla yönetilir · güvenli oturum Müşteri paneli girişi" [ref=e748] [cursor=pointer]:
+        - /url: /musteri/giris
+        - generic [ref=e758]:
+          - text: Müşteri verileri firma hesabına göre ayrılır
+          - generic [ref=e759]: Admin kayıtlarıyla yönetilir · güvenli oturum
+        - generic [ref=e760]: Müşteri paneli girişi
+    - generic [ref=e763]:
+      - generic [ref=e764]:
+        - generic [ref=e765]: Hatay360 Reklam & Görünürlük Paketi
+        - heading "Reklam bütçenizi satışa çeviren paketleri seçin" [level=2] [ref=e768]
+        - paragraph [ref=e769]: Google Ads, Meta reklamları, yerel SEO ve satış odaklı landing page çözümleri için hazır paketleri inceleyin veya özel hedefinize göre paket oluşturun.
+      - generic [ref=e771]:
+        - button "Hazır Paketler" [ref=e772] [cursor=pointer]
+        - button "Akıllı Paket Yapılandırıcı" [ref=e776] [cursor=pointer]
+      - generic [ref=e779]:
+        - generic [ref=e780]:
+          - generic [ref=e781]:
+            - heading "Reklam paketleri" [level=3] [ref=e782]
+            - paragraph [ref=e783]: Burada gördüğünüz tutar yönetim ücretidir. Google ve Meta'ya giden reklam bütçesi ayrıca, müşterinindir.
+          - generic [ref=e784]:
+            - generic:
+              - generic: Ads
+              - generic: AdWords
+              - generic: Ads
+              - generic: Ads
+            - generic [ref=e785]:
+              - generic [ref=e786]: TEST
+              - generic [ref=e792]:
+                - generic [ref=e793]:
+                  - heading "Hatay360 Reklam Start" [level=3] [ref=e794]
+                  - generic [ref=e795]: Google Ads & Meta
+                - paragraph [ref=e796]: Yerel işletmeler için Google Arama, Meta ve akıllı landing page ile aylık satış akışı kurmak isteyenler.
+                - generic [ref=e797]:
+                  - paragraph [ref=e798]: Yönetim ücreti (örnek)
+                  - paragraph [ref=e799]: ₺35.000
+                  - paragraph [ref=e800]: ₺24.900
+                  - generic [ref=e801]:
+                    - generic [ref=e802]: 12 Taksit İmkânı
+                    - generic [ref=e803]: ₺2.075 / ay
+                  - paragraph [ref=e804]: Google / Meta reklam bütçesi ayrıca, sizin hesabınızda kalır.
+                - link "Reklam Teklifi Al" [ref=e805] [cursor=pointer]:
+                  - /url: /iletisim?needs=ads&pkg=Hatay360+Reklam+Start&ornek=2075
+                - generic [ref=e808]:
+                  - generic [ref=e809]:
+                    - generic "Google" [ref=e810]:
+                      - img "Google" [ref=e811]
+                    - generic [ref=e812]: Google Ads
+                  - generic [ref=e813]:
+                    - generic "Meta" [ref=e814]:
+                      - img "Meta" [ref=e815]
+                    - generic [ref=e816]: Meta
+                - list [ref=e818]:
+                  - listitem [ref=e819]:
+                    - generic "Google" [ref=e820]:
+                      - img "Google" [ref=e821]
+                    - generic [ref=e822]: Google Ads arama ve dönüşüm kampanyaları
+                  - listitem [ref=e823]:
+                    - generic "Instagram" [ref=e824]:
+                      - img "Instagram" [ref=e825]
+                    - generic [ref=e826]: Meta Facebook & Instagram reklam yönetimi
+                  - listitem [ref=e827]:
+                    - generic [ref=e830]: Telefon dönüşüm odaklı landing page
+                  - listitem [ref=e831]:
+                    - generic [ref=e834]: Haftalık rapor ve optimizasyon
+                  - listitem [ref=e835]:
+                    - generic [ref=e838]: Yönetim + reklam stratejisi birlikte
+            - generic [ref=e839]:
+              - generic [ref=e840]: TEST paket test
+              - generic [ref=e850]:
+                - generic [ref=e851]:
+                  - heading "Hatay360 Reklam Pro" [level=3] [ref=e852]
+                  - generic [ref=e853]: EN ÇOK TERCİH EDİLEN
+                - paragraph [ref=e854]: Google Ads, Meta, yerel SEO ve web görünürlüğünü bir arada büyütmek isteyen işletmeler için.
+                - generic [ref=e855]:
+                  - paragraph [ref=e856]: Yönetim ücreti (örnek)
+                  - paragraph [ref=e857]: ₺65.000
+                  - paragraph [ref=e858]: ₺44.900
+                  - generic [ref=e859]:
+                    - generic [ref=e860]: 12 Taksit İmkânı
+                    - generic [ref=e861]: ₺3.740 / ay
+                  - paragraph [ref=e862]: Google / Meta reklam bütçesi ayrıca, sizin hesabınızda kalır.
+                - link "Büyüme Planı Hazırla" [ref=e863] [cursor=pointer]:
+                  - /url: /iletisim?needs=ads%2Cmaps&pkg=Hatay360+Reklam+Pro&ornek=3740
+                - generic [ref=e866]:
+                  - generic [ref=e867]:
+                    - generic "Google" [ref=e868]:
+                      - img "Google" [ref=e869]
+                    - generic [ref=e870]: Google Ads
+                  - generic [ref=e871]:
+                    - generic "Google" [ref=e872]:
+                      - img "Google" [ref=e873]
+                    - generic [ref=e874]: SEO
+                  - generic [ref=e875]:
+                    - generic "Meta" [ref=e876]:
+                      - img "Meta" [ref=e877]
+                    - generic [ref=e878]: Meta
+                - list [ref=e880]:
+                  - listitem [ref=e881]:
+                    - generic "Google" [ref=e882]:
+                      - img "Google" [ref=e883]
+                    - generic [ref=e884]: Google Search + Performance Max + E-ticaret kampanyaları
+                  - listitem [ref=e885]:
+                    - generic "Meta" [ref=e886]:
+                      - img "Meta" [ref=e887]
+                    - generic [ref=e888]: Meta reklam yönetimi ve kreatif optimizasyon
+                  - listitem [ref=e889]:
+                    - generic "Google" [ref=e890]:
+                      - img "Google" [ref=e891]
+                    - generic [ref=e892]: Yerel SEO + ilçelere göre hedefleme
+                  - listitem [ref=e893]:
+                    - generic [ref=e896]: A/B landing page ve dönüşüm artırımı
+                  - listitem [ref=e897]:
+                    - generic [ref=e900]: Aylık rapor + reklam bütçesi danışmanlığı
+            - generic [ref=e901]:
+              - generic [ref=e902]: TEEST3
+              - generic [ref=e908]:
+                - generic [ref=e909]:
+                  - heading "Hatay360 Yerel Hizmet Reklamı" [level=3] [ref=e910]
+                  - generic [ref=e911]: Taksi • Nakliyat • Klinik • Servis
+                - paragraph [ref=e912]: Taksi, nakliyat, klinik, servis ve yerel hizmet sektörlerinde telefon ve başvuru artışı hedefleyen reklam paketi.
+                - generic [ref=e913]:
+                  - paragraph [ref=e914]: Yönetim ücreti (örnek)
+                  - paragraph [ref=e915]: ₺95.000
+                  - paragraph [ref=e916]: ₺69.900
+                  - generic [ref=e917]:
+                    - generic [ref=e918]: 12 Taksit İmkânı
+                    - generic [ref=e919]: ₺5.825 / ay
+                  - paragraph [ref=e920]: Google / Meta reklam bütçesi ayrıca, sizin hesabınızda kalır.
+                - link "Sektöre Özel Teklif Al" [ref=e921] [cursor=pointer]:
+                  - /url: /iletisim?needs=ads%2Cmaps&pkg=Hatay360+Yerel+Hizmet+Reklam%C4%B1&ornek=5825
+                - generic [ref=e924]:
+                  - generic [ref=e925]:
+                    - generic "Google" [ref=e926]:
+                      - img "Google" [ref=e927]
+                    - generic [ref=e928]: Yerel SEO
+                  - generic [ref=e929]: WhatsApp
+                  - generic [ref=e931]:
+                    - generic "Google" [ref=e932]:
+                      - img "Google" [ref=e933]
+                    - generic [ref=e934]: Google Maps
+                - list [ref=e936]:
+                  - listitem [ref=e937]:
+                    - generic "Google" [ref=e938]:
+                      - img "Google" [ref=e939]
+                    - generic [ref=e940]: Google "Hatay taksi" ve yerel arama hedeflemesi
+                  - listitem [ref=e941]:
+                    - generic [ref=e944]: Reklam çağrısı ve WhatsApp dönüşüm optimizasyonu
+                  - listitem [ref=e945]:
+                    - generic [ref=e948]: İlçelere göre devreye alınan mesafe hedefi
+                  - listitem [ref=e949]:
+                    - generic [ref=e952]: İçerik + ücret/kurumsal sayfa optimizasyonu
+                  - listitem [ref=e953]:
+                    - generic [ref=e956]: Sonuç odaklı kampanya yönetimi
+            - generic [ref=e957]:
+              - generic [ref=e958]: Özel teklif fırsatı
+              - generic [ref=e977]:
+                - generic [ref=e978]:
+                  - heading "Hatay360 Kurumsal Reklam & Web" [level=3] [ref=e979]
+                  - generic [ref=e980]: Kurumsal Görünürlük
+                - paragraph [ref=e981]: Google reklamları, kurumsal web görünürlüğü ve özel landing page çalışmasıyla marka değeri kurmak isteyenler.
+                - generic [ref=e982]:
+                  - paragraph [ref=e983]: Yönetim ücreti (örnek)
+                  - paragraph [ref=e984]: Özel Teklif
+                  - paragraph [ref=e985]: Özel Fiyat
+                  - generic [ref=e986]:
+                    - generic [ref=e987]: Esnek Ödeme Vadesi
+                    - generic [ref=e988]: Projenize Özel Bütçe
+                  - paragraph [ref=e989]: Google / Meta reklam bütçesi ayrıca, sizin hesabınızda kalır.
+                - link "İletişime Geçin" [ref=e990] [cursor=pointer]:
+                  - /url: /iletisim?needs=site%2Cads%2Cmaps&pkg=Hatay360+Kurumsal+Reklam+%26+Web
+                - generic [ref=e993]:
+                  - generic [ref=e994]: Branding
+                  - generic [ref=e996]: Landing Page
+                - list [ref=e999]:
+                  - listitem [ref=e1000]:
+                    - generic [ref=e1003]: Kurumsal landing page + marka sayfası
+                  - listitem [ref=e1004]:
+                    - generic "Google" [ref=e1005]:
+                      - img "Google" [ref=e1006]
+                    - generic [ref=e1007]: Google Ads + Meta + SEO birlikte planlama
+                  - listitem [ref=e1008]:
+                    - generic [ref=e1011]: İlçe bazlı içerik ve hedef kitle segmentasyonu
+                  - listitem [ref=e1012]:
+                    - generic [ref=e1015]: Özel kampanya tasarımı ve A/B testleri
+                  - listitem [ref=e1016]:
+                    - generic [ref=e1019]: Özel müşavirlik ve düzenli strateji toplantıları
+        - generic [ref=e1020]:
+          - generic [ref=e1021]:
+            - generic [ref=e1022]:
+              - generic [ref=e1023]: Mağaza paketleri
+              - generic [ref=e1029]: Web tasarım dahil
+            - heading "Site ve mağaza altyapısı" [level=3] [ref=e1036]
+            - paragraph [ref=e1038]: Vitrin, katalog, sanal POS ve isteğe bağlı pazaryeri. Reklam paketleri ayrıdır; burada yalnızca web ve mağaza tutarları gösterilir.
+          - generic [ref=e1039]:
+            - article [ref=e1040]:
+              - generic [ref=e1043]:
+                - generic [ref=e1045]:
+                  - generic [ref=e1046]: Web + e-ticaret
+                  - heading "Hatay360 Mağaza Start" [level=4] [ref=e1051]
+                - paragraph [ref=e1056]: Özel vitrin, katalog, sanal POS ve SSL. Kendi sitenizden satış; reklam paketi ayrıdır.
+                - generic [ref=e1057]: Web vitrin + ödeme altyapısı
+                - generic [ref=e1065]:
+                  - generic [ref=e1066]:
+                    - generic [ref=e1067]:
+                      - paragraph [ref=e1068]: ₺35.000
+                      - paragraph [ref=e1069]: ₺24.900
+                    - generic [ref=e1070]:
+                      - paragraph [ref=e1071]: Aylık
+                      - paragraph [ref=e1072]: ₺2.075 / ay
+                  - paragraph [ref=e1073]: 12 Taksit İmkânı
+                  - paragraph [ref=e1074]: Reklam yönetimi ayrı pakettir; bu tutara dahil değildir.
+                - link "Mağaza Aç" [ref=e1075] [cursor=pointer]:
+                  - /url: /iletisim?needs=site%2Cshop&pkg=Hatay360+Ma%C4%9Faza+Start&ornek=2075
+                - generic [ref=e1080]:
+                  - generic "iyzico" [ref=e1081]:
+                    - img "iyzico" [ref=e1082]
+                  - text: iyzico
+                - list [ref=e1083]:
+                  - listitem [ref=e1084]:
+                    - generic [ref=e1088]: Mobil uyumlu web tasarım ve vitrin
+                  - listitem [ref=e1089]:
+                    - generic [ref=e1093]: Anahtar teslim e-ticaret altyapısı
+                  - listitem [ref=e1094]:
+                    - generic "iyzico" [ref=e1095]:
+                      - img "iyzico" [ref=e1096]
+                    - generic [ref=e1097]: Sanal POS & ödeme altyapısı
+                  - listitem [ref=e1098]:
+                    - generic [ref=e1102]: 1.000 ürüne kadar performans
+                  - listitem [ref=e1103]:
+                    - generic [ref=e1107]: Ücretsiz panel eğitimi
+            - article [ref=e1108]:
+              - generic [ref=e1111]:
+                - generic [ref=e1113]:
+                  - generic [ref=e1114]:
+                    - generic [ref=e1115]: Web + mağaza + pazaryeri
+                    - generic [ref=e1118]: Önerilen
+                  - heading "Hatay360 Mağaza & Pazarla" [level=4] [ref=e1121]
+                - paragraph [ref=e1128]: Özel web arayüzü, kendi mağazanız ve Trendyol / Hepsiburada / N11 stok senkronu. Reklam ayrı.
+                - generic [ref=e1129]:
+                  - generic [ref=e1130]:
+                    - generic "Trendyol" [ref=e1131]:
+                      - img "Trendyol" [ref=e1132]
+                    - generic "Hepsiburada" [ref=e1133]:
+                      - img "Hepsiburada" [ref=e1134]
+                    - generic "N11" [ref=e1135]:
+                      - img "N11" [ref=e1136]
+                  - generic [ref=e1137]: Pazaryeri senkronu
+                - generic [ref=e1138]:
+                  - generic [ref=e1139]:
+                    - generic [ref=e1140]:
+                      - paragraph [ref=e1141]: ₺65.000
+                      - paragraph [ref=e1142]: ₺44.900
+                    - generic [ref=e1143]:
+                      - paragraph [ref=e1144]: Aylık
+                      - paragraph [ref=e1145]: ₺3.740 / ay
+                  - paragraph [ref=e1146]: 12 Taksit İmkânı
+                  - paragraph [ref=e1147]: Reklam yönetimi ayrı pakettir; bu tutara dahil değildir.
+                - link "Pazarla ile Başla" [ref=e1148] [cursor=pointer]:
+                  - /url: /iletisim?needs=site%2Cshop&pkg=Hatay360+Ma%C4%9Faza+%26+Pazarla&ornek=3740
+                - generic [ref=e1152]:
+                  - generic [ref=e1153]:
+                    - generic "Trendyol" [ref=e1154]:
+                      - img "Trendyol" [ref=e1155]
+                    - text: Trendyol
+                  - generic [ref=e1156]:
+                    - generic "Hepsiburada" [ref=e1157]:
+                      - img "Hepsiburada" [ref=e1158]
+                    - text: Hepsiburada
+                - list [ref=e1159]:
+                  - listitem [ref=e1160]:
+                    - generic [ref=e1164]: Özel web tasarım ve ürün arayüzü
+                  - listitem [ref=e1165]:
+                    - generic "iyzico" [ref=e1166]:
+                      - img "iyzico" [ref=e1167]
+                    - generic [ref=e1168]: E-ticaret mağazası + sanal POS
+                  - listitem [ref=e1169]:
+                    - generic "Trendyol" [ref=e1170]:
+                      - img "Trendyol" [ref=e1171]
+                    - generic [ref=e1172]: "Pazarla: Trendyol, HB, N11 senkron"
+                  - listitem [ref=e1173]:
+                    - generic [ref=e1177]: Sınırsız ürün hedefi
+                  - listitem [ref=e1178]:
+                    - generic [ref=e1182]: Kurulum ve eğitim
+          - paragraph [ref=e1183]: "Mağaza Start: vitrin ve ödeme · Mağaza & Pazarla: pazaryeri senkronu · Reklam yönetimi her iki pakette ayrıdır"
+      - generic [ref=e1184]:
+        - heading "Sıkça Sorulan Sorular" [level=3] [ref=e1185]
+        - generic [ref=e1186]:
+          - button "Paket fiyatına Google ve Meta reklam bütçesi dahil mi?" [ref=e1188] [cursor=pointer]
+          - button "Paketlere kurulum ve eğitim dahil mi?" [ref=e1193] [cursor=pointer]
+          - button "Google Maps kaydı pakete dahil mi?" [ref=e1198] [cursor=pointer]
+          - button "Pazarla pazaryeri entegrasyonu pakete dahil mi?" [ref=e1203] [cursor=pointer]
+          - button "Google Ads ve Meta reklam yönetimi nasıl yapılıyor?" [ref=e1208] [cursor=pointer]
+          - button "Özel yazılım ve otomasyon neleri kapsar?" [ref=e1213] [cursor=pointer]
+    - generic [ref=e1217]:
+      - generic [ref=e1218]:
+        - text: Hatay ve ilçeleri
+        - heading "Öne çıkan ilçeler" [level=2] [ref=e1219]
+        - paragraph [ref=e1220]: Önce Antakya, Defne ve İskenderun. Diğer ilçelerin kendi sayfası var.
+      - generic [ref=e1221]:
+        - link [ref=e1223] [cursor=pointer]:
+          - /url: /hatay/antakya
+          - generic [ref=e1228]:
+            - paragraph [ref=e1229]: Antakya
+            - paragraph [ref=e1230]: Antakya web tasarım, Antakya reklam ve e-ticaret. Hatay360 ile kurumsal site, Google Ads ve mağaza altyapısı.
+        - link [ref=e1232] [cursor=pointer]:
+          - /url: /hatay/defne
+          - generic [ref=e1237]:
+            - paragraph [ref=e1238]: Defne
+            - paragraph [ref=e1239]: Defne web tasarım, Defne reklam ve e-ticaret. Hatay360 ile kurumsal site, Google Ads ve mağaza altyapısı.
+        - link [ref=e1241] [cursor=pointer]:
+          - /url: /hatay/iskenderun
+          - generic [ref=e1246]:
+            - paragraph [ref=e1247]: İskenderun
+            - paragraph [ref=e1248]: İskenderun web tasarım, İskenderun reklam ve e-ticaret. Hatay360 ile kurumsal site, Google Ads ve mağaza altyapısı.
+        - link [ref=e1250] [cursor=pointer]:
+          - /url: /hatay/dortyol
+          - generic [ref=e1255]:
+            - paragraph [ref=e1256]: Dörtyol
+            - paragraph [ref=e1257]: Dörtyol web tasarım, Dörtyol reklam ve e-ticaret. Hatay360 ile kurumsal site, Google Ads ve mağaza altyapısı.
+        - link [ref=e1259] [cursor=pointer]:
+          - /url: /hatay/samandag
+          - generic [ref=e1264]:
+            - paragraph [ref=e1265]: Samandağ
+            - paragraph [ref=e1266]: Samandağ web tasarım, Samandağ reklam ve e-ticaret. Hatay360 ile kurumsal site, Google Ads ve mağaza altyapısı.
+      - paragraph [ref=e1267]:
+        - link "Tüm Hatay ilçeleri" [ref=e1268] [cursor=pointer]:
+          - /url: /hatay
+    - generic [ref=e1272]:
+      - generic [ref=e1273]:
+        - generic [ref=e1274]:
+          - text: Teknolojilerimiz
+          - heading "Yazılım karmaşık olabilir; doğru yolu biz buluruz." [level=2] [ref=e1275]
+          - paragraph [ref=e1276]:
+            - generic [ref=e1277]: 32+ teknoloji — logoya tıklayın, asistan anlatsın.
+        - complementary [ref=e1278]:
+          - generic [ref=e1285]:
+            - paragraph [ref=e1286]: Hatay360 asistanı
+            - paragraph [ref=e1287]: Uçan logolardan birini seçin
+          - generic [ref=e1290]:
+            - generic [ref=e1291]:
+              - generic [ref=e1292]:
+                - paragraph [ref=e1293]: Frontend
+                - heading "React" [level=3] [ref=e1294]
+              - button "Kapat" [ref=e1295]
+            - paragraph [ref=e1299]: Bileşen tabanlı arayüzler; panel, admin ve satış sayfaları.
+            - paragraph [ref=e1300]: "İpucu: Panel & site UI"
+      - generic [ref=e1301]:
+        - 'button "React: Panel & site UI" [ref=e1305]':
+          - generic [ref=e1306]: React
+        - 'button "Next.js: Full-stack React" [ref=e1312]':
+          - generic [ref=e1313]: Next.js
+        - 'button "TypeScript: Tip güvenliği" [ref=e1319]':
+          - generic [ref=e1320]: TypeScript
+        - 'button "Vite: Hızlı build" [ref=e1326]':
+          - generic [ref=e1327]: Vite
+        - 'button "Tailwind: Stil sistemi" [ref=e1333]':
+          - generic [ref=e1334]: Tailwind
+        - 'button "Node.js: Sunucu & API" [ref=e1340]':
+          - generic [ref=e1341]: Node.js
+        - 'button "Express: API katmanı" [ref=e1347]':
+          - generic [ref=e1348]: Express
+        - 'button "Python: Script & AI" [ref=e1354]':
+          - generic [ref=e1355]: Python
+        - 'button "Django: Python web" [ref=e1361]':
+          - generic [ref=e1362]: Django
+        - 'button "Laravel: PHP framework" [ref=e1368]':
+          - generic [ref=e1369]: Laravel
+        - 'button "PHP: Web dili" [ref=e1375]':
+          - generic [ref=e1376]: PHP
+        - 'button "WordPress: İçerik sitesi" [ref=e1382]':
+          - generic [ref=e1383]: WordPress
+        - 'button "Flutter: Mobil UI" [ref=e1389]':
+          - generic [ref=e1390]: Flutter
+        - 'button "RN: Cross-platform" [ref=e1396]':
+          - generic [ref=e1397]: RN
+        - 'button "Dart: Flutter dili" [ref=e1403]':
+          - generic [ref=e1404]: Dart
+        - 'button "Postgres: İlişkisel DB" [ref=e1410]':
+          - generic [ref=e1411]: Postgres
+        - 'button "MySQL: SQL DB" [ref=e1417]':
+          - generic [ref=e1418]: MySQL
+        - 'button "MongoDB: NoSQL" [ref=e1424]':
+          - generic [ref=e1425]: MongoDB
+        - 'button "SQLite: Yerel DB" [ref=e1431]':
+          - generic [ref=e1432]: SQLite
+        - 'button "Redis: Cache" [ref=e1438]':
+          - generic [ref=e1439]: Redis
+        - 'button "Docker: Konteyner" [ref=e1445]':
+          - generic [ref=e1446]: Docker
+        - 'button "Nginx: Web sunucu" [ref=e1452]':
+          - generic [ref=e1453]: Nginx
+        - 'button "Git: Versiyon" [ref=e1459]':
+          - generic [ref=e1460]: Git
+        - 'button "GitHub: Repo & CI" [ref=e1466]':
+          - generic [ref=e1467]: GitHub
+        - 'button "Figma: Tasarım" [ref=e1473]':
+          - generic [ref=e1474]: Figma
+        - 'button "Ads: Arama reklamı" [ref=e1480]':
+          - generic [ref=e1481]: Ads
+        - 'button "Meta: Sosyal reklam" [ref=e1487]':
+          - generic [ref=e1488]: Meta
+        - 'button "Maps: Harita kaydı" [ref=e1494]':
+          - generic [ref=e1495]: Maps
+        - 'button "Analytics: Analitik" [ref=e1501]':
+          - generic [ref=e1502]: Analytics
+        - 'button "OpenAI: Yapay zeka" [ref=e1508]':
+          - generic [ref=e1509]: OpenAI
+        - 'button "Stripe: Ödeme" [ref=e1515]':
+          - generic [ref=e1516]: Stripe
+        - 'button "Motion: Animasyon" [ref=e1522]':
+          - generic [ref=e1523]: Motion
+      - paragraph [ref=e1529]: Liste düzenli güncellenir — web, mobil, backend, CMS, DevOps, reklam ve AI.
+    - generic [ref=e1531]:
+      - generic [ref=e1532]:
+        - heading "Hatay’da daha çok müşteri için reklam planı hazırlayalım" [level=2] [ref=e1533]
+        - paragraph [ref=e1534]: Google Ads, Meta reklamları, yerel görünürlük ve doğru landing page ile işletmenizin dönüşümünü artırırız. Numaranızı bırakın; sektörünüze uygun reklam paketi ve satış sayfası planını birlikte çıkaralım.
+        - link "Paketleri incele" [ref=e1535] [cursor=pointer]:
+          - /url: /paketler
+      - generic [ref=e1538]:
+        - paragraph [ref=e1540]: Numaranızı bırakın, sizi arayalım
+        - generic [ref=e1541]:
+          - text: Şirket faks
+          - textbox [ref=e1542]
+        - generic [ref=e1543]:
+          - generic [ref=e1544]:
+            - generic [ref=e1545]: Ad Soyad
+            - textbox "Ad Soyad" [ref=e1546]:
+              - /placeholder: Adınız Soyadınız
+          - generic [ref=e1547]:
+            - generic [ref=e1548]: Telefon
+            - generic [ref=e1549]:
+              - textbox "Telefon" [ref=e1550]:
+                - /placeholder: 05xx xxx xx xx
+              - paragraph [ref=e1551]: "Sadece rakam. Harf yazılmaz. Örnek: 0544 123 45 67"
+        - generic [ref=e1552]:
+          - generic [ref=e1553]: İlgilendiğiniz hizmet
+          - combobox "İlgilendiğiniz hizmet" [ref=e1554]:
+            - option "Seçin" [disabled] [selected]
+            - option "Web tasarım"
+            - option "Google / Meta reklam"
+            - option "Google Maps / harita"
+            - option "E-ticaret (isteğe bağlı)"
+            - option "Pazarla (ayrı ürün)"
+            - option "Özel yazılım"
+            - option "Diğer"
+        - group [ref=e1555]:
+          - radiogroup "Ne zaman arayalım?" [ref=e1557]:
+            - radio "Fark etmez Uygun olduğunuzda arayın" [checked] [ref=e1558]:
+              - generic [ref=e1559]: Fark etmez
+              - generic [ref=e1560]: Uygun olduğunuzda arayın
+            - radio "Sabah 09:00 – 12:00" [ref=e1561]:
+              - generic [ref=e1562]: Sabah
+              - generic [ref=e1563]: 09:00 – 12:00
+            - radio "Öğleden sonra 12:00 – 17:00" [ref=e1564]:
+              - generic [ref=e1565]: Öğleden sonra
+              - generic [ref=e1566]: 12:00 – 17:00
+            - radio "Akşam 17:00 – 20:00" [ref=e1567]:
+              - generic [ref=e1568]: Akşam
+              - generic [ref=e1569]: 17:00 – 20:00
+        - generic [ref=e1570]:
+          - checkbox "Gizlilik ve KVKK metnini okudum, aranmayı kabul ediyorum." [ref=e1571]
+          - generic [ref=e1572]:
+            - link "Gizlilik" [ref=e1573] [cursor=pointer]:
+              - /url: /gizlilik
+            - text: ve
+            - link "KVKK" [ref=e1574] [cursor=pointer]:
+              - /url: /kvkk
+            - text: metnini okudum, aranmayı kabul ediyorum.
+        - button "Beni Arayın" [ref=e1575]
+    - generic [ref=e1580]:
+      - heading "Hatay’da daha çok aranmak için doğru reklamı kuruyoruz" [level=2] [ref=e1581]
+      - paragraph [ref=e1582]: Google Ads, Meta reklamları, yerel SEO ve satış odaklı web sayfaları tek ekiple. Görünürlük, telefon ve başvuru artışı hedefimiz.
+      - link "Sizi arayalım" [ref=e1583] [cursor=pointer]:
+        - /url: /iletisim
+    - generic [ref=e1588]:
+      - generic [ref=e1589]:
+        - generic [ref=e1596]:
+          - paragraph [ref=e1597]: Hatay360 iletişim merkezi
+          - paragraph [ref=e1598]: Satış öncesi keşif ve satış sonrası destek aynı ekipte
+        - status [ref=e1599]:
+          - generic [ref=e1600]:
+            - text: ● Hatlar açık
+            - generic [ref=e1601]: · Bugün 18:00'da kapanır
+          - generic [ref=e1602]: Antakya merkez
+          - generic [ref=e1603]: AVC kayıtlı
+      - generic [ref=e1604]:
+        - generic [ref=e1605]:
+          - img "Hatay360" [ref=e1608]
+          - generic [ref=e1609]: Tek ekip, net muhatap
+          - heading "Fikrinizi anlatın, doğru uzmanla hemen eşleştirelim." [level=2] [ref=e1612]
+          - paragraph [ref=e1613]: Yeni web sitesi, reklam yönetimi, Google Maps görünürlüğü veya mevcut projenizin desteği için talebinizi tek kanaldan açın. Süreci müşteri panelinizden takip edin.
+          - generic [ref=e1614]:
+            - generic [ref=e1615]:
+              - paragraph [ref=e1618]: Doğrudan ajans ekibi
+              - paragraph [ref=e1619]: Aracı çağrı merkezi olmadan proje ekibine ulaşın.
+            - generic [ref=e1620]:
+              - paragraph [ref=e1624]: Kayıtlı destek süreci
+              - paragraph [ref=e1625]: Sorularınızı ve hizmet taleplerinizi panelden izleyin.
+          - generic [ref=e1626]:
+            - generic [ref=e1627]: Hafta içi 09:00–18:00
+            - generic [ref=e1631]: Antakya / Hatay
+        - generic [ref=e1636]:
+          - link [ref=e1637] [cursor=pointer]:
+            - /url: tel:+908503086837
+            - generic [ref=e1642]:
+              - paragraph [ref=e1643]: Kurumsal telefon
+              - paragraph [ref=e1644]: +90 850 308 68 37
+              - paragraph [ref=e1645]: Doğrudan ekibimize ulaşın
+          - link [ref=e1649] [cursor=pointer]:
+            - /url: https://wa.me/908503086837
+            - generic [ref=e1654]:
+              - paragraph [ref=e1655]: WhatsApp
+              - paragraph [ref=e1656]: Hızlı destek hattı
+              - paragraph [ref=e1657]: Talebinizi yazılı iletin
+          - link [ref=e1661] [cursor=pointer]:
+            - /url: mailto:info@hatay360.com
+            - generic [ref=e1667]:
+              - paragraph [ref=e1668]: E-posta
+              - paragraph [ref=e1669]: info@hatay360.com
+              - paragraph [ref=e1670]: Dosya ve proje özeti gönderin
+          - link "Destek veya hizmet talebi oluştur Müşteri panelinden kayıtlı ve takip edilebilir talep açın." [ref=e1674] [cursor=pointer]:
+            - /url: /musteri/giris
+            - generic [ref=e1675]:
+              - generic [ref=e1676]: Destek veya hizmet talebi oluştur
+              - generic [ref=e1677]: Müşteri panelinden kayıtlı ve takip edilebilir talep açın.
+  - contentinfo "Site alt bilgisi" [ref=e1680]:
+    - generic [ref=e1682]:
+      - generic [ref=e1683]:
+        - paragraph [ref=e1684]: Hatay360
+        - paragraph [ref=e1685]: Web, reklam ve yazılım — tek muhatap.
+      - generic [ref=e1686]:
+        - link "Ara" [ref=e1687] [cursor=pointer]:
+          - /url: tel:+908503086837
+        - link "WhatsApp" [ref=e1690] [cursor=pointer]:
+          - /url: https://wa.me/908503086837
+        - link "Teklif al" [ref=e1693] [cursor=pointer]:
+          - /url: /iletisim
+    - generic [ref=e1695]:
+      - generic [ref=e1696]:
+        - generic [ref=e1697]:
+          - link "Hatay360 ana sayfa" [ref=e1698] [cursor=pointer]:
+            - /url: /
+            - img "Hatay360" [ref=e1700]
+          - paragraph [ref=e1701]: Antakya merkezli ajans. Hatay’ın tüm ilçelerine ve Türkiye genelindeki markalara tasarım, Ads/Meta, Maps ve mağaza altyapısı.
+          - list [ref=e1702]:
+            - listitem [ref=e1703]:
+              - link "+90 850 308 68 37" [ref=e1704] [cursor=pointer]:
+                - /url: tel:+908503086837
+            - listitem [ref=e1707]:
+              - link "info@hatay360.com" [ref=e1708] [cursor=pointer]:
+                - /url: mailto:info@hatay360.com
+            - listitem [ref=e1712]:
+              - link "Antakya / Hatay" [ref=e1713] [cursor=pointer]:
+                - /url: https://www.google.com/maps/search/?api=1&query=Hatay%20Web%20Tasar%C4%B1m%20ve%20Reklam%20Yaz%C4%B1l%C4%B1m%20Ajans%C4%B1
+        - generic [ref=e1719]:
+          - paragraph [ref=e1720]: Hizmetler
+          - navigation "Hizmetler" [ref=e1722]:
+            - link "Web tasarım" [ref=e1723] [cursor=pointer]:
+              - /url: /iletisim?needs=site
+            - link "Google & Meta reklam" [ref=e1724] [cursor=pointer]:
+              - /url: /iletisim?needs=ads
+            - link "Google Maps" [ref=e1725] [cursor=pointer]:
+              - /url: /google-maps-harita-kaydi
+            - link "Paketler" [ref=e1726] [cursor=pointer]:
+              - /url: /paketler
+            - link "Pazarla" [ref=e1727] [cursor=pointer]:
+              - /url: /pazarla
+            - link "Demolar" [ref=e1728] [cursor=pointer]:
+              - /url: /demolar
+        - generic [ref=e1730]:
+          - paragraph [ref=e1731]: Kurumsal
+          - navigation "Kurumsal" [ref=e1733]:
+            - link "Kurumsal" [ref=e1734] [cursor=pointer]:
+              - /url: /kurumsal
+            - link "Hakkımızda" [ref=e1735] [cursor=pointer]:
+              - /url: /hakkimizda
+            - link "Misyon" [ref=e1736] [cursor=pointer]:
+              - /url: /misyon
+            - link "Vizyon" [ref=e1737] [cursor=pointer]:
+              - /url: /vizyon
+            - link "Referanslar" [ref=e1738] [cursor=pointer]:
+              - /url: /referanslar
+            - link "Hatay ilçeleri" [ref=e1739] [cursor=pointer]:
+              - /url: /hatay
+            - link "İletişim" [ref=e1740] [cursor=pointer]:
+              - /url: /iletisim
+        - generic [ref=e1742]:
+          - paragraph [ref=e1743]: Hesap & yasal
+          - generic [ref=e1744]:
+            - navigation "Hesap" [ref=e1745]:
+              - link "Hesabım / Giriş" [ref=e1746] [cursor=pointer]:
+                - /url: /hesap
+              - link "Müşteri paneli" [ref=e1747] [cursor=pointer]:
+                - /url: /musteri/giris
+              - link "Bayi paneli" [ref=e1748] [cursor=pointer]:
+                - /url: /firma/giris
+              - link "SEO araçları" [ref=e1749] [cursor=pointer]:
+                - /url: /araclar
+            - generic [ref=e1750]:
+              - paragraph [ref=e1751]: Belgeler
+              - navigation "Yasal belgeler" [ref=e1752]:
+                - link "KVKK" [ref=e1753] [cursor=pointer]:
+                  - /url: /kvkk
+                - link "Gizlilik" [ref=e1754] [cursor=pointer]:
+                  - /url: /gizlilik
+                - link "Mesafeli satış" [ref=e1755] [cursor=pointer]:
+                  - /url: /mesafeli-satis
+                - link "Kullanım koşulları" [ref=e1756] [cursor=pointer]:
+                  - /url: /kosullar
+        - generic [ref=e1758]:
+          - paragraph [ref=e1759]: Doğrulama
+          - generic [ref=e1760]:
+            - link "AVC kayıtlı Sahiplik kaydını hub’da doğrula Aç" [ref=e1761] [cursor=pointer]:
+              - /url: https://hub.avcieticaret.com
+              - generic [ref=e1772]:
+                - generic [ref=e1773]: AVC kayıtlı
+                - generic [ref=e1777]: Sahiplik kaydını hub’da doğrula
+                - generic [ref=e1778]: Aç
+            - link "Google Maps İşletme profili ve yorumlar" [ref=e1783] [cursor=pointer]:
+              - /url: https://www.google.com/maps/search/?api=1&query=Hatay%20Web%20Tasar%C4%B1m%20ve%20Reklam%20Yaz%C4%B1l%C4%B1m%20Ajans%C4%B1
+              - generic [ref=e1789]:
+                - generic [ref=e1790]: Google Maps
+                - generic [ref=e1791]: İşletme profili ve yorumlar
+      - region "Kurumsal güvence" [ref=e1792]:
+        - generic [ref=e1793]:
+          - generic [ref=e1794]:
+            - paragraph [ref=e1795]: Kurumsal güvence
+            - heading "Güven damgaları & sertifikalar" [level=3] [ref=e1796]
+          - paragraph [ref=e1797]: Admin’den kapatılabilir · Site ayarları
+        - list [ref=e1798]:
+          - listitem [ref=e1799]:
+            - link "AVC Kayıtlı Sahiplik kimliği" [ref=e1800] [cursor=pointer]:
+              - /url: https://hub.avcieticaret.com
+              - generic [ref=e1811]:
+                - generic [ref=e1812]: AVC Kayıtlı
+                - generic [ref=e1813]: Sahiplik kimliği
+          - listitem [ref=e1817]:
+            - generic [ref=e1823]:
+              - generic [ref=e1824]: SSL / HTTPS
+              - generic [ref=e1825]: Şifreli bağlantı
+          - listitem [ref=e1829]:
+            - link "KVKK Aydınlatma metni" [ref=e1830] [cursor=pointer]:
+              - /url: /kvkk
+              - generic [ref=e1836]:
+                - generic [ref=e1837]: KVKK
+                - generic [ref=e1838]: Aydınlatma metni
+          - listitem [ref=e1842]:
+            - generic [ref=e1847]:
+              - generic [ref=e1848]: Güvenli ödeme
+              - generic [ref=e1849]: iyzico altyapısı
+          - listitem [ref=e1853]:
+            - link "Google Maps İşletme profili" [ref=e1854] [cursor=pointer]:
+              - /url: https://www.google.com/maps/search/?api=1&query=Hatay%20Web%20Tasar%C4%B1m%20ve%20Reklam%20Yaz%C4%B1l%C4%B1m%20Ajans%C4%B1
+              - generic [ref=e1860]:
+                - generic [ref=e1861]: Google Maps
+                - generic [ref=e1862]: İşletme profili
+          - listitem [ref=e1866]:
+            - link "Gizlilik Veri koruma" [ref=e1867] [cursor=pointer]:
+              - /url: /gizlilik
+              - generic [ref=e1872]:
+                - generic [ref=e1873]: Gizlilik
+                - generic [ref=e1874]: Veri koruma
+      - generic [ref=e1878]:
+        - paragraph [ref=e1879]: © 2026 Hatay360. Haklar Mahir Avcı / Avcı E-Ticaret’e aittir.
+        - paragraph [ref=e1880]: AVC Dijital Ekosistemi kayıtlı projesi.
+  - group [ref=e1881]:
+    - generic "AVC güven ve sahiplik bilgisini aç" [ref=e1882] [cursor=pointer]: AVC Kayıtlı
+  - generic [ref=e1889]:
+    - link "Ara" [ref=e1890] [cursor=pointer]:
+      - /url: tel:+908503086837
+    - link "WhatsApp ile teklif iste" [ref=e1893] [cursor=pointer]:
+      - /url: https://wa.me/908503086837?text=Merhaba%20Hatay360%2C%20teklif%20almak%20istiyorum.

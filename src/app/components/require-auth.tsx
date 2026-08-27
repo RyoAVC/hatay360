@@ -1,6 +1,8 @@
+import { lazy, Suspense } from "react";
 import { Navigate } from "react-router";
 import { useAuth } from "../context/auth-context";
-import { AdminPage } from "../pages/admin-page";
+
+const AdminPage = lazy(() => import("../pages/admin-page").then((module) => ({ default: module.AdminPage })));
 
 export function RequireAuth() {
   const { isLoggedIn, isChecking } = useAuth();
@@ -13,5 +15,9 @@ export function RequireAuth() {
     return <Navigate to="/panel/giris" replace />;
   }
 
-  return <AdminPage />;
+  return (
+    <Suspense fallback={<div role="status" aria-live="polite" className="flex min-h-screen items-center justify-center bg-[#0f0f12] text-sm font-bold text-white/70">Yönetim paneli yükleniyor…</div>}>
+      <AdminPage />
+    </Suspense>
+  );
 }

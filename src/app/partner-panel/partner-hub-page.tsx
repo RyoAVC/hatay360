@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { usePartnerAuth } from "../context/partner-auth-context";
 import { apiRequest } from "../lib/api";
 import { PartnerPanelShell } from "./partner-panel-shell";
@@ -23,15 +23,37 @@ import { PartnerSupportCenter } from "./partner-support-center";
 import type { PartnerHubData, PartnerPanelTab } from "./partner-panel-types";
 import { playNotificationSound } from "../lib/notification-sound";
 
+const PARTNER_TABS: PartnerPanelTab[] = ["dashboard", "crm", "support", "referrals", "quotes", "calculator", "growthTools", "operations", "successTools", "premiumTools", "corporateTools", "smartTools", "commissions", "payment", "terms", "contract", "marketing"];
+
+function readPartnerTab(value: string | null): PartnerPanelTab {
+  return PARTNER_TABS.includes(value as PartnerPanelTab) ? (value as PartnerPanelTab) : "dashboard";
+}
+
 export function PartnerHubPage() {
   const { partner, logout } = usePartnerAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<PartnerPanelTab>("dashboard");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [tab, setTab] = useState<PartnerPanelTab>(() => readPartnerTab(new URLSearchParams(window.location.search).get("tab")));
   const [hub, setHub] = useState<PartnerHubData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [supportUnread, setSupportUnread] = useState(0);
   const previousSupportUnread = useRef<number | null>(null);
+
+  useEffect(() => {
+    const nextTab = readPartnerTab(searchParams.get("tab"));
+    setTab((current) => (current === nextTab ? current : nextTab));
+  }, [searchParams]);
+
+  const handleTabChange = (nextTab: PartnerPanelTab) => {
+    setTab(nextTab);
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (nextTab === "dashboard") next.delete("tab");
+      else next.set("tab", nextTab);
+      return next;
+    });
+  };
 
   const loadHub = useCallback(async () => {
     setError("");
@@ -72,7 +94,7 @@ export function PartnerHubPage() {
   return (
     <PartnerPanelShell
       activeTab={tab}
-      onTabChange={setTab}
+      onTabChange={handleTabChange}
       companyName={partner.company_name}
       contactName={partner.contact_name}
       onLogout={() => void handleLogout()}

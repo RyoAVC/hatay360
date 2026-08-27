@@ -441,7 +441,6 @@ export function SectorSolutions() {
           }
         }
         @media (prefers-reduced-motion: reduce) {
-          .sector-stack__card { position: relative; top: auto; }
           .sector-stack__inner { animation: none !important; transform: none !important; }
         }
       `}</style>

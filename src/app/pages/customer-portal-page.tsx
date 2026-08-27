@@ -735,7 +735,7 @@ export function CustomerPortalPage() {
         <nav className="mt-5 hidden grid-cols-1 gap-2 lg:grid">{nav.map(({ id, label, icon: Icon }) => {
           const badge = id === "overview" ? dashboard.unreadNotifications || 0 : customerNavBadge(opsAlerts, id);
           return (
-            <button key={id} onClick={() => goTab(id)} className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-left text-[11px] font-black transition ${activeTab === id ? "bg-[#00a8c4] text-white" : "text-white/60 hover:bg-white/7 hover:text-white"}`}>
+            <button key={id} onClick={() => goTab(id)} aria-current={activeTab === id ? "page" : undefined} className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-left text-[11px] font-black outline-none transition focus-visible:ring-2 focus-visible:ring-[#70dce9]/80 ${activeTab === id ? "bg-[#00a8c4] text-white" : "text-white/60 hover:bg-white/7 hover:text-white"}`}>
               <Icon className="h-4 w-4" />
               {label}
               {badge > 0 ? <span className={`ml-auto rounded-full px-1.5 py-0.5 text-[8px] text-white ${id === "payments" && opsAlerts.overdueRows ? "bg-rose-500" : id === "contracts" ? "bg-violet-500" : id === "approvals" ? "bg-fuchsia-500" : id === "quotes" ? "bg-sky-500" : id === "support" ? "bg-cyan-500" : id === "website" && opsAlerts.napIssues ? "bg-amber-500" : "bg-[#00a8c4]"}`}>{badge}</span> : null}

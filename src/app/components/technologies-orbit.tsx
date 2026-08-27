@@ -431,8 +431,8 @@ export function TechnologiesOrbit() {
                 key={tech.id}
                 type="button"
                 onClick={() => setActive(tech)}
-                className="absolute z-[2] -translate-x-1/2 -translate-y-1/2"
-                style={{ left: `${tech.x}%`, top: `${tech.y}%` }}
+                className="absolute z-[2]"
+                style={{ left: `${tech.x}%`, top: `${tech.y}%`, translate: "-50% -50%" }}
                 animate={reduced ? undefined : { y: [0, -10, 0, 8, 0], x: [0, 5, 0, -5, 0] }}
                 transition={
                   reduced

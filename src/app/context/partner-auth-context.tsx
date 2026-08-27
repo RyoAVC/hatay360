@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { apiRequest } from "../lib/api";
 
 export type PartnerIdentity = {
@@ -25,13 +25,40 @@ const PartnerAuthContext = createContext<PartnerAuthContextType | undefined>(und
 export function PartnerAuthProvider({ children }: { children: ReactNode }) {
   const [partner, setPartner] = useState<PartnerIdentity | null>(null);
   const [isChecking, setIsChecking] = useState(true);
+  const checkingRef = useRef(false);
+
+  const revalidate = useCallback(async () => {
+    if (checkingRef.current) return;
+    checkingRef.current = true;
+    try {
+      const result = await apiRequest<{ authenticated: boolean; partner: PartnerIdentity | null }>("/api/partners/session");
+      setPartner(result.authenticated ? result.partner : null);
+    } catch {
+      setPartner(null);
+    } finally {
+      checkingRef.current = false;
+      setIsChecking(false);
+    }
+  }, []);
 
   useEffect(() => {
-    apiRequest<{ authenticated: boolean; partner: PartnerIdentity | null }>("/api/partners/session")
-      .then((result) => setPartner(result.authenticated ? result.partner : null))
-      .catch(() => setPartner(null))
-      .finally(() => setIsChecking(false));
-  }, []);
+    void revalidate();
+  }, [revalidate]);
+
+  useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) void revalidate();
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") void revalidate();
+    };
+    window.addEventListener("pageshow", onPageShow);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [revalidate]);
 
   const login = async (email: string, password: string, options?: { trustDevice?: boolean }) => {
     const result = await apiRequest<{ partner: PartnerIdentity; trustedIp?: string }>("/api/partners/login", {
