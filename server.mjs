@@ -2497,6 +2497,45 @@ function listCustomerContracts(customerId) {
     .map(publicContract);
 }
 
+function deleteCustomerContract(customerId, contractId) {
+  const row = db
+    .prepare("SELECT * FROM customer_contracts WHERE id = ? AND customer_id = ?")
+    .get(Number(contractId), Number(customerId));
+  if (!row) return { error: "Sözleşme bulunamadı." };
+
+  db.exec("BEGIN IMMEDIATE");
+  try {
+    db.prepare("DELETE FROM customer_contracts WHERE id = ? AND customer_id = ?").run(row.id, row.customer_id);
+    if (Number(row.is_current) === 1) {
+      const fallback = db
+        .prepare(
+          `SELECT id FROM customer_contracts
+           WHERE customer_id = ? AND family_id = ?
+           ORDER BY version DESC, id DESC LIMIT 1`,
+        )
+        .get(row.customer_id, row.family_id);
+      if (fallback) {
+        db.prepare("UPDATE customer_contracts SET is_current = 1, updated_at = ? WHERE id = ?").run(nowIso(), fallback.id);
+      }
+    }
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+
+  for (const storedName of new Set([row.stored_name, row.signature_stored].filter(Boolean))) {
+    const diskPath = contractDiskPath(row.customer_id, storedName);
+    if (!diskPath || !existsSync(diskPath)) continue;
+    try {
+      unlinkSync(diskPath);
+    } catch {
+      // Veritabanı kaydı silindi; erişilemeyen eski dosya istekleri engellemez.
+    }
+  }
+  return { id: Number(row.id), title: row.title || row.original_name || "Sözleşme" };
+}
+
 function customerRecords(customerId, { billedOnly = false } = {}) {
   let catalog = listCustomerCatalog(customerId);
   if (billedOnly) catalog = catalog.filter((item) => item.status === "active");
@@ -7060,6 +7099,27 @@ async function handleApi(req, res, url) {
     const row = db.prepare("SELECT * FROM customer_contracts WHERE id = ? AND customer_id = ?").get(Number(adminContractFileMatch[2]), Number(adminContractFileMatch[1]));
     if (!row) return json(res, 404, { error: "Sözleşme bulunamadı." });
     return sendContractFile(res, row, url.searchParams.get("download") === "1");
+  }
+
+  const adminContractDeleteMatch = url.pathname.match(/^\/api\/admin\/customers\/(\d+)\/contracts\/(\d+)$/);
+  if (req.method === "DELETE" && adminContractDeleteMatch) {
+    const actor = requireUser(req, res);
+    if (!actor) return;
+    const customerId = Number(adminContractDeleteMatch[1]);
+    const contractId = Number(adminContractDeleteMatch[2]);
+    const deleted = deleteCustomerContract(customerId, contractId);
+    if (deleted.error) return json(res, 404, { error: deleted.error });
+    logAudit({
+      actorType: "admin",
+      actorId: actor.id,
+      actorLabel: actor.username,
+      customerId,
+      action: "contract_delete",
+      target: `contract#${contractId}`,
+      ip: requestIp(req),
+      meta: JSON.stringify({ title: deleted.title }),
+    });
+    return json(res, 200, { ok: true, id: deleted.id, ...customerRecords(customerId) });
   }
 
   const adminContractRestoreMatch = url.pathname.match(/^\/api\/admin\/customers\/(\d+)\/contracts\/(\d+)\/restore$/);

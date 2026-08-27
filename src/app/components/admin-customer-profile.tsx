@@ -992,6 +992,22 @@ export function AdminCustomerProfile({ customerId, onClose, onChanged }: { custo
     }
   };
 
+  const deleteContract = async (item: ContractItem) => {
+    const contractName = item.title || item.fileName || `Sözleşme #${item.id}`;
+    if (!window.confirm(`“${contractName}” kalıcı olarak silinsin mi? Bu işlem geri alınamaz.`)) return;
+    setBusy(true);
+    try {
+      const result = await apiRequest<CustomerProfile>(`/api/admin/customers/${customerId}/contracts/${item.id}`, { method: "DELETE" });
+      applyRecords(result);
+      setNotice("Sözleşme ve bağlı dosyaları silindi.");
+      onChanged();
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Sözleşme silinemedi.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const assignTemplate = async () => {
     if (!templateId) {
       setNotice("Şablon seçin.");
@@ -1560,6 +1576,7 @@ export function AdminCustomerProfile({ customerId, onClose, onChanged }: { custo
                       <button type="button" onClick={() => void openContractFile(`/api/admin/customers/${customerId}/contracts/${item.id}/file`).catch((error) => setNotice(error instanceof Error ? error.message : "Açılamadı."))} className="rounded-full border border-white/10 px-2 py-1 text-[8px] font-black text-white/70"><FileText className="mr-1 inline h-3 w-3" /> Gör</button>
                       <button type="button" onClick={() => void openContractFile(`/api/admin/customers/${customerId}/contracts/${item.id}/file?download=1`, item.fileName).catch((error) => setNotice(error instanceof Error ? error.message : "İndirilemedi."))} className="rounded-full border border-white/10 px-2 py-1 text-[8px] font-black text-white/70"><Download className="mr-1 inline h-3 w-3" /> İndir</button>
                       {!item.current && <button type="button" onClick={() => void restoreContract(item)} className="rounded-full bg-[#00a8c4]/20 px-2 py-1 text-[8px] font-black text-[#7ee7f3]"><RotateCcw className="mr-1 inline h-3 w-3" /> Geri yükle</button>}
+                      <button type="button" disabled={busy} onClick={() => void deleteContract(item)} className="rounded-full bg-rose-500/15 px-2 py-1 text-[8px] font-black text-rose-200 disabled:opacity-50"><Trash2 className="mr-1 inline h-3 w-3" /> Sil</button>
                     </div>
                   </div>
                   {item.current ? (
