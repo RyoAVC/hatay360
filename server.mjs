@@ -35,7 +35,7 @@ import { createExampleBayilikSartlari, normalizeBayilikSartlari } from "./src/ap
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(ROOT, "dist");
 const AUTO_CONTRACT_TEMPLATE = path.join(ROOT, "src", "app", "templates", "sozlesme.html");
-const AUTO_CONTRACT_LOGO = path.join(ROOT, "src", "app", "templates", "hatay360-logo.jpg");
+const AUTO_CONTRACT_LOGO = path.join(ROOT, "public", "brands", "hatay360.png");
 
 function applyEnvFile(filePath) {
   if (!filePath || !existsSync(filePath)) return false;
@@ -3207,14 +3207,14 @@ function fillAutomaticContractTemplate(customerId) {
   return { account, bodyHtml, missingFields, contractNo: values.sozlesme_no };
 }
 
-function createAutomaticCustomerContract(customerId) {
+async function createAutomaticCustomerContract(customerId) {
   const filled = fillAutomaticContractTemplate(customerId);
   if (filled.error) return filled;
-  const logoJpeg = existsSync(AUTO_CONTRACT_LOGO) ? readFileSync(AUTO_CONTRACT_LOGO) : null;
-  const pdf = buildAutomaticContractPdf({
+  const logoPng = existsSync(AUTO_CONTRACT_LOGO) ? readFileSync(AUTO_CONTRACT_LOGO) : null;
+  const pdf = await buildAutomaticContractPdf({
     title: "Hatay360 Hizmet ve Abonelik Sözleşmesi",
     body: filled.bodyHtml,
-    logoJpeg,
+    logoPng,
   });
   const storedName = `${randomBytes(16).toString("hex")}.pdf`;
   const saved = saveContractFile(customerId, {
@@ -7189,7 +7189,7 @@ async function handleApi(req, res, url) {
   if (req.method === "POST" && adminAutomaticContract) {
     if (!requireUser(req, res)) return;
     const customerId = Number(adminAutomaticContract[1]);
-    const saved = createAutomaticCustomerContract(customerId);
+    const saved = await createAutomaticCustomerContract(customerId);
     if (saved.error) return json(res, saved.error.includes("bulunamadı") ? 404 : 400, { error: saved.error });
     return json(res, 201, { ok: true, id: saved.id, missingFields: saved.missingFields, ...customerRecords(customerId) });
   }

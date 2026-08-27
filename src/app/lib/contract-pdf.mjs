@@ -1,3 +1,13 @@
+
+import { createRequire } from "node:module";
+import path from "node:path";
+import PDFDocument from "pdfkit";
+
+const require = createRequire(import.meta.url);
+const DEJAVU_ROOT = path.dirname(require.resolve("dejavu-fonts-ttf/package.json"));
+const CONTRACT_FONT = path.join(DEJAVU_ROOT, "ttf", "DejaVuSans.ttf");
+const CONTRACT_FONT_BOLD = path.join(DEJAVU_ROOT, "ttf", "DejaVuSans-Bold.ttf");
+
 function latinize(value) {
   return String(value || "")
     .replace(/[Ğ]/g, "G").replace(/[ğ]/g, "g")
@@ -300,89 +310,79 @@ export function buildContractPdf({ title, body, companyName, contactName, signat
   return Buffer.from(chunks.join(""), "latin1");
 }
 
-/** Çok sayfalı, otomatik doldurulmuş müşteri sözleşmesi. İmza çizimi içermez. */
-export function buildAutomaticContractPdf({ title, body, logoJpeg }) {
-  const pageW = 595;
-  const pageH = 842;
-  const lines = wrapBody(`${title || "HATAY360 HIZMET VE ABONELIK SOZLESMESI"}\n\n${htmlToPlain(body)}`, 92, 10_000);
-  const perPage = 47;
-  const pages = [];
-  for (let index = 0; index < lines.length; index += perPage) pages.push(lines.slice(index, index + perPage));
-  if (!pages.length) pages.push([""]);
+function decodeContractHtml(value) {
+  return String(value || "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .trim();
+}
 
-  const jpeg = logoJpeg && jpegSize(logoJpeg) ? logoJpeg : null;
-  const objects = [];
-  const add = (content) => { objects.push(content); return objects.length; };
-  const fontId = add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
-  let logoId = 0;
-  if (jpeg) {
-    const size = jpegSize(jpeg);
-    logoId = add(`<< /Type /XObject /Subtype /Image /Width ${size.width} /Height ${size.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`);
+function automaticContractBlocks(html) {
+  const blocks = [];
+  const matcher = /<(h[1-3]|p)\b[^>]*>([\s\S]*?)<\/\1>/gi;
+  for (const match of String(html || "").matchAll(matcher)) {
+    const text = decodeContractHtml(match[2]);
+    if (text) blocks.push({ type: match[1].toLowerCase(), text });
   }
+  return blocks.length ? blocks : [{ type: "p", text: decodeContractHtml(html) }];
+}
 
-  const pageObjects = [];
-  for (let pageIndex = 0; pageIndex < pages.length; pageIndex += 1) {
-    const draw = [];
-    if (logoId) {
-      draw.push("q");
-      draw.push("112 0 0 34 48 786 cm");
-      draw.push("/Logo Do");
-      draw.push("Q");
-    } else {
-      draw.push("BT /F1 16 Tf 48 800 Td (HATAY360) Tj ET");
-    }
-    draw.push("BT /F1 13 Tf 174 800 Td (HATAY360 HIZMET VE ABONELIK SOZLESMESI) Tj ET");
-    draw.push("0.75 w 48 776 m 547 776 l S");
-    let y = 758;
-    for (const line of pages[pageIndex]) {
-      draw.push(`BT /F1 9 Tf 48 ${y} Td (${escapePdf(line)}) Tj ET`);
-      y -= 14;
-    }
-    draw.push(`BT /F1 7 Tf 48 28 Td (hatay360.com - Avci E-Ticaret) Tj ET`);
-    draw.push(`BT /F1 7 Tf 505 28 Td (${pageIndex + 1} / ${pages.length}) Tj ET`);
-    const stream = Buffer.from(draw.join("\n"), "latin1");
-    const contentId = add({ kind: "stream", prefix: `<< /Length ${stream.length} >>\nstream\n`, buffer: stream });
-    const resources = logoId
-      ? `<< /Font << /F1 ${fontId} 0 R >> /XObject << /Logo ${logoId} 0 R >> >>`
-      : `<< /Font << /F1 ${fontId} 0 R >> >>`;
-    const pageId = add({ kind: "page", contentId, resources });
-    pageObjects.push(pageId);
-  }
-  const pagesId = add(`<< /Type /Pages /Kids [${pageObjects.map((id) => `${id} 0 R`).join(" ")}] /Count ${pageObjects.length} >>`);
-  const catalogId = add(`<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
+/** Çok sayfalı, Unicode destekli otomatik müşteri sözleşmesi. İmza çizimi içermez. */
+export async function buildAutomaticContractPdf({ title, body, logoPng, logoJpeg }) {
+  const doc = new PDFDocument({ size: "A4", margins: { top: 96, right: 48, bottom: 34, left: 48 }, bufferPages: true, info: { Title: title || "Hatay360 Hizmet ve Abonelik Sözleşmesi", Author: "Avcı E-Ticaret / Hatay360.com" } });
+  const chunks = [];
+  doc.on("data", (chunk) => chunks.push(chunk));
+  const finished = new Promise((resolve, reject) => {
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+  });
+  doc.registerFont("Contract", CONTRACT_FONT);
+  doc.registerFont("ContractBold", CONTRACT_FONT_BOLD);
+  const logo = logoPng || logoJpeg || null;
+  let pageNumber = 0;
 
-  const chunks = [Buffer.from("%PDF-1.4\n", "latin1")];
-  const offsets = [0];
-  let byteLength = chunks[0].length;
-  const push = (value, encoding = "latin1") => {
-    const buffer = Buffer.isBuffer(value) ? value : Buffer.from(value, encoding);
-    chunks.push(buffer);
-    byteLength += buffer.length;
+  const drawHeader = () => {
+    pageNumber += 1;
+    if (logo) doc.image(logo, 48, 28, { fit: [112, 42], align: "left", valign: "center" });
+    else doc.font("ContractBold").fontSize(17).fillColor("#06151f").text("HATAY360", 48, 38, { width: 112 });
+    doc.font("ContractBold").fontSize(12).fillColor("#06151f").text("HATAY360 HİZMET VE ABONELİK SÖZLEŞMESİ", 174, 39, { width: 373, align: "right" });
+    doc.moveTo(48, 78).lineTo(547, 78).lineWidth(1).strokeColor("#00a8c4").stroke();
+    doc.font("Contract").fontSize(7).fillColor("#667085").text("hatay360.com  •  Avcı E-Ticaret", 48, 795, { width: 360, lineBreak: false });
+    doc.text(`Sayfa ${pageNumber}`, 467, 795, { width: 80, align: "right", lineBreak: false });
+    doc.x = 48;
+    doc.y = 96;
   };
-  for (let index = 0; index < objects.length; index += 1) {
-    const id = index + 1;
-    offsets[id] = byteLength;
-    push(`${id} 0 obj\n`);
-    const object = objects[index];
-    if (id === logoId && jpeg) {
-      push(object);
-      push(jpeg);
-      push("\nendstream\nendobj\n");
-    } else if (object?.kind === "stream") {
-      push(object.prefix);
-      push(object.buffer);
-      push("\nendstream\nendobj\n");
-    } else if (object?.kind === "page") {
-      push(`<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageW} ${pageH}] /Resources ${object.resources} /Contents ${object.contentId} 0 R >>\nendobj\n`);
+  drawHeader();
+  const startNewPage = () => {
+    doc.addPage();
+    drawHeader();
+  };
+
+  const blocks = automaticContractBlocks(body);
+  for (const block of blocks) {
+    if (block.type === "h1") continue;
+    if (block.type === "h2" || block.type === "h3") {
+      const fontSize = block.type === "h2" ? 10.5 : 10;
+      doc.font("ContractBold").fontSize(fontSize);
+      const needed = doc.heightOfString(block.text, { width: 499, lineGap: 2 }) + 18;
+      if (doc.y + needed > 750) startNewPage();
+      doc.moveDown(0.45).font("ContractBold").fontSize(fontSize).fillColor("#007f95").text(block.text, { lineGap: 2, keepTogether: true }).moveDown(0.2);
     } else {
-      push(`${object}\nendobj\n`);
+      doc.font("Contract").fontSize(8.6);
+      const needed = doc.heightOfString(block.text, { width: 499, align: "justify", lineGap: 2.1 }) + 8;
+      if (doc.y + needed + 20 > 770) startNewPage();
+      doc.font("Contract").fontSize(8.6).fillColor("#1f2937").text(block.text, { align: "justify", lineGap: 2.1, paragraphGap: 6 });
     }
   }
-  const xrefAt = byteLength;
-  push(`xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`);
-  for (let id = 1; id <= objects.length; id += 1) push(`${String(offsets[id]).padStart(10, "0")} 00000 n \n`);
-  push(`trailer\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefAt}\n%%EOF`);
-  return Buffer.concat(chunks);
+
+  doc.end();
+  return finished;
 }
 
 /** Teklif PDF — kurumsal / Prime şablonlarından üretilir. */
