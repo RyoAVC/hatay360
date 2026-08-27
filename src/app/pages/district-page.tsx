@@ -1,13 +1,14 @@
 import { Link, useParams } from "react-router";
 import { motion } from "motion/react";
-import { ArrowRight, Globe, Megaphone, Palette, Store } from "lucide-react";
+import { ArrowRight, MapPinned, Megaphone, Palette, Store } from "lucide-react";
 import { PageHero } from "../components/page-hero";
 import { Reveal, staggerItem } from "../components/motion-primitives";
 import { CallbackForm } from "../components/callback-form";
 import { NotFoundPage } from "./not-found";
 import { useContent } from "../context/content-context";
 import { districtAngle } from "../lib/district-copy";
-import { districtPath, findDistrictBySlug, resolveDistricts } from "../lib/seo";
+import { districtPath, districtFaqs, findDistrictBySlug, resolveDistricts } from "../lib/seo";
+import { buildIletisimQuotePath } from "../lib/needs-calculator";
 
 export function DistrictPage() {
   const { slug = "" } = useParams();
@@ -26,51 +27,38 @@ export function DistrictPage() {
       icon: Palette,
       title: `${name} web tasarım`,
       desc: `Mobil uyumlu kurumsal site. ${angle.fit}`,
-      href: "/pazarla",
+      href: buildIletisimQuotePath({ district: name, needs: ["site"] }),
     },
     {
       icon: Megaphone,
       title: `${name} reklam`,
       desc: "Google Ads ve Meta. Bütçeyi gösterime değil, arama ve mesajlaşmaya yönlendiririz.",
-      href: "/pazarla",
+      href: buildIletisimQuotePath({ district: name, needs: ["ads"] }),
     },
     {
       icon: Store,
-      title: `${name} e-ticaret`,
-      desc: "Sanal POS, SSL, stok ve sipariş. 15 gün deneme ile mağazayı ayağa kaldırırız.",
-      href: "/paketler",
+      title: `${name} e-ticaret (isteğe bağlı)`,
+      desc: "İsteğe bağlı teklif kalemi. Katalog, sepet ve ödeme — stok sizin.",
+      href: buildIletisimQuotePath({ district: name, needs: ["shop"] }),
     },
     {
-      icon: Globe,
-      title: "Yazılım ve entegrasyon",
-      desc: "Pazaryeri, e-fatura ve size özel yazılım. Tek ekip, tek muhatap.",
-      href: "/pazarla",
+      icon: MapPinned,
+      title: `${name} Google Maps`,
+      desc: `${name} işletmesi için harita kaydı, NAP tutarlılığı ve yerel arama. Google’da bulunabilir olun.`,
+      href: `/google-maps-harita-kaydi?ilce=${encodeURIComponent(name)}`,
     },
   ];
 
-  const faqs = [
-    {
-      q: `${name} için web sitesi ne kadar sürer?`,
-      a: "Kurumsal site genelde 7–14 gün. E-ticaret altyapısı aynı gün kurulup içeriğe göre yayına alınır. Keşif uzaktan da olur.",
-    },
-    {
-      q: "Sadece reklam yaptırabilir miyim?",
-      a: "Evet. Elinizde site varsa reklamı ayrı yönetiriz. Yoksa önce sade bir sayfa, sonra reklam öneririz.",
-    },
-    {
-      q: "Antakya’ya gelmem gerekir mi?",
-      a: angle.hook,
-    },
-  ];
+  const faqs = districtFaqs(name, angle.hook);
 
   return (
     <>
       <PageHero
         eyebrow={`${name} / Hatay`}
-        title={`${name} web tasarım, reklam ve e-ticaret`}
+        title={`${name} web tasarım, reklam ve Google Maps`}
         desc={`${blurb} ${angle.hook}`}
       >
-        <Link to="/iletisim">
+        <Link to={buildIletisimQuotePath({ district: name })}>
           <motion.span
             whileHover={{ y: -3 }}
             className="inline-flex items-center gap-2 rounded-xl bg-[#00a8c4] px-6 py-3.5 text-[16px] font-bold text-white shadow-[0px_10px_28px_rgba(0,168,196,0.35)]"
@@ -111,7 +99,7 @@ export function DistrictPage() {
           </Reveal>
           <Reveal delay={0.08}>
             <div className="rounded-[28px] border border-[#ecebf5] bg-white p-6 shadow-[0px_16px_40px_rgba(0,168,196,0.08)] sm:p-8">
-              <CallbackForm compact />
+              <CallbackForm compact defaultDistrict={name} />
               <p className="mt-3 text-[12px] text-[#a0a3bd]">{name} — ücretsiz keşif görüşmesi</p>
             </div>
           </Reveal>

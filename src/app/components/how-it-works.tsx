@@ -1,32 +1,33 @@
 import { Link } from "react-router";
 import { motion } from "motion/react";
-import { PhoneCall, Palette, Plug, Rocket } from "lucide-react";
+import { PhoneCall, Palette, MapPinned, Rocket } from "lucide-react";
 import { Reveal, staggerItem } from "./motion-primitives";
+import { BrushLead } from "./brush-lead";
 
 const STEPS = [
   {
     n: "01",
     icon: PhoneCall,
     title: "Sizi arayalım",
-    desc: "Numaranızı bırakın. Hedef, bütçe ve hangi hizmetin size uyduğunu 15 dakikada netleştiririz.",
+    desc: "Numaranızı bırakın. Hedef, bütçe ve hangi hizmetin size uyduğunu 15 dakikada netleştiririz. Kredi kartı gerekmez.",
   },
   {
     n: "02",
     icon: Palette,
-    title: "Mağazayı hazırlarız",
-    desc: "Tema veya özel tasarım, SSL, sanal POS ve panel eğitimi. Aynı gün yayına alınabilir.",
+    title: "Site ve görünürlük",
+    desc: "Kurumsal site veya landing sayfası ile harita planını birlikte çizeriz. Yayın takvimi keşifte netleşir.",
   },
   {
     n: "03",
-    icon: Plug,
-    title: "Kanalları bağlarız",
-    desc: "Trendyol, Hepsiburada ve diğer pazaryerleri; Google/Meta reklam hesabı tek panelde.",
+    icon: MapPinned,
+    title: "Reklam ve harita",
+    desc: "Google Ads ve Meta kampanyaları; Google Maps kaydı ve yerel görünürlük aynı planda yürür.",
   },
   {
     n: "04",
     icon: Rocket,
-    title: "Satışa başlarsınız",
-    desc: "Sipariş, stok ve destek Hatay360 ile yürür. 15 gün deneme, kredi kartı gerekmez.",
+    title: "Takip ederiz",
+    desc: "Arama, çağrı ve WhatsApp dönüşlerini izleriz. 15 gün deneme; kredi kartı gerekmez.",
   },
 ];
 
@@ -39,11 +40,9 @@ export function HowItWorks() {
             Nasıl çalışır?
           </span>
           <h2 className="mt-3 text-[32px] font-bold tracking-tight text-[#1a1a1a] sm:text-[40px]">
-            Dört adımda satışa açılın
+            Dört adımda görünürlük ve çağrı
           </h2>
-          <p className="mt-4 text-[17px] leading-relaxed text-[#514f6e]">
-            Paketi seçip beklemeyin: sizi ararız, mağazayı kurarız, kanalları bağlarız.
-          </p>
+          <BrushLead>Keşif, site, reklam ve harita: hedefiniz görünürlük, çağrı ve dönüşüm.</BrushLead>
         </Reveal>
 
         <motion.div

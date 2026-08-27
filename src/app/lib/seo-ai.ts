@@ -51,7 +51,7 @@ export function buildLocalSeoPack(districts: District[], siteTitle = "Hatay360")
   };
   pages.hizmetler = {
     title: `Hatay Web Tasarım ve Reklam | Hizmetler | ${siteTitle}`,
-    description: `${listed} için web sitesi, reklam ajansı, pazaryeri ve yazılım. Tek ekip.`,
+    description: `${listed} için web sitesi, Google Ads, Meta reklam ve Google Maps. Tek ekip.`,
   };
   pages.iletisim = {
     title: `İletişim | Hatay Web Siteciler | ${siteTitle}`,
@@ -64,7 +64,7 @@ export function buildLocalSeoPack(districts: District[], siteTitle = "Hatay360")
 
   return {
     keywords: keywordsFromDistricts(districts),
-    localLead: `${siteTitle}; ${listed} ilçelerinde web tasarım, reklam ajansı, web sitesi ve e-ticaret altyapısı sunar. Hatay web siteciler ve Hatay ajans arayan işletmeler için tek muhatap.`,
+    localLead: `${siteTitle}; ${listed} ilçelerinde web tasarım, Google Ads/Meta ve Google Maps / yerel görünürlük sunar. Hatay web siteciler ve Hatay ajans arayan işletmeler için tek muhatap.`,
     pages,
     districts: districts.map((d) => ({ name: d.name, blurb: d.blurb || districtBlurb(d.name) })),
   };
@@ -105,8 +105,13 @@ SADECE JSON döndür, markdown yok:
     "paketler": {"title":"","description":""},
     "referanslar": {"title":"","description":""},
     "hakkimizda": {"title":"","description":""},
+    "kurumsal": {"title":"","description":""},
+    "misyon": {"title":"","description":""},
+    "vizyon": {"title":"","description":""},
     "iletisim": {"title":"","description":""},
     "gizlilik": {"title":"","description":""},
+    "kvkk": {"title":"","description":""},
+    "mesafeli": {"title":"","description":""},
     "kosullar": {"title":"","description":""}
   },
   "districts": [{"name":"Antakya","blurb":"kısa yerel cümle"}]

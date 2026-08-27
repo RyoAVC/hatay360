@@ -1,26 +1,31 @@
 import { Link } from "react-router";
 import { motion } from "motion/react";
-import { ArrowRight, RefreshCw, Layers, Globe, Target, Smartphone, Code2, MapPinned } from "lucide-react";
+import { ArrowRight, Layers, Globe, Target, Smartphone, Code2, MapPinned, Store } from "lucide-react";
+import { PageCrumbs } from "../components/page-crumbs";
 import { PageHero } from "../components/page-hero";
 import { Marketplace } from "../components/marketplace";
 import { Reveal, staggerItem } from "../components/motion-primitives";
 import { ExtraModules } from "../components/extra-modules";
 import { ServiceAreas } from "../components/service-areas";
 import { GoogleMapsPromo } from "../components/google-maps-promo";
+import { SERVICE_FAQS } from "../lib/seo";
 
 const BENEFITS = [
-  { icon: Layers, title: "Pazarla entegrasyon", desc: "Trendyol, Hepsiburada, N11 ve Amazon stok–sipariş senkronu. Hatay e-ticaret mağazaları için tek panel." },
-  { icon: Globe, title: "Hatay web tasarım", desc: "Antakya ve İskenderun işletmelerine özel, mobil uyumlu kurumsal site ve e-ticaret arayüzü." },
   { icon: Target, title: "Hatay reklam ajansı", desc: "Google Ads ve Meta reklam. Hatay’da reklam bütçesini satışa çeviren ajans yönetimi." },
+  { icon: Globe, title: "Hatay web tasarım", desc: "Telefon, WhatsApp ve form dönüşümüne odaklı kurumsal site ve landing page. Antakya ve İskenderun işletmelerine özel." },
   { icon: MapPinned, title: "Google Maps & harita SEO", desc: "Harita kaydı, yerel sıralama, profil optimizasyonu ve gerçek müşteri yorum yönetimi." },
+  { icon: Store, title: "E-ticaret & görünürlük", desc: "Satış sitesi ve reklam birlikte yürür; mağazanızın kurumsal görünürlüğü ve sipariş akışı aynı ekiple kurulur." },
+  { icon: Code2, title: "Özel yazılım", desc: "Form, WhatsApp ve kampanya verilerini tek ekiple yönetir; işletmenize özel otomasyon." },
   { icon: Smartphone, title: "Mobil uygulama", desc: "iOS ve Android mağaza yayını. Hatay markanızın cebindeki uygulaması." },
-  { icon: Code2, title: "Özel yazılım", desc: "Stok botu, e-fatura, API. Hatay yazılım ekibiyle işletmenize özel otomasyon." },
-  { icon: RefreshCw, title: "Anlık senkron", desc: "Fiyat ve stok tüm kanallara saniyeler içinde yansır." },
+  { icon: Layers, title: "Pazarla (ayrı ürün)", desc: "Trendyol ve Hepsiburada senkronu yukarıdaki Pazarla vitrininde. Kardeş ürün; Hatay360 çekirdek hizmeti değildir." },
 ];
 
 export function PazarlaPage() {
   return (
     <>
+      <div className="mx-auto max-w-6xl px-5 pt-6 sm:px-8">
+        <PageCrumbs items={[{ label: "Ana sayfa", to: "/" }, { label: "Pazarla" }]} />
+      </div>
       <PageHero
         eyebrow="Hatay reklam ajansı"
         title="Google Ads, sosyal medya ve yerel görünürlük"
@@ -83,6 +88,18 @@ export function PazarlaPage() {
             </motion.div>
           ))}
         </motion.div>
+      </section>
+
+      <section className="mx-auto max-w-3xl px-5 pb-16 sm:px-8">
+        <h2 className="text-[24px] font-bold text-[#1a1a1a]">Sık sorulanlar</h2>
+        <div className="mt-5 space-y-3">
+          {SERVICE_FAQS.map((item) => (
+            <details key={item.q} className="rounded-2xl border border-[#ecebf5] bg-white/90 p-5 open:border-[#b3e5ee]">
+              <summary className="cursor-pointer text-[16px] font-semibold text-[#1a1a1a]">{item.q}</summary>
+              <p className="mt-3 text-[15px] leading-relaxed text-[#6f6c8f]">{item.a}</p>
+            </details>
+          ))}
+        </div>
       </section>
 
       <ExtraModules />

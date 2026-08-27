@@ -44,7 +44,7 @@ const ECOSYSTEM_SERVICES = [
     subtitle: "%100 Özgün, Mobil Uyumlu & SEO Dostu Arayüzler",
     desc: "Markanıza özel tasarlanmış ultra hızlı e-ticaret siteleri, kurumsal web siteleri ve React/Next.js özel web projeleri.",
     highlights: [
-      "Google PageSpeed 99+ yeşil performans skoru",
+      "Mobil uyumlu, hızlı açılan arayüz",
       "Işık hızında sepet, sipariş & ödeme altyapısı",
       "Masaüstü, tablet ve mobil cihazlara %100 tam uyum",
     ],
@@ -59,7 +59,7 @@ const ECOSYSTEM_SERVICES = [
     highlights: [
       "Google Arama & Performance Max Alışveriş Reklamları",
       "Detaylı Dönüşüm & GA4 Etkinlik Kurulumu",
-      "Google 1. Sayfa Garantili Organik SEO Stratejisi",
+      "Yerel SEO: doğru ilçe ve kategori; sıra garantisi yok",
     ],
     badge: "Google Partner Ajans",
   },
@@ -305,35 +305,24 @@ export function Marketplace({ hideIntro = false }: { hideIntro?: boolean }) {
                     </div>
 
                     <div className="mt-4 rounded-2xl bg-white/10 p-4 backdrop-blur-md border border-white/10">
-                      <div className="flex items-center justify-between">
-                        <span className="rounded bg-[#10b981] px-2.5 py-0.5 text-[10px] font-black text-white uppercase tracking-wider">
-                          Google PageSpeed Skor
-                        </span>
-                        <span className="text-[11px] font-extrabold text-[#10b981]">Mükemmel Performans</span>
-                      </div>
-                      <div className="mt-3 flex items-center justify-between">
-                        <div>
-                          <p className="text-[34px] font-black text-[#10b981] leading-none">99 / 100</p>
-                          <p className="text-[12px] text-white/80 mt-1">Lüks & Modern E-Ticaret Arayüzü</p>
-                        </div>
-                        <div className="h-14 w-14 rounded-full border-4 border-[#10b981] flex items-center justify-center font-black text-[13px]">
-                          99%
-                        </div>
-                      </div>
+                      <span className="rounded bg-[#00a8c4] px-2.5 py-0.5 text-[10px] font-black text-white uppercase tracking-wider">
+                        Site işi
+                      </span>
+                      <p className="mt-3 text-[15px] font-black leading-snug">Mobil düzen, SSL ve WhatsApp butonu. Skor garantisi yok.</p>
                     </div>
 
                     <div className="mt-4 grid grid-cols-3 gap-2.5 text-center text-[11px]">
                       <div className="rounded-xl bg-white/10 p-2.5 border border-white/10">
-                        <p className="font-extrabold text-[#10b981]">0.4 Saniye</p>
-                        <p className="text-white/70">Açılış Hızı</p>
+                        <p className="font-extrabold text-[#7ee0ec]">Mobil</p>
+                        <p className="text-white/70">Telefon uyumu</p>
                       </div>
                       <div className="rounded-xl bg-white/10 p-2.5 border border-white/10">
-                        <p className="font-extrabold text-[#38bdf8]">0.00 CLS</p>
-                        <p className="text-white/70">Sıfır Kayma</p>
+                        <p className="font-extrabold text-[#7ee0ec]">SSL</p>
+                        <p className="text-white/70">Güvenli bağlantı</p>
                       </div>
                       <div className="rounded-xl bg-white/10 p-2.5 border border-white/10">
-                        <p className="font-extrabold text-[#f43f5e]">%100 SEO</p>
-                        <p className="text-white/70">Google Dostu</p>
+                        <p className="font-extrabold text-[#7ee0ec]">WhatsApp</p>
+                        <p className="text-white/70">Tek tık yazışma</p>
                       </div>
                     </div>
                   </div>

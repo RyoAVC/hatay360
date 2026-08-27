@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { BarChart3, Eye, Globe2, RefreshCw, TrendingUp, UserRoundCheck, Users } from "lucide-react";
+import { BarChart3, ClipboardList, Eye, FileSearch, Globe2, RefreshCw, ShieldAlert, TrendingUp, UserRoundCheck, Users } from "lucide-react";
 import { apiRequest } from "../lib/api";
+import { EmptyRow } from "../components/empty-row";
+import { FormError } from "../components/form-error";
 
 type Summary = {
   totals: { totalViews: number; todayViews: number; uniqueToday: number; unique30d: number };
@@ -92,16 +94,16 @@ export function AdminInsightsPanel() {
         <div>
           <p className="text-[12px] font-black uppercase tracking-[0.2em] text-[#3ec8dc]">Hatay360 gerçek verileri</p>
           <h2 className="mt-1 text-[26px] font-black text-white">Ziyaret, ilçe ilgisi ve müşteri başvuruları</h2>
-          <p className="mt-1 max-w-3xl text-[13px] text-white/55">Kişisel IP adresi saklanmaz. Günlük anonim ziyaretçi özeti, sayfalar, Hatay ilçeleri ve form başvuruları ölçülür.</p>
+          <p className="mt-1 max-w-3xl text-[13px] text-white/55">Kişisel IP adresi saklanmaz. Günlük anonim ziyaretçi özeti İstanbul saatine göre hesaplanır; sayfalar, Hatay ilçeleri (`/hatay/…`) ve form başvuruları ölçülür.</p>
         </div>
         <button type="button" onClick={() => void load()} className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-white/10">
           <RefreshCw className="h-4 w-4" /> Yenile
         </button>
       </div>
 
-      {error && <p className="rounded-2xl border border-red-400/25 bg-red-950/60 px-4 py-3 text-[13px] font-bold text-red-100">{error}</p>}
+      {error && <FormError tone="dark">{error}</FormError>}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
           { label: "Bugünkü hit", value: summary?.totals.todayViews, icon: Eye, tone: "text-cyan-300" },
           { label: "Bugün tekil", value: summary?.totals.uniqueToday, icon: Users, tone: "text-emerald-300" },
@@ -109,6 +111,7 @@ export function AdminInsightsPanel() {
           { label: "Toplam hit", value: summary?.totals.totalViews, icon: BarChart3, tone: "text-blue-300" },
           { label: "Yeni başvuru", value: summary?.leadStats.newCount, icon: UserRoundCheck, tone: "text-amber-300" },
           { label: "7 gün giriş", value: summary?.loginStats.successes, icon: Globe2, tone: "text-pink-300" },
+          { label: "7 gün hatalı giriş", value: Math.max(0, Number(summary?.loginStats.attempts || 0) - Number(summary?.loginStats.successes || 0)), icon: ShieldAlert, tone: "text-rose-300" },
         ].map((item) => (
           <div key={item.label} className="rounded-2xl border border-white/10 bg-[#18181f] p-4 shadow-lg">
             <item.icon className={`h-5 w-5 ${item.tone}`} />
@@ -127,7 +130,7 @@ export function AdminInsightsPanel() {
                 <span className="text-[9px] font-bold text-white/0 transition group-hover:text-white/70">{item.views}</span>
                 <div className="w-full min-w-3 rounded-t bg-gradient-to-t from-[#00a8c4] to-[#7ee0ec]" style={{ height: `${Math.max(6, (item.views / maxDaily) * 165)}px` }} />
               </div>
-            )) : <p className="m-auto text-sm text-white/45">Henüz ziyaret verisi yok.</p>}
+            )) : <EmptyRow dark icon={BarChart3} title="Ziyaret verisi yok" />}
           </div>
         </section>
 
@@ -140,7 +143,7 @@ export function AdminInsightsPanel() {
                 <span className="text-[13px] font-bold text-white"><span className="mr-2 text-[#3ec8dc]">#{index + 1}</span>{item.district.replace(/-/g, " ")}</span>
                 <span className="text-[12px] font-black text-white/60">{formatNumber(item.views)} hit</span>
               </div>
-            )) : <p className="rounded-xl bg-black/20 p-4 text-center text-[12px] text-white/40">İlçe verisi birikmeye başladığında burada görünecek.</p>}
+            )) : <EmptyRow dark icon={Globe2} title="İlçe hit’i yok" hint="Henüz `/hatay/ilce-adi` sayfası ziyareti kaydı yok. Canlı sitede ilçe sayfası açılınca burada görünür." />}
           </div>
         </section>
       </div>
@@ -154,8 +157,8 @@ export function AdminInsightsPanel() {
             <h3 className="text-[17px] font-black text-white">{group.title}</h3>
             <div className="mt-4 space-y-2">
               {group.items.length ? group.items.map((item) => {
-                return <div key={item.label} className="flex items-center justify-between gap-3 rounded-xl bg-black/25 px-3 py-2.5"><span className="truncate text-[12px] font-bold text-white/75">{item.label === "direct" ? "Doğrudan giriş" : item.label}</span><span className="shrink-0 text-[12px] font-black text-[#7ee0ec]">{formatNumber(item.views)}</span></div>;
-              }) : <p className="rounded-xl bg-black/20 p-4 text-center text-[12px] text-white/40">{group.empty}</p>}
+                return <div key={item.label} className="flex items-center justify-between gap-3 rounded-xl bg-black/25 px-3 py-2.5"><span className="truncate text-[12px] font-bold text-white/75">{item.label === "direct" ? "Doğrudan giriş" : item.label.startsWith("utm:") ? `Kampanya · ${item.label.slice(4)}` : item.label}</span><span className="shrink-0 text-[12px] font-black text-[#7ee0ec]">{formatNumber(item.views)}</span></div>;
+              }) : <EmptyRow dark icon={FileSearch} title={group.empty} />}
             </div>
           </section>
         ))}
@@ -173,7 +176,7 @@ export function AdminInsightsPanel() {
                   <td className="px-5 py-3"><select value={lead.status} onChange={(event) => void updateLead(lead.id, event.target.value as LeadStatus)} className="rounded-lg border border-white/10 bg-black/40 px-2 py-1.5 font-bold text-white">{(Object.keys(STATUS_LABELS) as LeadStatus[]).map((status) => <option key={status} value={status}>{STATUS_LABELS[status]}</option>)}</select></td>
                 </tr>
               ))}
-              {!leads.length && <tr><td colSpan={6} className="px-5 py-10 text-center text-white/40">Henüz müşteri başvurusu yok.</td></tr>}
+              {!leads.length && <tr><td colSpan={6} className="px-5 py-10"><EmptyRow dark icon={ClipboardList} title="Müşteri başvurusu yok" /></td></tr>}
             </tbody>
           </table>
         </div>

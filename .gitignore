@@ -36,3 +36,16 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+hatay360.runtime.env
+
+# Hostinger deploy artefaktları (kaynak kod değil)
+hatay360_deploy_*.zip
+scripts/make-*-zip.mjs
+scripts/_zip_files.txt
+
+# Yerel çalışma / deploy hazırlık artefaktları
+.cursor/
+_deploy_staging/
+_video_frames/
+deploy-*.zip
+hatay360_node_*.zip

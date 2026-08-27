@@ -1,8 +1,12 @@
 User-agent: *
 Allow: /
 
+Allow: /musteri/kayit
+Allow: /firma/kayit
 Disallow: /panel
 Disallow: /panel/giris
+Disallow: /musteri
+Disallow: /firma
 Disallow: /admin
 
 Sitemap: https://hatay360.com/sitemap.xml

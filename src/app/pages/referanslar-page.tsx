@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { motion } from "motion/react";
-import { ArrowRight, ExternalLink, Globe2, Search, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, ExternalLink, Search, ShieldCheck, Sparkles } from "lucide-react";
+import { EmptyRow } from "../components/empty-row";
+import { PageCrumbs } from "../components/page-crumbs";
 import { PageHero } from "../components/page-hero";
-import { INITIAL_REFERENCES, useContent } from "../context/content-context";
+import { INITIAL_REFERENCES, useContent, type ReferenceItem } from "../context/content-context";
 import kuyumcuDoganImage from "../../assets/references/kuyumcu-dogan.webp";
 import ceptematbaaImage from "../../assets/references/ceptematbaa.webp";
 import soyleYerindenImage from "../../assets/references/soyle-yerinden.webp";
@@ -18,6 +20,16 @@ const CATEGORIES = [
   { id: "webtasarim", label: "Web & Platform" },
   { id: "eticaret", label: "E-Ticaret" },
 ];
+
+function referenceSector(ref: Pick<ReferenceItem, "sector" | "categoryLabel" | "category">): string {
+  const sector = String(ref.sector || "").trim();
+  if (sector) return sector;
+  const fromLabel = String(ref.categoryLabel || "").trim();
+  if (fromLabel) return fromLabel;
+  if (ref.category === "eticaret") return "E-Ticaret";
+  if (ref.category === "webtasarim") return "Web & Platform";
+  return "";
+}
 
 const LEGACY_PLACEHOLDER_NAMES = new Set([
   "ModaVibe E-Ticaret",
@@ -114,17 +126,33 @@ const PORTFOLIO_META: Record<string, {
 export function ReferanslarPage() {
   const { references } = useContent();
   const [activeCategory, setActiveCategory] = useState("all");
+  const [activeSector, setActiveSector] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const source = references.some((ref) => LEGACY_PLACEHOLDER_NAMES.has(ref.name)) ? INITIAL_REFERENCES : references;
-  const portfolio = source.filter((ref) => {
+  const listed = source.filter((ref) => PORTFOLIO_META[ref.name]);
+  const sectorCounts = new Map<string, number>();
+  for (const ref of listed) {
+    const sector = referenceSector(ref);
+    if (!sector) continue;
+    sectorCounts.set(sector, (sectorCounts.get(sector) || 0) + 1);
+  }
+  const sectorChips = Array.from(sectorCounts.entries())
+    .sort((a, b) => a[0].localeCompare(b[0], "tr"))
+    .map(([id, count]) => ({ id, label: `${id} · ${count}` }));
+  const portfolio = listed.filter((ref) => {
     const matchesCategory = activeCategory === "all" || ref.category === activeCategory;
+    const sector = referenceSector(ref);
+    const matchesSector = activeSector === "all" || sector === activeSector;
     const query = searchQuery.toLocaleLowerCase("tr-TR").trim();
-    const matchesSearch = !query || `${ref.name} ${ref.sector} ${ref.desc}`.toLocaleLowerCase("tr-TR").includes(query);
-    return matchesCategory && matchesSearch && PORTFOLIO_META[ref.name];
+    const matchesSearch = !query || `${ref.name} ${sector} ${ref.desc}`.toLocaleLowerCase("tr-TR").includes(query);
+    return matchesCategory && matchesSector && matchesSearch;
   });
 
   return (
     <>
+      <div className="mx-auto max-w-6xl px-5 pt-6 sm:px-8">
+        <PageCrumbs items={[{ label: "Ana sayfa", to: "/" }, { label: "Referanslar" }]} />
+      </div>
       <PageHero
         compact
         eyebrow="AVC Ekosistemi · Seçili Çalışmalar"
@@ -172,9 +200,42 @@ export function ReferanslarPage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div><span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-[#00a8c4]"><Sparkles className="h-3.5 w-3.5" /> Portföy vitrini</span><h2 className="mt-2 text-[30px] font-black tracking-[-0.04em] text-[#0f172a]">Projenin amacı, yapısı ve canlı adresi</h2></div>
             <div className="flex flex-col gap-2 sm:flex-row">
-              <div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#93a4af]" /><input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Marka veya sektör ara" className="w-full rounded-xl border border-[#d8e6e9] bg-white py-2.5 pl-9 pr-3 text-[12px] outline-none focus:border-[#00a8c4] sm:w-52" /></div>
-              <div className="flex gap-1 rounded-xl border border-[#d8e6e9] bg-white p-1">{CATEGORIES.map((category) => <button key={category.id} type="button" onClick={() => setActiveCategory(category.id)} className={`rounded-lg px-3 py-2 text-[10px] font-black transition ${activeCategory === category.id ? "bg-[#082430] text-white" : "text-[#667985] hover:bg-[#eef7f8]"}`}>{category.label}</button>)}</div>
+              <div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#93a4af]" /><input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Marka veya sektör ara" aria-label="Referans ara" className="w-full rounded-xl border border-[#d8e6e9] bg-white py-2.5 pl-9 pr-3 text-[12px] outline-none focus:border-[#00a8c4] sm:w-52" /></div>
+              <div className="flex gap-1 rounded-xl border border-[#d8e6e9] bg-white p-1" role="group" aria-label="Referans kategorisi">{CATEGORIES.map((category) => <button key={category.id} type="button" onClick={() => setActiveCategory(category.id)} aria-pressed={activeCategory === category.id} className={`rounded-lg px-3 py-2 text-[10px] font-black transition ${activeCategory === category.id ? "bg-[#082430] text-white" : "text-[#667985] hover:bg-[#eef7f8]"}`}>{category.label}</button>)}</div>
             </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Sektör filtreleri">
+            <button
+              type="button"
+              aria-pressed={activeSector === "all"}
+              onClick={() => setActiveSector("all")}
+              className={`rounded-full border px-3.5 py-1.5 text-[12px] font-black transition ${
+                activeSector === "all"
+                  ? "border-[#00a8c4] bg-[#00a8c4] text-white shadow-sm"
+                  : "border-[#cfe7ec] bg-white text-[#087f98] hover:bg-[#f0fafc]"
+              }`}
+            >
+              Tümü · {listed.length}
+            </button>
+            {sectorChips.map((chip) => {
+              const active = activeSector === chip.id;
+              return (
+                <button
+                  key={chip.id}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => setActiveSector(chip.id)}
+                  className={`rounded-full border px-3.5 py-1.5 text-[12px] font-black transition ${
+                    active
+                      ? "border-[#00a8c4] bg-[#00a8c4] text-white shadow-sm"
+                      : "border-[#cfe7ec] bg-white text-[#087f98] hover:bg-[#f0fafc]"
+                  }`}
+                >
+                  {chip.label}
+                </button>
+              );
+            })}
           </div>
 
           <div className="mt-8 grid gap-4 lg:grid-cols-2">
@@ -204,13 +265,17 @@ export function ReferanslarPage() {
             })}
           </div>
 
-          {portfolio.length === 0 && <div className="mt-8 rounded-2xl border border-dashed border-[#cbdcdf] bg-white p-10 text-center text-[13px] text-[#64748b]">Bu filtrede eşleşen proje bulunamadı.</div>}
+          {portfolio.length === 0 && (
+            <div className="mt-8">
+              <EmptyRow icon={Search} title="Bu filtrede eşleşen proje yok" hint="Sektör veya aramayı değiştirin. Listede yalnızca gerçek portföy markaları var." />
+            </div>
+          )}
         </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
         <div className="flex flex-col items-center justify-between gap-5 rounded-[28px] bg-[#082430] p-8 text-center text-white md:flex-row md:text-left">
-          <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#7ee0ec]">Sıradaki çalışma</p><h2 className="mt-2 text-[28px] font-black">Markanızı portföyümüze taşıyalım.</h2><p className="mt-2 text-[13px] text-white/60">Web, e-ticaret, reklam ve yerel görünürlük tek üretim ağıyla.</p></div>
+          <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#7ee0ec]">Sıradaki çalışma</p><h2 className="mt-2 text-[28px] font-black">Markanızı portföyümüze taşıyalım.</h2><p className="mt-2 text-[13px] text-white/60">Web, reklam ve Google Maps; e-ticaret isteğe bağlı.</p></div>
           <Link to="/iletisim" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#00a8c4] px-5 py-3 text-[13px] font-black text-white">Proje görüşmesi <ArrowRight className="h-4 w-4" /></Link>
         </div>
       </section>

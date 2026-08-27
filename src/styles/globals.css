@@ -1,4 +1,18 @@
 @keyframes avc-peek {
-  0%, 58%, 100% { transform: translateX(-28px); }
-  66%, 82% { transform: translateX(0); }
+  0%, 52%, 100% { transform: translateX(-10px); }
+  60%, 88% { transform: translateX(0); }
+}
+/* Compact dark scrollbar used by the admin workspace navigation. */
+.admin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(71, 85, 105, 0.55) transparent;
+}
+
+.admin-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.admin-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(71, 85, 105, 0.55);
 }

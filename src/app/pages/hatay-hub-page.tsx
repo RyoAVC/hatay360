@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { motion } from "motion/react";
 import { ArrowRight, MapPin } from "lucide-react";
+import { PageCrumbs } from "../components/page-crumbs";
 import { PageHero } from "../components/page-hero";
 import { Reveal, staggerItem } from "../components/motion-primitives";
 import { useContent } from "../context/content-context";
@@ -12,10 +13,13 @@ export function HatayHubPage() {
 
   return (
     <>
+      <div className="mx-auto max-w-6xl px-5 pt-6 sm:px-8">
+        <PageCrumbs items={[{ label: "Ana sayfa", to: "/" }, { label: "Hatay ilçeleri" }]} />
+      </div>
       <PageHero
         eyebrow="Hizmet bölgeleri"
-        title="Hatay ilçelerinde web tasarım, reklam ve e-ticaret"
-        desc="Antakya ofisinden tüm ilçelere. İlçenizi seçin; o sayfada size özel kısa teklif ve iletişim var."
+        title="Hatay ilçelerinde web tasarım, reklam ve harita"
+        desc="Antakya ofisinden tüm ilçelere: site, reklam ve Google Maps. E-ticaret isteğe bağlıdır. İlçenizi seçin; o sayfada kısa teklif ve iletişim var."
       />
 
       <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8">

@@ -4,11 +4,13 @@ import { ContentProvider } from "./context/content-context";
 import { AuthProvider } from "./context/auth-context";
 import { Suspense } from "react";
 import { CustomerAuthProvider } from "./context/customer-auth-context";
+import { PartnerAuthProvider } from "./context/partner-auth-context";
 
 export default function App() {
   return (
     <AuthProvider>
       <CustomerAuthProvider>
+        <PartnerAuthProvider>
         <ContentProvider>
         <Suspense
           fallback={
@@ -20,6 +22,7 @@ export default function App() {
           <RouterProvider router={router} />
         </Suspense>
         </ContentProvider>
+        </PartnerAuthProvider>
       </CustomerAuthProvider>
     </AuthProvider>
   );

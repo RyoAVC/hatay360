@@ -20,7 +20,19 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
 
   const payload = (await response.json().catch(() => ({}))) as { error?: string } & T;
   if (!response.ok) {
-    throw new ApiError(payload.error || `İstek başarısız (${response.status}).`, response.status);
+    const fallback =
+      response.status === 401
+        ? "E-posta veya şifre hatalı."
+        : response.status === 403
+          ? "Bu işlem şu an kapalı. Onay veya yetki gerekir."
+          : response.status === 409
+            ? "Bu kayıt zaten var. Farklı bilgi deneyin."
+            : response.status === 429
+              ? "Çok fazla deneme yaptınız. Biraz bekleyip tekrar deneyin."
+              : response.status >= 500
+                ? "Sunucu hatası. Lütfen birkaç saniye sonra tekrar deneyin."
+                : "Bilgiler hatalı. Kırmızı uyarıyı okuyup düzeltin.";
+    throw new ApiError(payload.error || fallback, response.status);
   }
   return payload;
 }

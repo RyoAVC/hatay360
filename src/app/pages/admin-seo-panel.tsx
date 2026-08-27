@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, Sparkles, MapPin, ExternalLink, ShieldCheck } from "lucide-react";
+import { Plus, Trash2, Sparkles, MapPin, ExternalLink, ShieldCheck, RotateCcw } from "lucide-react";
 import type { SiteSettings } from "../context/content-context";
 import {
   DEFAULT_DISTRICTS,
@@ -310,7 +310,23 @@ export function AdminSeoPanel({ settings, onChange }: Props) {
           const page = settings.seoPages?.[id] || DEFAULT_SEO_PAGES[id];
           return (
             <div key={id} className="space-y-3 rounded-2xl border border-white/15 bg-[#18181f] p-5">
-              <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#3ec8dc]">{id}</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#3ec8dc]">{id}</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange({
+                      ...settings,
+                      seoPages: { ...settings.seoPages, [id]: { ...DEFAULT_SEO_PAGES[id] } },
+                    });
+                    setNote(`${id} varsayılan title ve description yüklendi. Sitede görünmesi için Kaydet’e bas.`);
+                  }}
+                  className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white/50 hover:bg-white/10 hover:text-white/80"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                  Varsayılana dön
+                </button>
+              </div>
               <div>
                 <label className="text-[11px] font-bold text-white/70">Title</label>
                 <input

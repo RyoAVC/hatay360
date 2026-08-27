@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
-import { Hero } from "../components/hero";
+import { Hero, BelowHeroReveal } from "../components/hero";
 import { ServicePillars } from "../components/service-pillars";
 import { SectorSolutions } from "../components/sector-solutions";
 import { HowItWorks } from "../components/how-it-works";
@@ -13,6 +13,7 @@ import { ServiceAreas } from "../components/service-areas";
 import { CallbackForm } from "../components/callback-form";
 import { SupportCta } from "../components/support-cta";
 import { GoogleMapsPromo } from "../components/google-maps-promo";
+import { TechnologiesOrbit } from "../components/technologies-orbit";
 import { sectionOn, useContent } from "../context/content-context";
 
 export function HomePage() {
@@ -22,8 +23,16 @@ export function HomePage() {
   return (
     <>
       <Hero />
-      {on("pillars") && <ServicePillars />}
-      {on("maps") && <GoogleMapsPromo />}
+      {on("pillars") && (
+        <BelowHeroReveal>
+          <ServicePillars />
+        </BelowHeroReveal>
+      )}
+      {on("maps") && !on("pillars") && (
+        <BelowHeroReveal>
+          <GoogleMapsPromo />
+        </BelowHeroReveal>
+      )}
       {on("sectors") && <SectorSolutions />}
       {on("howItWorks") && <HowItWorks />}
       {on("features") && <Features />}
@@ -32,6 +41,8 @@ export function HomePage() {
 
       {on("pricing") && <Pricing />}
       {on("districts") && <ServiceAreas mode="featured" />}
+
+      <TechnologiesOrbit />
 
       {on("callback") && (
         <section className="mx-auto max-w-6xl px-5 pb-8 sm:px-8">

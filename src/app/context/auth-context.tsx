@@ -20,24 +20,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true;
-    apiRequest<{ authenticated: boolean; configured: boolean; username: string | null }>("/api/auth/session")
-      .then((session) => {
-        if (!active) return;
-        setIsLoggedIn(session.authenticated);
-        setIsConfigured(session.configured);
-        setUsername(session.username);
-      })
-      .catch(() => {
-        if (!active) return;
-        setIsLoggedIn(false);
-        setIsConfigured(false);
-        setUsername(null);
-      })
-      .finally(() => {
-        if (active) setIsChecking(false);
-      });
+    const loadSession = () =>
+      apiRequest<{ authenticated: boolean; configured: boolean; username: string | null }>("/api/auth/session")
+        .then((session) => {
+          if (!active) return;
+          setIsLoggedIn(session.authenticated);
+          setIsConfigured(session.configured);
+          setUsername(session.username);
+        })
+        .catch(() => {
+          if (!active) return;
+          setIsLoggedIn(false);
+          setIsConfigured(false);
+          setUsername(null);
+        })
+        .finally(() => {
+          if (active) setIsChecking(false);
+        });
+
+    void loadSession();
+    const timer = window.setInterval(() => void loadSession(), 3 * 60 * 1000);
     return () => {
       active = false;
+      window.clearInterval(timer);
     };
   }, []);
 
