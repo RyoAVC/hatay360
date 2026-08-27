@@ -386,6 +386,17 @@ test("SQLite API giriş, içerik, hit ve başvuru akışını çalıştırır", 
   const leaked = await fetch(`${base}/api/customer/contracts/${contractId}/file`, { headers: { Cookie: otherCookie } });
   assert.equal(leaked.status, 404);
 
+  const deletedContract = await fetch(`${base}/api/admin/customers/${customerId}/contracts/${contractId}`, {
+    method: "DELETE",
+    headers: { Cookie: cookie },
+  });
+  assert.equal(deletedContract.status, 200);
+  const deletedContractPayload = await deletedContract.json();
+  assert.equal(deletedContractPayload.contracts.some((item) => item.id === contractId), false);
+  assert.equal(deletedContractPayload.contracts.some((item) => item.current), true);
+  const deletedContractFile = await fetch(`${base}/api/admin/customers/${customerId}/contracts/${contractId}/file`, { headers: { Cookie: cookie } });
+  assert.equal(deletedContractFile.status, 404);
+
   const passwordReset = await fetch(`${base}/api/admin/customers/${customerId}/password`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Cookie: cookie },
