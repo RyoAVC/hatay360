@@ -3114,18 +3114,18 @@ function decodeSignatureJpeg(dataUrl) {
   return { buffer };
 }
 
-function assignContractFromTemplate(customerId, templateId, title) {
+async function assignContractFromTemplate(customerId, templateId, title) {
   const account = findCustomerAccount(customerId);
   const template = db.prepare("SELECT * FROM contract_templates WHERE id = ?").get(Number(templateId));
   if (!account) return { error: "Müşteri bulunamadı." };
   if (!template) return { error: "Şablon bulunamadı." };
   const bodyHtml = sanitizeTemplateHtml(template.body_html);
-  const pdf = buildContractPdf({
+  const pdf = await buildAutomaticContractPdf({
     title: template.name,
     body: bodyHtml,
     companyName: account.company_name,
     contactName: account.contact_name,
-    sigBox: { x: template.sig_x, y: template.sig_y, w: template.sig_w, h: template.sig_h },
+    logoPng: existsSync(AUTO_CONTRACT_LOGO) ? readFileSync(AUTO_CONTRACT_LOGO) : null,
   });
   const storedName = `${randomBytes(16).toString("hex")}.pdf`;
   return saveContractFile(customerId, {
@@ -3231,19 +3231,19 @@ async function createAutomaticCustomerContract(customerId) {
   return saved.error ? saved : { ...saved, missingFields: filled.missingFields };
 }
 
-function applyContractSignature(customerId, contractId, signatureJpeg, uploadedBy) {
+async function applyContractSignature(customerId, contractId, signatureJpeg, uploadedBy) {
   const row = db.prepare("SELECT * FROM customer_contracts WHERE id = ? AND customer_id = ?").get(Number(contractId), customerId);
   if (!row) return { error: "Sözleşme bulunamadı." };
   if (row.sign_status === "approved") return { error: "Onaylı sözleşme yeniden imzalanamaz." };
   const account = findCustomerAccount(customerId);
   const signedAt = nowIso();
-  const pdf = buildContractPdf({
+  const pdf = await buildAutomaticContractPdf({
     title: row.title || row.original_name,
     body: row.body_html || htmlToPlain(row.title),
     companyName: account?.company_name,
     contactName: account?.contact_name,
     signatureJpeg,
-    sigBox: { x: row.sig_x, y: row.sig_y, w: row.sig_w, h: row.sig_h },
+    logoPng: existsSync(AUTO_CONTRACT_LOGO) ? readFileSync(AUTO_CONTRACT_LOGO) : null,
     signedAt,
     statusLabel: "Imza alindi - incelemede",
   });
@@ -3274,7 +3274,7 @@ function applyContractSignature(customerId, contractId, signatureJpeg, uploadedB
   });
 }
 
-function reviewContractStatus(customerId, contractId, status, reason) {
+async function reviewContractStatus(customerId, contractId, status, reason) {
   const row = db.prepare("SELECT * FROM customer_contracts WHERE id = ? AND customer_id = ?").get(Number(contractId), customerId);
   if (!row) return { error: "Sözleşme bulunamadı." };
   const cleanedReason = cleanText(reason, 400);
@@ -3288,13 +3288,13 @@ function reviewContractStatus(customerId, contractId, status, reason) {
       const sigPath = contractDiskPath(customerId, row.signature_stored);
       if (sigPath && existsSync(sigPath)) signatureJpeg = readFileSync(sigPath);
     }
-    const pdf = buildContractPdf({
+    const pdf = await buildAutomaticContractPdf({
       title: row.title || row.original_name,
       body: row.body_html,
       companyName: account?.company_name,
       contactName: account?.contact_name,
       signatureJpeg,
-      sigBox: { x: row.sig_x, y: row.sig_y, w: row.sig_w, h: row.sig_h },
+      logoPng: existsSync(AUTO_CONTRACT_LOGO) ? readFileSync(AUTO_CONTRACT_LOGO) : null,
       signedAt: row.signed_at || approvedAt,
       approvedAt,
       statusLabel: "Hatay360 onaylandi",
@@ -6356,7 +6356,7 @@ async function handleApi(req, res, url) {
     const body = await readJson(req, 2_000_000);
     const decoded = decodeSignatureJpeg(body.signature);
     if (decoded.error) return json(res, 400, { error: decoded.error });
-    const saved = applyContractSignature(customer.id, Number(customerContractSignMatch[1]), decoded.buffer, "customer");
+    const saved = await applyContractSignature(customer.id, Number(customerContractSignMatch[1]), decoded.buffer, "customer");
     if (saved.error) return json(res, saved.error.includes("bulunamadı") ? 404 : 400, { error: saved.error });
     return json(res, 200, { ok: true, id: saved.id, ...customerRecords(customer.id) });
   }
@@ -7136,7 +7136,7 @@ async function handleApi(req, res, url) {
     if (!requireUser(req, res)) return;
     const body = await readJson(req, 20_000);
     const customerId = Number(adminContractFromTemplate[1]);
-    const saved = assignContractFromTemplate(customerId, body.templateId, body.title);
+    const saved = await assignContractFromTemplate(customerId, body.templateId, body.title);
     if (saved.error) return json(res, saved.error.includes("bulunamadı") ? 404 : 400, { error: saved.error });
     return json(res, 201, { ok: true, id: saved.id, ...customerRecords(customerId) });
   }
@@ -7202,7 +7202,7 @@ async function handleApi(req, res, url) {
     const contractId = Number(adminContractReview[2]);
     const status = cleanText(body.status, 20);
     if (!["approved", "rejected", "pending"].includes(status)) return json(res, 400, { error: "Geçersiz imza durumu." });
-    const reviewed = reviewContractStatus(customerId, contractId, status, body.reason);
+    const reviewed = await reviewContractStatus(customerId, contractId, status, body.reason);
     if (reviewed.error) return json(res, reviewed.error.includes("bulunamadı") ? 404 : 400, { error: reviewed.error });
     return json(res, 200, { ok: true, id: reviewed.id, ...customerRecords(customerId) });
   }

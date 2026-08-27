@@ -333,8 +333,19 @@ function automaticContractBlocks(html) {
   return blocks.length ? blocks : [{ type: "p", text: decodeContractHtml(html) }];
 }
 
-/** Çok sayfalı, Unicode destekli otomatik müşteri sözleşmesi. İmza çizimi içermez. */
-export async function buildAutomaticContractPdf({ title, body, logoPng, logoJpeg }) {
+/** Çok sayfalı, Unicode destekli; logo, iletişim ve imza alanı içeren müşteri sözleşmesi. */
+export async function buildAutomaticContractPdf({
+  title,
+  body,
+  logoPng,
+  logoJpeg,
+  companyName,
+  contactName,
+  signatureJpeg,
+  signedAt,
+  approvedAt,
+  statusLabel,
+}) {
   const doc = new PDFDocument({ size: "A4", margins: { top: 96, right: 48, bottom: 34, left: 48 }, bufferPages: true, info: { Title: title || "Hatay360 Hizmet ve Abonelik Sözleşmesi", Author: "Avcı E-Ticaret / Hatay360.com" } });
   const chunks = [];
   doc.on("data", (chunk) => chunks.push(chunk));
@@ -351,9 +362,9 @@ export async function buildAutomaticContractPdf({ title, body, logoPng, logoJpeg
     pageNumber += 1;
     if (logo) doc.image(logo, 48, 28, { fit: [112, 42], align: "left", valign: "center" });
     else doc.font("ContractBold").fontSize(17).fillColor("#06151f").text("HATAY360", 48, 38, { width: 112 });
-    doc.font("ContractBold").fontSize(12).fillColor("#06151f").text("HATAY360 HİZMET VE ABONELİK SÖZLEŞMESİ", 174, 39, { width: 373, align: "right" });
+    doc.font("ContractBold").fontSize(11).fillColor("#06151f").text(title || "HATAY360 HİZMET VE ABONELİK SÖZLEŞMESİ", 174, 39, { width: 373, align: "right" });
     doc.moveTo(48, 78).lineTo(547, 78).lineWidth(1).strokeColor("#00a8c4").stroke();
-    doc.font("Contract").fontSize(7).fillColor("#667085").text("hatay360.com  •  Avcı E-Ticaret", 48, 795, { width: 360, lineBreak: false });
+    doc.font("Contract").fontSize(7).fillColor("#667085").text("hatay360.com  •  info@hatay360.com  •  +90 850 308 68 37  •  Antakya / Hatay", 48, 795, { width: 420, lineBreak: false });
     doc.text(`Sayfa ${pageNumber}`, 467, 795, { width: 80, align: "right", lineBreak: false });
     doc.x = 48;
     doc.y = 96;
@@ -367,6 +378,9 @@ export async function buildAutomaticContractPdf({ title, body, logoPng, logoJpeg
   const blocks = automaticContractBlocks(body);
   for (const block of blocks) {
     if (block.type === "h1") continue;
+    // Şablonlardaki eski düz metin imza çizgilerini basma; aşağıda taşmayan,
+    // imza görselini de taşıyan standart iki taraflı imza alanı üretilir.
+    if (block.type === "p" && (/^HİZMET SAĞLAYICI\s+MÜŞTERİ/i.test(block.text) || /^İmza:\s*_+/i.test(block.text))) continue;
     if (block.type === "h2" || block.type === "h3") {
       const fontSize = block.type === "h2" ? 10.5 : 10;
       doc.font("ContractBold").fontSize(fontSize);
@@ -380,6 +394,32 @@ export async function buildAutomaticContractPdf({ title, body, logoPng, logoJpeg
       doc.font("Contract").fontSize(8.6).fillColor("#1f2937").text(block.text, { align: "justify", lineGap: 2.1, paragraphGap: 6 });
     }
   }
+
+  const signatureHeight = 116;
+  if (doc.y + signatureHeight > 756) startNewPage();
+  doc.moveDown(0.6);
+  doc.font("ContractBold").fontSize(10).fillColor("#007f95").text("İMZA VE ONAY", { width: 499 });
+  doc.moveDown(0.35);
+  const boxY = doc.y;
+  const boxW = 239;
+  const boxH = 78;
+  doc.roundedRect(48, boxY, boxW, boxH, 5).lineWidth(0.8).strokeColor("#b8c9ce").stroke();
+  doc.roundedRect(308, boxY, boxW, boxH, 5).stroke();
+  doc.font("ContractBold").fontSize(8).fillColor("#06151f").text("HİZMET SAĞLAYICI", 59, boxY + 10, { width: 215 });
+  doc.font("Contract").fontSize(7.5).fillColor("#344054").text("Avcı E-Ticaret / Hatay360.com", 59, boxY + 24, { width: 215 });
+  doc.text(approvedAt ? `Onay tarihi: ${stampDate(approvedAt)}` : "Yetkili imza / kaşe:", 59, boxY + 39, { width: 215 });
+  doc.font("ContractBold").fontSize(8).fillColor("#06151f").text("MÜŞTERİ", 319, boxY + 10, { width: 215 });
+  doc.font("Contract").fontSize(7.5).fillColor("#344054").text(companyName || "Firma / unvan", 319, boxY + 24, { width: 215 });
+  doc.text(contactName ? `Yetkili: ${contactName}` : "Yetkili:", 319, boxY + 38, { width: 215 });
+  if (signatureJpeg && jpegSize(signatureJpeg)) {
+    doc.image(signatureJpeg, 398, boxY + 31, { fit: [132, 39], align: "right", valign: "center" });
+  } else {
+    doc.text("İmza:", 319, boxY + 54, { width: 55 });
+    doc.moveTo(353, boxY + 67).lineTo(530, boxY + 67).lineWidth(0.6).strokeColor("#98a2b3").stroke();
+  }
+  if (signedAt) doc.font("Contract").fontSize(6.5).fillColor("#667085").text(`İmza tarihi: ${stampDate(signedAt)}`, 319, boxY + 68, { width: 215, align: "right" });
+  if (statusLabel) doc.font("ContractBold").fontSize(6.5).fillColor(approvedAt ? "#087f5b" : "#b26a00").text(statusLabel, 59, boxY + 58, { width: 215 });
+  doc.y = boxY + boxH + 8;
 
   doc.end();
   return finished;
