@@ -1,0 +1,107 @@
+From 89e9864f4865aa6dac585c311ffb764cc2767b63 Mon Sep 17 00:00:00 2001
+From: Fix Bot <fix@hatay360.local>
+Date: Thu, 27 Aug 2026 12:26:40 +0000
+Subject: [PATCH] =?UTF-8?q?fix:=20Gemini=20modelini=20gemini-3.6-flash'a?=
+ =?UTF-8?q?=20g=C3=BCncelle=20+=20404'de=20otomatik=20yedek=20model?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ src/app/context/content-context.tsx |  2 +-
+ src/app/lib/seo-ai.ts               | 35 ++++++++++++++++++++---------
+ src/app/pages/admin-seo-panel.tsx   |  4 ++--
+ 3 files changed, 28 insertions(+), 13 deletions(-)
+
+diff --git a/src/app/context/content-context.tsx b/src/app/context/content-context.tsx
+index 33a9d26..4d336f7 100644
+--- a/src/app/context/content-context.tsx
++++ b/src/app/context/content-context.tsx
+@@ -967,7 +967,7 @@ const INITIAL_SETTINGS: SiteSettings = {
+   seoLocalLead: DEFAULT_SEO_LOCAL_LEAD,
+   aiProvider: "gemini",
+   aiApiKey: "",
+-  aiModel: "gemini-2.0-flash",
++  aiModel: "gemini-3.6-flash",
+   homeSections: DEFAULT_HOME_SECTIONS,
+   stickyPhoneMobile: true,
+   stickyPhoneDesktop: true,
+diff --git a/src/app/lib/seo-ai.ts b/src/app/lib/seo-ai.ts
+index 4b9249b..1e9c870 100644
+--- a/src/app/lib/seo-ai.ts
++++ b/src/app/lib/seo-ai.ts
+@@ -119,16 +119,31 @@ SADECE JSON döndür, markdown yok:
+ districts dizisinde verilen TÜM ilçeler olsun. Title max 60 karakter, description max 155 karakter.`;
+ }
+ 
++const GEMINI_FALLBACK_MODEL = "gemini-3.6-flash";
++
+ async function callGemini(apiKey: string, model: string, prompt: string) {
+-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+-  const res = await fetch(url, {
+-    method: "POST",
+-    headers: { "Content-Type": "application/json" },
+-    body: JSON.stringify({
+-      contents: [{ parts: [{ text: prompt }] }],
+-      generationConfig: { temperature: 0.4, maxOutputTokens: 4096 },
+-    }),
+-  });
++  const doCall = async (m: string) => {
++    const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(apiKey)}`;
++    const res = await fetch(url, {
++      method: "POST",
++      headers: { "Content-Type": "application/json" },
++      body: JSON.stringify({
++        contents: [{ parts: [{ text: prompt }] }],
++        generationConfig: { temperature: 0.4, maxOutputTokens: 4096 },
++      }),
++    });
++    return res;
++  };
++
++  let res = await doCall(model);
++
++  // Model kaldırılmış/erişim dışıysa (404) ve zaten yedek modeli denemiyorsak, otomatik olarak
++  // güncel bilinen bir modele düş — Google modelleri sık deprecate ettiği için burada
++  // sabit kalmak elle her seferinde güncelleme yapmayı gerektiriyor.
++  if (res.status === 404 && model !== GEMINI_FALLBACK_MODEL) {
++    res = await doCall(GEMINI_FALLBACK_MODEL);
++  }
++
+   if (!res.ok) {
+     const err = await res.text();
+     throw new Error(err.slice(0, 280) || `Gemini ${res.status}`);
+@@ -171,7 +186,7 @@ export async function generateSeoPack(settings: SeoAiInput): Promise<{ pack: Seo
+     const text =
+       provider === "openai"
+         ? await callOpenAI(key, settings.aiModel || "gpt-4o-mini", prompt)
+-        : await callGemini(key, settings.aiModel || "gemini-2.0-flash", prompt);
++        : await callGemini(key, settings.aiModel || "gemini-3.6-flash", prompt);
+     const parsed = extractJson(text);
+     if (parsed) {
+       if (!parsed.districts.length) parsed.districts = settings.districts;
+diff --git a/src/app/pages/admin-seo-panel.tsx b/src/app/pages/admin-seo-panel.tsx
+index d9fdfe2..80b61fd 100644
+--- a/src/app/pages/admin-seo-panel.tsx
++++ b/src/app/pages/admin-seo-panel.tsx
+@@ -58,7 +58,7 @@ export function AdminSeoPanel({ settings, onChange }: Props) {
+         districts,
+         aiProvider: settings.aiProvider || "none",
+         aiApiKey: settings.aiApiKey || "",
+-        aiModel: settings.aiModel || "gemini-2.0-flash",
++        aiModel: settings.aiModel || "gemini-3.6-flash",
+       });
+       applyPack(pack);
+       setNote(
+@@ -151,7 +151,7 @@ export function AdminSeoPanel({ settings, onChange }: Props) {
+             <input
+               value={settings.aiModel || ""}
+               onChange={(e) => onChange({ ...settings, aiModel: e.target.value })}
+-              placeholder={settings.aiProvider === "openai" ? "gpt-4o-mini" : "gemini-2.0-flash"}
++              placeholder={settings.aiProvider === "openai" ? "gpt-4o-mini" : "gemini-3.6-flash"}
+               className="mt-1 w-full rounded-xl border border-white/15 bg-black/40 px-3 py-2 text-[13px] text-white"
+             />
+           </label>
+-- 
+2.43.0
+

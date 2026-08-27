@@ -967,7 +967,7 @@ const INITIAL_SETTINGS: SiteSettings = {
   seoLocalLead: DEFAULT_SEO_LOCAL_LEAD,
   aiProvider: "gemini",
   aiApiKey: "",
-  aiModel: "gemini-2.0-flash",
+  aiModel: "gemini-3.6-flash",
   homeSections: DEFAULT_HOME_SECTIONS,
   stickyPhoneMobile: true,
   stickyPhoneDesktop: true,

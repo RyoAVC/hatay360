@@ -58,7 +58,7 @@ export function AdminSeoPanel({ settings, onChange }: Props) {
         districts,
         aiProvider: settings.aiProvider || "none",
         aiApiKey: settings.aiApiKey || "",
-        aiModel: settings.aiModel || "gemini-2.0-flash",
+        aiModel: settings.aiModel || "gemini-3.6-flash",
       });
       applyPack(pack);
       setNote(
@@ -151,7 +151,7 @@ export function AdminSeoPanel({ settings, onChange }: Props) {
             <input
               value={settings.aiModel || ""}
               onChange={(e) => onChange({ ...settings, aiModel: e.target.value })}
-              placeholder={settings.aiProvider === "openai" ? "gpt-4o-mini" : "gemini-2.0-flash"}
+              placeholder={settings.aiProvider === "openai" ? "gpt-4o-mini" : "gemini-3.6-flash"}
               className="mt-1 w-full rounded-xl border border-white/15 bg-black/40 px-3 py-2 text-[13px] text-white"
             />
           </label>

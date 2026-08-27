@@ -119,16 +119,31 @@ SADECE JSON döndür, markdown yok:
 districts dizisinde verilen TÜM ilçeler olsun. Title max 60 karakter, description max 155 karakter.`;
 }
 
+const GEMINI_FALLBACK_MODEL = "gemini-3.6-flash";
+
 async function callGemini(apiKey: string, model: string, prompt: string) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.4, maxOutputTokens: 4096 },
-    }),
-  });
+  const doCall = async (m: string) => {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.4, maxOutputTokens: 4096 },
+      }),
+    });
+    return res;
+  };
+
+  let res = await doCall(model);
+
+  // Model kaldırılmış/erişim dışıysa (404) ve zaten yedek modeli denemiyorsak, otomatik olarak
+  // güncel bilinen bir modele düş — Google modelleri sık deprecate ettiği için burada
+  // sabit kalmak elle her seferinde güncelleme yapmayı gerektiriyor.
+  if (res.status === 404 && model !== GEMINI_FALLBACK_MODEL) {
+    res = await doCall(GEMINI_FALLBACK_MODEL);
+  }
+
   if (!res.ok) {
     const err = await res.text();
     throw new Error(err.slice(0, 280) || `Gemini ${res.status}`);
@@ -171,7 +186,7 @@ export async function generateSeoPack(settings: SeoAiInput): Promise<{ pack: Seo
     const text =
       provider === "openai"
         ? await callOpenAI(key, settings.aiModel || "gpt-4o-mini", prompt)
-        : await callGemini(key, settings.aiModel || "gemini-2.0-flash", prompt);
+        : await callGemini(key, settings.aiModel || "gemini-3.6-flash", prompt);
     const parsed = extractJson(text);
     if (parsed) {
       if (!parsed.districts.length) parsed.districts = settings.districts;
