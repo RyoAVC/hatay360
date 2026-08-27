@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { buildContractPdf } from "../src/app/lib/contract-pdf.mjs";
+import { readFileSync } from "node:fs";
+import { buildAutomaticContractPdf, buildContractPdf } from "../src/app/lib/contract-pdf.mjs";
 
 test("sözleşme PDF'i imza ve onay damgası içerir", () => {
   const pdf = buildContractPdf({
@@ -36,4 +37,18 @@ test("imzasız şablon PDF'inde imza alanı etiketi kalır", () => {
   assert.match(text, /Imza alani/);
   assert.doesNotMatch(text, /Imza tarihi/);
   assert.doesNotMatch(text, /Hatay360 onay:/);
+});
+
+test("otomatik sözleşme PNG logo ve Unicode fontla üretilir", async () => {
+  const pdf = await buildAutomaticContractPdf({
+    title: "Hatay360 Hizmet ve Abonelik Sözleşmesi",
+    body: "<h2>MADDE 1 – TARAFLAR</h2><p>Müşteri: Örnek Şirket A.Ş.<br>Bedel: 120.000,00 ₺</p>",
+    logoPng: readFileSync(new URL("../public/brands/hatay360.png", import.meta.url)),
+  });
+
+  assert.ok(Buffer.isBuffer(pdf));
+  assert.ok(pdf.length > 20_000);
+  assert.equal(pdf.subarray(0, 5).toString("ascii"), "%PDF-");
+  assert.match(pdf.toString("latin1"), /DejaVuSans/);
+  assert.match(pdf.toString("latin1"), /\/Subtype \/Image/);
 });
