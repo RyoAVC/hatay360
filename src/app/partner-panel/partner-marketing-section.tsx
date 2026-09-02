@@ -16,9 +16,9 @@ export function PartnerMarketingSection({ hub }: { hub: PartnerHubData }) {
   };
 
   const assets = [
-    { title: "Bayilik tanıtım PDF", icon: FileText },
-    { title: "Sosyal medya görsel paketi", icon: FileImage },
-    { title: "Hizmet özeti broşürü", icon: FileText },
+    { title: "Bayilik tanıtım PDF", icon: FileText, href: "/api/partners/dealer-intro.pdf", label: "PDF indir" },
+    { title: "Sosyal medya görsel paketi", icon: FileImage, href: "/api/partners/social-media-kit.zip", label: "ZIP indir" },
+    { title: "Hizmet özeti broşürü", icon: FileText, href: "/api/partners/service-brochure.pdf", label: "PDF indir" },
   ];
   const badgeHtml = `<a href="https://hatay360.com/firma/dogrula?code=${hub.referralCode}" target="_blank" rel="noopener"><img src="https://hatay360.com/brands/hatay360.png" alt="Hatay360 Yetkili Çözüm Ortağı" width="180"></a>`;
 
@@ -80,11 +80,16 @@ export function PartnerMarketingSection({ hub }: { hub: PartnerHubData }) {
           return (
             <article
               key={asset.title}
-              className="rounded-2xl border border-dashed border-indigo-400/25 bg-[#12102a]/50 p-5"
+              className="rounded-2xl border border-indigo-400/25 bg-[#12102a]/50 p-5"
             >
               <Icon className="h-5 w-5 text-indigo-300/70" />
               <h3 className="mt-3 text-[14px] font-black">{asset.title}</h3>
-              <p className="mt-2 text-[12px] text-indigo-100/45">İçerik eklenecek</p>
+              <a
+                href={asset.href}
+                className="mt-4 inline-flex items-center gap-2 rounded-xl border border-indigo-400/30 px-3.5 py-2 text-[11px] font-black text-indigo-100 hover:bg-indigo-500/20"
+              >
+                <Download className="h-3.5 w-3.5" /> {asset.label}
+              </a>
             </article>
           );
         })}

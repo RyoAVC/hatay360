@@ -15,6 +15,7 @@ import {
 } from "./src/app/lib/payment-balance.ts";
 import { countPortalNapIssues } from "./src/app/lib/seo.ts";
 import { buildAutomaticContractPdf, buildContractPdf, buildInvoicePdf, buildQuotePdf, htmlToPlain } from "./src/app/lib/contract-pdf.mjs";
+import { buildStoredZip } from "./src/app/lib/simple-zip.mjs";
 import { packageLabel } from "./src/app/lib/portal-package.ts";
 import {
   bindCustomerOtp,
@@ -4090,6 +4091,18 @@ function sendPdfBuffer(res, buffer, fileName, download = true) {
   res.end(buffer);
 }
 
+function sendZipBuffer(res, buffer, fileName) {
+  const safeName = String(fileName || "hatay360-paket.zip").replace(/[\r\n"]/g, "");
+  res.writeHead(200, {
+    "Content-Type": "application/zip",
+    "Content-Length": buffer.length,
+    "Content-Disposition": `attachment; filename="${encodeURIComponent(safeName)}"`,
+    "Cache-Control": "no-store",
+    ...SECURITY_HEADERS,
+  });
+  res.end(buffer);
+}
+
 function nextTicketQueuePosition() {
   const row = db.prepare("SELECT COALESCE(MAX(queue_position), 0) AS max FROM customer_tickets WHERE queue_position > 0").get();
   return Number(row?.max || 0) + 1;
@@ -5478,6 +5491,53 @@ async function handleApi(req, res, url) {
     });
     logAudit({ actorType: "partner", actorId: partner.id, actorLabel: partner.email, action: "partner_certificate_download", detail: code, ip: requestIp(req) });
     return sendPdfBuffer(res, pdf, "hatay360-yetkili-bayi-sertifikasi.pdf");
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/partners/dealer-intro.pdf") {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    const code = ensurePartnerReferralCode(partner.id);
+    const pdf = buildQuotePdf({
+      title: "Bayilik Tanıtım Dosyası",
+      body: `${partner.company_name} için hazırlanmış Hatay360 bayilik tanıtım dosyası.\n\nYetkili: ${partner.contact_name}\nBayi kodu: ${code}\n\nHatay360 nedir?\nHatay360; e-ticaret altyapısı, web tasarım, Google Ads & SEO, mobil uygulama ve özel yazılım hizmetlerini tek çatı altında sunar.\n\nBayilik avantajları:\n- Kendi referans linkiniz ve doğrulama kodunuzla müşteri kazanımı\n- Her teklif için komisyon takibi ve ödeme raporu\n- Hazır sertifika, sözleşme ve pazarlama materyalleri\n\nBu dosyayı müşterilerinize Hatay360'ı tanıtırken kullanabilirsiniz.`,
+      companyName: partner.company_name,
+      contactName: partner.contact_name,
+      issuedAt: nowIso(),
+    });
+    logAudit({ actorType: "partner", actorId: partner.id, actorLabel: partner.email, action: "partner_dealer_intro_download", detail: code, ip: requestIp(req) });
+    return sendPdfBuffer(res, pdf, "hatay360-bayilik-tanitim.pdf");
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/partners/service-brochure.pdf") {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    const code = ensurePartnerReferralCode(partner.id);
+    const pdf = buildQuotePdf({
+      title: "Hizmet Özeti Broşürü",
+      body: `${partner.company_name} adına hazırlanmıştır. Yetkili: ${partner.contact_name}. Bayi kodu: ${code}\n\nHatay360 Hizmetleri:\n\n1) E-Ticaret Altyapısı\nKatalog, sepet, ödeme ve kargo entegrasyonlarıyla hazır e-ticaret sitesi.\n\n2) Web Tasarım & UI/UX\nMobil uyumlu, hızlı açılan, markaya özel kurumsal ve e-ticaret siteleri.\n\n3) Google Ads & SEO\nArama, alışveriş ve yerel SEO ile ölçülebilir dijital reklam yönetimi.\n\n4) Mobil Uygulama\nApp Store ve Play Store yayınlı iOS/Android uygulama geliştirme.\n\n5) Özel Yazılım & Otomasyon\nAPI entegrasyonları, e-fatura ve iş süreçleri otomasyonu.\n\nBu broşürü müşterilerinize hizmetlerimizi özetlemek için kullanabilirsiniz. Kesin fiyat ve kapsam yazılı teklifle belirlenir.`,
+      companyName: partner.company_name,
+      contactName: partner.contact_name,
+      issuedAt: nowIso(),
+    });
+    logAudit({ actorType: "partner", actorId: partner.id, actorLabel: partner.email, action: "partner_service_brochure_download", detail: code, ip: requestIp(req) });
+    return sendPdfBuffer(res, pdf, "hatay360-hizmet-ozeti-brosuru.pdf");
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/partners/social-media-kit.zip") {
+    const partner = requirePartner(req, res);
+    if (!partner) return;
+    const code = ensurePartnerReferralCode(partner.id);
+    const brandFiles = [
+      { name: "hatay360.png", diskName: "hatay360.png" },
+      { name: "avci-eticaret.png", diskName: "avci-eticaret.png" },
+    ]
+      .map((f) => ({ name: f.name, path: path.join(ROOT, "public", "brands", f.diskName) }))
+      .filter((f) => existsSync(f.path))
+      .map((f) => ({ name: f.name, data: readFileSync(f.path) }));
+    const readmeText = `Hatay360 Sosyal Medya Görsel Paketi\n\n${partner.company_name} için hazırlanmıştır.\nBayi kodu: ${code}\n\nBu pakette Hatay360 marka logoları bulunur. Kendi gönderilerinizde ve\nprofil görsellerinizde kullanabilirsiniz. Logoları değiştirmeden,\norijinal oranlarıyla kullanmanızı rica ederiz.`;
+    const zip = buildStoredZip([...brandFiles, { name: "okuyun.txt", data: Buffer.from(readmeText, "utf8") }]);
+    logAudit({ actorType: "partner", actorId: partner.id, actorLabel: partner.email, action: "partner_social_kit_download", detail: code, ip: requestIp(req) });
+    return sendZipBuffer(res, zip, "hatay360-sosyal-medya-gorsel-paketi.zip");
   }
 
   if (req.method === "POST" && url.pathname === "/api/partners/quotes") {
