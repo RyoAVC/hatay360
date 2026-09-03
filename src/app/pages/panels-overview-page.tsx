@@ -31,6 +31,7 @@ import {
   Eye,
   Settings,
   HelpCircle,
+  Search,
 } from "lucide-react";
 import { SiteLogo } from "../components/site-logo";
 import { PageCrumbs } from "../components/page-crumbs";
