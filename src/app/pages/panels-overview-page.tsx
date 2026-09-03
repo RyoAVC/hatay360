@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, type CSSProperties } from "react";
 import { Link, useSearchParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -32,84 +32,163 @@ import {
   Settings,
   HelpCircle,
   Search,
+  Activity,
+  Sliders,
+  Calculator,
+  Compass,
+  QrCode,
+  PieChart,
+  BadgePercent,
+  Cpu,
+  RefreshCw,
+  Bell,
+  ArrowUpRight,
+  Database,
+  Terminal,
+  Fingerprint,
 } from "lucide-react";
 import { SiteLogo } from "../components/site-logo";
-import { PageCrumbs } from "../components/page-crumbs";
-import { PageHero } from "../components/page-hero";
 
 export function PanelsOverviewPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = searchParams.get("tab") === "bayi" ? "bayi" : "musteri";
   const [activeTab, setActiveTab] = useState<"musteri" | "bayi">(initialTab);
 
+  // 3D İnteraktif Simülatör State'leri
+  const [activeModulePreview, setActiveModulePreview] = useState<number>(0);
+  const [clientCountSlider, setClientCountSlider] = useState<number>(8);
+  const [budgetSlider, setBudgetSlider] = useState<number>(15000);
+
   const handleTabChange = (tab: "musteri" | "bayi") => {
     setActiveTab(tab);
     setSearchParams({ tab });
   };
 
+  // Bayi Kazanç Hesaplama Mantığı (%30 komisyon + aylık düzenli getiri)
+  const estimatedPartnerEarning = useMemo(() => {
+    const avgSetupFee = 12500;
+    const commissionRate = 0.3;
+    const monthlyRenewal = 1200;
+    const setupEarnings = clientCountSlider * avgSetupFee * commissionRate;
+    const recurringMonthly = clientCountSlider * monthlyRenewal * 0.25;
+    return Math.round(setupEarnings + recurringMonthly);
+  }, [clientCountSlider]);
+
+  // Müşteri Trafik ve Ciro Tahmini
+  const estimatedCustomerGrowth = useMemo(() => {
+    const trafficMultiplier = Math.round((budgetSlider / 5000) * 120 + 350);
+    const estimatedCalls = Math.round(trafficMultiplier * 0.14);
+    const estimatedRoas = (4.2 + (budgetSlider / 25000) * 0.8).toFixed(1);
+    return { trafficMultiplier, estimatedCalls, estimatedRoas };
+  }, [budgetSlider]);
+
   return (
-    <div className="min-h-screen bg-[#07131a] text-white">
-      {/* ─── ARKA PLAN IŞIKLARI & IZGARA ───────────────────── */}
+    <div className="min-h-screen bg-[#061017] text-white selection:bg-[#00a8c4] selection:text-white">
+      {/* ─── 3D PERSPEKTİF & GLOW STİLLERİ ──────────────────── */}
+      <style>{`
+        .perspective-1200 {
+          perspective: 1200px;
+        }
+        .perspective-1600 {
+          perspective: 1600px;
+        }
+        .preserve-3d {
+          transform-style: preserve-3d;
+        }
+        .tilt-card-3d {
+          transform: rotateX(8deg) rotateY(-10deg) rotateZ(1.5deg);
+          transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s ease;
+        }
+        .tilt-card-3d:hover {
+          transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) translateY(-8px);
+        }
+        .floating-badge-3d {
+          transform: translateZ(45px);
+        }
+        .floating-badge-3d-deep {
+          transform: translateZ(65px);
+        }
+        @keyframes floatSlow {
+          0%, 100% { transform: translateY(0px) translateZ(40px); }
+          50% { transform: translateY(-10px) translateZ(40px); }
+        }
+        @keyframes pulseGlow {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.8; }
+        }
+        .animate-float-3d {
+          animation: floatSlow 6s ease-in-out infinite;
+        }
+        .animate-float-3d-delayed {
+          animation: floatSlow 7s ease-in-out 2.5s infinite;
+        }
+      `}</style>
+
+      {/* ─── ARKA PLAN DOKUSU ───────────────────────────────── */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 h-[600px] w-[1100px] -translate-x-1/2 rounded-full bg-gradient-to-b from-[#00a8c4]/20 via-[#0891b2]/10 to-transparent blur-[140px]" />
-        <div className="absolute top-1/3 -left-40 h-[500px] w-[500px] rounded-full bg-[#00a8c4]/10 blur-[120px]" />
-        <div className="absolute bottom-10 -right-40 h-[600px] w-[600px] rounded-full bg-[#0891b2]/15 blur-[140px]" />
+        <div className="absolute -top-48 left-1/2 h-[700px] w-[1300px] -translate-x-1/2 rounded-full bg-gradient-to-b from-[#00a8c4]/25 via-[#0891b2]/12 to-transparent blur-[150px]" />
+        <div className="absolute top-1/3 -left-48 h-[600px] w-[600px] rounded-full bg-[#00a8c4]/15 blur-[140px]" />
+        <div className="absolute bottom-20 -right-48 h-[700px] w-[700px] rounded-full bg-[#0891b2]/18 blur-[160px]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
       </div>
 
-      {/* ─── HERO BÖLÜMÜ ────────────────────────────────────── */}
-      <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24">
-        <div className="mx-auto max-w-6xl px-5 sm:px-8 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#00a8c4]/40 bg-[#00a8c4]/10 px-4 py-1.5 text-[12px] font-bold tracking-wider text-[#38bdf8] backdrop-blur-xl shadow-[0_0_30px_rgba(0,168,196,0.3)]">
-            <Sparkles className="h-3.5 w-3.5 text-[#00a8c4]" />
-            <span className="uppercase tracking-[0.16em]">Hatay360 Akıllı Yönetim & Büyüme Ekosistemi</span>
+      {/* ─── HERO & 3D SWITCHER ─────────────────────────────── */}
+      <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2.5 rounded-full border border-[#00a8c4]/40 bg-[#00a8c4]/10 px-5 py-2 text-[12px] font-bold tracking-wider text-[#38bdf8] backdrop-blur-2xl shadow-[0_0_35px_rgba(0,168,196,0.35)]">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#38bdf8] opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#00a8c4]" />
+            </span>
+            <span className="uppercase tracking-[0.18em]">3D Yeni Nesil Kontrol & Büyüme Ekosistemi</span>
           </div>
 
-          <h1 className="mt-5 text-[34px] font-black tracking-tight text-white sm:text-[48px] lg:text-[56px] leading-[1.15]">
+          <h1 className="mt-6 text-[36px] font-black tracking-tight text-white sm:text-[54px] lg:text-[66px] leading-[1.1]">
             İşletmeniz ve Ajansınız İçin{" "}
-            <span className="bg-gradient-to-r from-[#38bdf8] via-[#00a8c4] to-[#2dd4bf] bg-clip-text text-transparent">
-              Kusursuz Dijital Kontrol
+            <span className="bg-gradient-to-r from-[#38bdf8] via-[#00a8c4] to-[#2dd4bf] bg-clip-text text-transparent drop-shadow-[0_10px_30px_rgba(0,168,196,0.3)]">
+              3D Akıllı Panel
             </span>{" "}
-            Merkezleri
+            Teknolojisi
           </h1>
 
-          <p className="mx-auto mt-4 max-w-3xl text-[16px] font-medium leading-relaxed text-slate-300 sm:text-[18px]">
-            Hatay'daki yerel işletmeler için şeffaf <strong>Müşteri Yönetim Portalı</strong> ve bölgedeki dijital ajanslar ile saha temsilcileri için yüksek kazançlı <strong>Bayi & Partner Hub</strong>.
+          <p className="mx-auto mt-5 max-w-3xl text-[16px] font-medium leading-relaxed text-slate-300 sm:text-[19px]">
+            Hatay'daki yerel işletmelere şeffaf reklam, harita ve e-imza denetimi sağlayan <strong>Müşteri Yönetim Portalı</strong>; dijital ajanslara yüksek komisyon ve white-label güç sunan <strong>Bayi & Partner Hub</strong>.
           </p>
 
-          {/* ─── SEGMENTED SWITCHER (MÜŞTERİ vs BAYİ) ─────────── */}
-          <div className="mx-auto mt-10 flex max-w-md rounded-2xl border border-white/15 bg-white/[0.05] p-1.5 backdrop-blur-2xl shadow-2xl shadow-black/50">
+          {/* 3D Segmented Switcher */}
+          <div className="mx-auto mt-10 flex max-w-md rounded-2xl border border-white/20 bg-white/[0.06] p-1.5 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.7)]">
             <button
               onClick={() => handleTabChange("musteri")}
-              className={`relative flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-[14px] font-black transition-all duration-300 ${
+              className={`relative flex flex-1 items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-black transition-all duration-300 ${
                 activeTab === "musteri"
-                  ? "bg-gradient-to-r from-[#0891b2] via-[#00a8c4] to-[#2dd4bf] text-white shadow-lg shadow-[#00a8c4]/35"
+                  ? "bg-gradient-to-r from-[#0891b2] via-[#00a8c4] to-[#2dd4bf] text-white shadow-[0_8px_25px_rgba(0,168,196,0.45)] scale-[1.02]"
                   : "text-slate-300 hover:text-white"
               }`}
             >
               <Store className="h-4 w-4" />
-              <span>Müşteri Paneli</span>
+              <span>🏬 Müşteri Portalı</span>
             </button>
             <button
               onClick={() => handleTabChange("bayi")}
-              className={`relative flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-[14px] font-black transition-all duration-300 ${
+              className={`relative flex flex-1 items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-black transition-all duration-300 ${
                 activeTab === "bayi"
-                  ? "bg-gradient-to-r from-[#0891b2] via-[#00a8c4] to-[#2dd4bf] text-white shadow-lg shadow-[#00a8c4]/35"
+                  ? "bg-gradient-to-r from-[#0891b2] via-[#00a8c4] to-[#2dd4bf] text-white shadow-[0_8px_25px_rgba(0,168,196,0.45)] scale-[1.02]"
                   : "text-slate-300 hover:text-white"
               }`}
             >
               <Briefcase className="h-4 w-4" />
-              <span>Bayi & Partner Paneli</span>
+              <span>💼 Bayi & Partner Hub</span>
             </button>
           </div>
 
-          {/* Hızlı Eylemler */}
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
+          {/* Aksiyon Butonları */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             {activeTab === "musteri" ? (
               <>
                 <Link
                   to="/musteri/giris"
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#00a8c4] px-6 py-3.5 text-[14px] font-extrabold text-white shadow-xl shadow-[#00a8c4]/30 transition hover:scale-105 hover:bg-[#0891b2]"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#0891b2] via-[#00a8c4] to-[#2dd4bf] px-7 py-4 text-[14.5px] font-extrabold text-white shadow-[0_15px_35px_rgba(0,168,196,0.4)] transition hover:scale-105"
                 >
                   <Store className="h-4 w-4" />
                   <span>Müşteri Paneline Giriş Yap</span>
@@ -117,16 +196,16 @@ export function PanelsOverviewPage() {
                 </Link>
                 <Link
                   to="/musteri/kayit"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-3.5 text-[14px] font-bold text-white backdrop-blur-xl transition hover:bg-white/20"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/[0.08] px-7 py-4 text-[14.5px] font-bold text-white backdrop-blur-2xl transition hover:bg-white/15"
                 >
-                  <span>Ücretsiz Hesap Aç</span>
+                  <span>Ücretsiz İşletme Hesabı Aç</span>
                 </Link>
               </>
             ) : (
               <>
                 <Link
                   to="/firma/giris"
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#00a8c4] px-6 py-3.5 text-[14px] font-extrabold text-white shadow-xl shadow-[#00a8c4]/30 transition hover:scale-105 hover:bg-[#0891b2]"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#0891b2] via-[#00a8c4] to-[#2dd4bf] px-7 py-4 text-[14.5px] font-extrabold text-white shadow-[0_15px_35px_rgba(0,168,196,0.4)] transition hover:scale-105"
                 >
                   <Briefcase className="h-4 w-4" />
                   <span>Bayi Portalına Giriş Yap</span>
@@ -134,7 +213,7 @@ export function PanelsOverviewPage() {
                 </Link>
                 <Link
                   to="/firma/kayit"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-3.5 text-[14px] font-bold text-white backdrop-blur-xl transition hover:bg-white/20"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/[0.08] px-7 py-4 text-[14.5px] font-bold text-white backdrop-blur-2xl transition hover:bg-white/15"
                 >
                   <span>Bayilik Başvurusu Yap (%30 Komisyon)</span>
                 </Link>
@@ -144,456 +223,644 @@ export function PanelsOverviewPage() {
         </div>
       </section>
 
-      {/* ─── CANLI MOCKUP & EKRAN ÖNİZLEMESİ (BENTO SHOWCASE) ── */}
-      <section className="mx-auto max-w-6xl px-5 pb-20 sm:px-8">
-        <AnimatePresence mode="wait">
-          {activeTab === "musteri" ? (
-            <motion.div
-              key="musteri-mockup"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="relative overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-[#0d222e] p-6 backdrop-blur-2xl shadow-[0_25px_70px_rgba(0,0,0,0.6)] lg:p-8"
-            >
-              {/* Pencere Başlığı */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-rose-500/80" />
-                  <div className="h-3 w-3 rounded-full bg-amber-500/80" />
-                  <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
-                  <span className="ml-2 text-xs font-semibold text-slate-400">
-                    hatay360.com/musteri • İşletme Yönetim Portalı
-                  </span>
+      {/* ─── 3D PERSPEKTİF ISOMETRIC SAHNE (3D DEVICE SHOWCASE) ── */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-24 perspective-1600">
+        <div className="relative preserve-3d">
+          {/* 3D Floating Badges (Arka Plana / Yanlara Yansıtılan Katmanlar) */}
+          <div className="hidden lg:block">
+            {activeTab === "musteri" ? (
+              <>
+                {/* 3D Sol Rozet: Harita Sinyali */}
+                <div className="absolute -left-12 top-16 z-30 flex items-center gap-3 rounded-2xl border border-[#00a8c4]/40 bg-[#0d2633]/90 p-4 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] animate-float-3d">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a8c4]/20 text-[#38bdf8]">
+                    <MapPin className="h-5 w-5" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-cyan-300">Google Haritalar Canlı</p>
+                    <p className="text-[14px] font-black text-white">412 Yol Tarifi / Hafta</p>
+                    <p className="text-[10px] text-slate-400">Antakya Tarihi Çarşı Lokasyonu</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 rounded-lg bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-400 border border-emerald-500/20">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  <span>Canlı & Senkronize</span>
+
+                {/* 3D Sağ Rozet: E-İmza & Sözleşme Onayı */}
+                <div className="absolute -right-10 top-28 z-30 flex items-center gap-3 rounded-2xl border border-emerald-500/40 bg-[#0c2826]/90 p-4 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] animate-float-3d-delayed">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
+                    <FileCheck className="h-5 w-5" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-300">Dijital E-İmza</p>
+                    <p className="text-[14px] font-black text-white">Sözleşme Onaylandı</p>
+                    <p className="text-[10px] text-slate-400">256-Bit Resmi Arşiv Kaydı</p>
+                  </div>
+                </div>
+
+                {/* 3D Alt Sol Rozet: Canlı Reklam ROAS */}
+                <div className="absolute -left-8 bottom-12 z-30 flex items-center gap-3 rounded-2xl border border-amber-500/40 bg-[#251f12]/90 p-3.5 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] animate-float-3d-delayed">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
+                    <TrendingUp className="h-4 w-4" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[11px] font-black text-white">4.8x Reklam ROAS</p>
+                    <p className="text-[10px] text-amber-200/80">Kuruşu kuruşuna şeffaf bütçe</p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* 3D Sol Rozet (Bayi): Komisyon Hakediş */}
+                <div className="absolute -left-12 top-16 z-30 flex items-center gap-3 rounded-2xl border border-emerald-500/40 bg-[#0c2826]/90 p-4 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] animate-float-3d">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
+                    <Wallet className="h-5 w-5" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-300">Aylık Hakediş</p>
+                    <p className="text-[15px] font-black text-white">₺58.400 Aktarıldı</p>
+                    <p className="text-[10px] text-slate-400">İskenderun & Antakya Bayisi</p>
+                  </div>
+                </div>
+
+                {/* 3D Sağ Rozet (Bayi): White-Label Ajans */}
+                <div className="absolute -right-10 top-28 z-30 flex items-center gap-3 rounded-2xl border border-[#00a8c4]/40 bg-[#0d2633]/90 p-4 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] animate-float-3d-delayed">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a8c4]/20 text-[#38bdf8]">
+                    <Building2 className="h-5 w-5" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-cyan-300">White-Label Ajans</p>
+                    <p className="text-[14px] font-black text-white">38 Aktif Esnaf Paneli</p>
+                    <p className="text-[10px] text-slate-400">Kendi Logonuz & Markanızla</p>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* ─── 3D TILT EDİLMİŞ ANA MOCKUP KARTI ─────────────── */}
+          <div className="tilt-card-3d relative overflow-hidden rounded-[32px] border border-white/20 bg-gradient-to-b from-white/[0.09] via-white/[0.03] to-[#0a1b24] p-6 backdrop-blur-3xl shadow-[0_40px_100px_rgba(0,0,0,0.8)] lg:p-9">
+            {/* Üst Bar: macOS Window Frame */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-5">
+              <div className="flex items-center gap-2.5">
+                <div className="h-3.5 w-3.5 rounded-full bg-rose-500 shadow-md shadow-rose-500/40" />
+                <div className="h-3.5 w-3.5 rounded-full bg-amber-500 shadow-md shadow-amber-500/40" />
+                <div className="h-3.5 w-3.5 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/40" />
+                <div className="ml-3 hidden sm:flex items-center gap-2 rounded-xl bg-black/40 px-3.5 py-1 text-xs font-semibold text-slate-300 border border-white/10">
+                  <Lock className="h-3 w-3 text-emerald-400" />
+                  <span>https://hatay360.com/{activeTab === "musteri" ? "musteri" : "firma"}</span>
                 </div>
               </div>
 
-              {/* Panel İçi Düzen Mockup */}
-              <div className="mt-6 grid gap-6 lg:grid-cols-12">
-                {/* Sol Menü Temsili */}
-                <div className="space-y-1.5 rounded-2xl border border-white/10 bg-white/[0.03] p-4 lg:col-span-3">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">
-                    Müşteri Menüsü
-                  </p>
-                  {[
-                    { label: "Genel Bakış", icon: BarChart3, active: true },
-                    { label: "Web & Google Harita", icon: Globe },
-                    { label: "Reklam Raporları", icon: TrendingUp },
-                    { label: "Sözleşmeler (E-İmza)", icon: FileText },
-                    { label: "Ödemeler & Faturalar", icon: CreditCard },
-                    { label: "SEO Sıralama Takibi", icon: Search },
-                    { label: "Canlı Destek & Bilet", icon: MessageSquare },
-                  ].map((m, i) => (
-                    <div
-                      key={i}
-                      className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-[12.5px] font-bold transition ${
-                        m.active
-                          ? "bg-[#00a8c4] text-white shadow-md shadow-[#00a8c4]/30"
-                          : "text-slate-300 hover:bg-white/5"
-                      }`}
-                    >
-                      <m.icon className="h-4 w-4" />
-                      <span>{m.label}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Sağ İstatistik & Kartlar Mockup */}
-                <div className="space-y-5 lg:col-span-9">
-                  {/* Üst Metrikler */}
-                  <div className="grid gap-4 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-slate-400">Harita & Web Ziyareti</span>
-                        <TrendingUp className="h-4 w-4 text-emerald-400" />
-                      </div>
-                      <p className="mt-2 text-2xl font-black text-white">4.820 <span className="text-xs text-emerald-400 font-bold">+%240</span></p>
-                      <p className="mt-0.5 text-[11px] text-slate-400">Son 30 günde aramalardan gelen</p>
-                    </div>
-
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-slate-400">Telefon & Randevu</span>
-                        <Smartphone className="h-4 w-4 text-[#38bdf8]" />
-                      </div>
-                      <p className="mt-2 text-2xl font-black text-white">194 Adet</p>
-                      <p className="mt-0.5 text-[11px] text-slate-400">Doğrudan arama ve WhatsApp formu</p>
-                    </div>
-
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-slate-400">Google Ads ROAS</span>
-                        <Zap className="h-4 w-4 text-amber-400" />
-                      </div>
-                      <p className="mt-2 text-2xl font-black text-white">4.6x Getiri</p>
-                      <p className="mt-0.5 text-[11px] text-slate-400">Şeffaf reklam bütçe verimliliği</p>
-                    </div>
-                  </div>
-
-                  {/* Proje Canlı Durum & Sözleşme Çubuğu */}
-                  <div className="rounded-2xl border border-[#00a8c4]/30 bg-[#00a8c4]/10 p-4 sm:p-5">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex items-center gap-2.5">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#00a8c4] text-white">
-                          <Check className="h-4 w-4 stroke-[3]" />
-                        </span>
-                        <div>
-                          <h4 className="text-sm font-bold text-white">Projeniz 5. Aşamada: Google Haritalar Onaylandı</h4>
-                          <p className="text-xs text-cyan-200">Alan adı, hosting, mobil tasarım ve harita senkronizasyonu tamamlandı.</p>
-                        </div>
-                      </div>
-                      <span className="rounded-lg bg-white/15 px-3 py-1 text-xs font-extrabold text-white">
-                        %100 Tamamlandı
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Alt 2 Kolon: Sözleşme & Reklam Grafiği */}
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                      <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                        <div className="flex items-center gap-2">
-                          <FileCheck className="h-4 w-4 text-[#38bdf8]" />
-                          <h5 className="text-xs font-bold text-white">Dijital Onaylı Sözleşme</h5>
-                        </div>
-                        <span className="text-[11px] font-bold text-emerald-400">E-İmzalı</span>
-                      </div>
-                      <p className="mt-3 text-xs leading-relaxed text-slate-300">
-                        Hatay360 Hizmet ve Kurumsal Bakım Sözleşmesi canvas tabanlı e-imza ile dijital olarak onaylanmıştır.
-                      </p>
-                    </div>
-
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                      <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                        <div className="flex items-center gap-2">
-                          <ShieldCheck className="h-4 w-4 text-emerald-400" />
-                          <h5 className="text-xs font-bold text-white">SSL & Güvenlik Koruması</h5>
-                        </div>
-                        <span className="text-[11px] font-bold text-slate-400">Aktif</span>
-                      </div>
-                      <p className="mt-3 text-xs leading-relaxed text-slate-300">
-                        256-Bit SSL sertifikası, günlük bulut yedekleme ve 2FA iki adımlı oturum güvenliği devrededir.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3 py-1 text-xs font-bold text-white border border-white/15">
+                  <Activity className="h-3.5 w-3.5 text-emerald-400" />
+                  <span>3D Ultra Live v4.8</span>
+                </span>
               </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="bayi-mockup"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="relative overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-[#0d222e] p-6 backdrop-blur-2xl shadow-[0_25px_70px_rgba(0,0,0,0.6)] lg:p-8"
-            >
-              {/* Pencere Başlığı */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-rose-500/80" />
-                  <div className="h-3 w-3 rounded-full bg-amber-500/80" />
-                  <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
-                  <span className="ml-2 text-xs font-semibold text-slate-400">
-                    hatay360.com/firma • Yetkili Bayi & Partner Hub
-                  </span>
+            </div>
+
+            {/* İçerik Düzeni */}
+            <div className="mt-7 grid gap-6 lg:grid-cols-12">
+              {/* Sol Sidebar Mockup */}
+              <div className="space-y-2 rounded-2xl border border-white/10 bg-black/30 p-4 lg:col-span-3">
+                <div className="flex items-center gap-2 pb-3 border-b border-white/10">
+                  <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-[#0891b2] to-[#00a8c4] flex items-center justify-center text-white font-black text-xs">
+                    H360
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white">Hatay360 {activeTab === "musteri" ? "Müşteri" : "Bayi"}</p>
+                    <p className="text-[10px] text-emerald-400 font-semibold">● Aktif Oturum</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 rounded-lg bg-cyan-500/10 px-2.5 py-1 text-[11px] font-bold text-cyan-400 border border-cyan-500/20">
-                  <Award className="h-3.5 w-3.5" />
-                  <span>Yetkili Bölge Temsilcisi</span>
-                </div>
+
+                {(activeTab === "musteri"
+                  ? [
+                      { label: "Dashboard Genel Bakış", icon: BarChart3, active: true },
+                      { label: "Google Haritalar & SEO", icon: MapPin },
+                      { label: "Google & Meta Ads", icon: TrendingUp },
+                      { label: "E-İmza & Sözleşmeler", icon: FileCheck },
+                      { label: "Ödeme & Faturalar", icon: CreditCard },
+                      { label: "Sıra Numaralı Destek", icon: MessageSquare },
+                      { label: "Güvenlik & 2FA Ayarı", icon: ShieldCheck },
+                    ]
+                  : [
+                      { label: "Bayi Kazanç Dashboard", icon: BarChart3, active: true },
+                      { label: "Müşteri Ekle & Pipeline", icon: Users },
+                      { label: "Komisyon & IBAN Transfer", icon: Wallet },
+                      { label: "Satış Paketleri & Fiyat", icon: Layers },
+                      { label: "White-Label Markalama", icon: Building2 },
+                      { label: "Hazır Teklif Taslakları", icon: FileText },
+                      { label: "Öncelikli Bayi Desteği", icon: Zap },
+                    ]
+                ).map((item, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-[12.5px] font-bold transition ${
+                      item.active
+                        ? "bg-gradient-to-r from-[#0891b2] to-[#00a8c4] text-white shadow-lg shadow-[#00a8c4]/30"
+                        : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                    }`}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </div>
+                ))}
               </div>
 
-              {/* Bayi Panel İçi Düzen Mockup */}
-              <div className="mt-6 grid gap-6 lg:grid-cols-12">
-                {/* Sol Menü Temsili */}
-                <div className="space-y-1.5 rounded-2xl border border-white/10 bg-white/[0.03] p-4 lg:col-span-3">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">
-                    Bayi İşlemleri
-                  </p>
-                  {[
-                    { label: "Bayi Dashboard", icon: BarChart3, active: true },
-                    { label: "Müşteri Ekle & Pipeline", icon: Users },
-                    { label: "Komisyon & Hakedişler", icon: Wallet },
-                    { label: "Satış Paketleri & Fiyat", icon: Layers },
-                    { label: "White-Label Markalama", icon: Building2 },
-                    { label: "Hazır Satış Kitleri", icon: FileText },
-                    { label: "VIP Bayi Desteği", icon: MessageSquare },
-                  ].map((m, i) => (
-                    <div
-                      key={i}
-                      className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-[12.5px] font-bold transition ${
-                        m.active
-                          ? "bg-gradient-to-r from-[#0891b2] to-[#00a8c4] text-white shadow-md shadow-[#00a8c4]/30"
-                          : "text-slate-300 hover:bg-white/5"
-                      }`}
-                    >
-                      <m.icon className="h-4 w-4" />
-                      <span>{m.label}</span>
-                    </div>
-                  ))}
+              {/* Sağ Dashboard Ana Sahne Mockup */}
+              <div className="space-y-6 lg:col-span-9">
+                {/* 3'lü Bento Metrik Kartları */}
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {activeTab === "musteri" ? (
+                    <>
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5 text-left">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold text-slate-400">Harita & Web Ziyareti</span>
+                          <span className="rounded-lg bg-emerald-500/20 px-2 py-0.5 text-[10px] font-extrabold text-emerald-400">+%240</span>
+                        </div>
+                        <p className="mt-2 text-2xl font-black text-white">4.820 Kişi</p>
+                        <p className="mt-0.5 text-[11px] text-slate-400">Google Haritalar ve Aramalardan</p>
+                      </div>
+
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5 text-left">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold text-slate-400">Telefon & Randevu</span>
+                          <Smartphone className="h-4 w-4 text-[#38bdf8]" />
+                        </div>
+                        <p className="mt-2 text-2xl font-black text-white">194 Talep</p>
+                        <p className="mt-0.5 text-[11px] text-slate-400">Doğrudan arama ve WhatsApp formu</p>
+                      </div>
+
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5 text-left">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold text-slate-400">Google Ads ROAS</span>
+                          <Zap className="h-4 w-4 text-amber-400" />
+                        </div>
+                        <p className="mt-2 text-2xl font-black text-white">4.8x Getiri</p>
+                        <p className="mt-0.5 text-[11px] text-slate-400">Kuruşu kuruşuna şeffaf bütçe</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5 text-left">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold text-slate-400">Toplam Hakediş Kazancı</span>
+                          <span className="rounded-lg bg-emerald-500/20 px-2 py-0.5 text-[10px] font-extrabold text-emerald-400">Onaylandı</span>
+                        </div>
+                        <p className="mt-2 text-2xl font-black text-white">₺58.400</p>
+                        <p className="mt-0.5 text-[11px] text-emerald-300 font-semibold">Bu ayki net bayi komisyonu</p>
+                      </div>
+
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5 text-left">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold text-slate-400">Kayıtlı İşletmeler</span>
+                          <Building2 className="h-4 w-4 text-[#38bdf8]" />
+                        </div>
+                        <p className="mt-2 text-2xl font-black text-white">38 İşletme</p>
+                        <p className="mt-0.5 text-[11px] text-slate-400">İskenderun & Antakya Bölgesi</p>
+                      </div>
+
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5 text-left">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold text-slate-400">Komisyon Oranınız</span>
+                          <Award className="h-4 w-4 text-amber-400" />
+                        </div>
+                        <p className="mt-2 text-2xl font-black text-white">%30 Sabit</p>
+                        <p className="mt-0.5 text-[11px] text-slate-400">Satış ve yıllık yenilemelerde</p>
+                      </div>
+                    </>
+                  )}
                 </div>
 
-                {/* Sağ İstatistik & Bayi Kartları Mockup */}
-                <div className="space-y-5 lg:col-span-9">
-                  {/* Üst Metrikler */}
-                  <div className="grid gap-4 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-slate-400">Toplam Hakediş Kazancı</span>
-                        <Wallet className="h-4 w-4 text-emerald-400" />
+                {/* İnteraktif Proje Takip & Durum Çubuğu */}
+                <div className="rounded-2xl border border-[#00a8c4]/30 bg-gradient-to-r from-[#00a8c4]/15 to-[#0891b2]/10 p-5 text-left">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a8c4] text-white shadow-lg shadow-[#00a8c4]/40">
+                        <Check className="h-5 w-5 stroke-[3]" />
                       </div>
-                      <p className="mt-2 text-2xl font-black text-white">₺58.400</p>
-                      <p className="mt-0.5 text-[11px] text-emerald-400 font-bold">Düzenli aylık komisyon aktarımı</p>
-                    </div>
-
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-slate-400">Kayıtlı İşletmeler</span>
-                        <Building2 className="h-4 w-4 text-[#38bdf8]" />
+                      <div>
+                        <h4 className="text-[14px] font-bold text-white">
+                          {activeTab === "musteri"
+                            ? "Projeniz 5. Aşamada: Google Haritalar & Reklamlar Yayında"
+                            : "Bayi Temsilciliği: İskenderun & Antakya Bölge Yetkisi Aktif"}
+                        </h4>
+                        <p className="text-xs text-cyan-200">
+                          {activeTab === "musteri"
+                            ? "Alan adı, 256-bit SSL, mobil responsive arayüz ve harita pini onaylandı."
+                            : "White-label lisans anahtarınız ve müşteri ekleme yetkiniz devrededir."}
+                        </p>
                       </div>
-                      <p className="mt-2 text-2xl font-black text-white">38 Firma</p>
-                      <p className="mt-0.5 text-[11px] text-slate-400">İskenderun & Antakya Bölgesi</p>
                     </div>
-
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-slate-400">Komisyon Oranınız</span>
-                        <Award className="h-4 w-4 text-amber-400" />
-                      </div>
-                      <p className="mt-2 text-2xl font-black text-white">%30 Sabit</p>
-                      <p className="mt-0.5 text-[11px] text-slate-400">Satış ve yıllık yenilemelerde</p>
-                    </div>
+                    <span className="rounded-xl bg-white/20 px-3.5 py-1.5 text-xs font-black text-white">
+                      %100 Tamamlandı
+                    </span>
                   </div>
+                </div>
 
-                  {/* Aday Müşteri Pipeline Listesi */}
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
+                {/* Alt 2 Kolon: Detaylı Analitik & E-İmza Önizlemesi */}
+                <div className="grid gap-4 sm:grid-cols-2 text-left">
+                  <div className="rounded-2xl border border-white/10 bg-black/25 p-4.5">
                     <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                      <h4 className="text-sm font-bold text-white">Son Müşteri Kurulum Talepleri</h4>
-                      <span className="text-xs font-bold text-[#38bdf8]">+ Yeni İşletme Ekle</span>
+                      <div className="flex items-center gap-2">
+                        <FileCheck className="h-4 w-4 text-[#38bdf8]" />
+                        <h5 className="text-xs font-bold text-white">Dijital E-İmza & Resmi Sözleşme</h5>
+                      </div>
+                      <span className="text-[10.5px] font-black text-emerald-400">Onaylı</span>
                     </div>
+                    <p className="mt-3 text-xs leading-relaxed text-slate-300">
+                      Hatay360 Kurumsal Hizmet ve Google Haritalar Sözleşmesi mobil ekranda dijital imza ile onaylanmış ve PDF olarak arşivlenmiştir.
+                    </p>
+                  </div>
 
-                    <div className="mt-3 space-y-2.5">
-                      {[
-                        { name: "Körfez Lojistik Ltd.", service: "Web + Google Ads", district: "İskenderun", status: "Yayında", tone: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
-                        { name: "Antakya Şah Kebap", service: "Harita + Yerel SEO", district: "Antakya", status: "Kuruluyor", tone: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-                        { name: "Defne Zeytinyağı Butik", service: "E-Ticaret Paketi", district: "Defne", status: "Sözleşme İmzalandı", tone: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" },
-                      ].map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/[0.02] p-3 text-xs hover:bg-white/[0.05]"
-                        >
-                          <div>
-                            <p className="font-bold text-white">{item.name}</p>
-                            <p className="text-[11px] text-slate-400">{item.service} • {item.district}</p>
-                          </div>
-                          <span className={`rounded-lg px-2.5 py-1 font-extrabold border ${item.tone}`}>
-                            {item.status}
-                          </span>
-                        </div>
-                      ))}
+                  <div className="rounded-2xl border border-white/10 bg-black/25 p-4.5">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                        <h5 className="text-xs font-bold text-white">256-Bit SSL & 2FA Güvenlik</h5>
+                      </div>
+                      <span className="text-[10.5px] font-black text-slate-400">Koruma Aktif</span>
                     </div>
+                    <p className="mt-3 text-xs leading-relaxed text-slate-300">
+                      Oturumlarınız iki adımlı SMS/e-posta doğrulamasıyla korunur. Yetkisiz giriş denemeleri anında engellenir.
+                    </p>
                   </div>
                 </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* ─── DERİNLEMESİNE MODÜL VE ÖZELLİK LİSTESİ ───────────── */}
-      <section className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
+      {/* ─── İNTERAKTİF 3D KAZANÇ / GETİRİ HESAPLAYICI ─────────── */}
+      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
+        <div className="relative overflow-hidden rounded-3xl border border-[#00a8c4]/30 bg-gradient-to-br from-[#0c2430] via-[#091b24] to-[#07131a] p-8 sm:p-12 shadow-[0_25px_80px_rgba(0,0,0,0.8)]">
+          <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-[#00a8c4]/20 blur-3xl" />
+
+          {activeTab === "musteri" ? (
+            <div className="grid gap-8 lg:grid-cols-12 items-center">
+              <div className="lg:col-span-6 text-left">
+                <div className="inline-flex items-center gap-2 rounded-lg bg-[#00a8c4]/20 px-3 py-1 text-xs font-bold text-[#38bdf8] mb-3">
+                  <Calculator className="h-3.5 w-3.5" />
+                  <span>İşletme Büyüme Simülatörü</span>
+                </div>
+                <h3 className="text-2xl font-black text-white sm:text-3xl">
+                  Aylık Reklam Bütçenizle Ne Kadar Büyürsünüz?
+                </h3>
+                <p className="mt-3 text-sm text-slate-300 leading-relaxed">
+                  Kaydıracı hareket ettirerek Google Ads, Haritalar ve Meta reklamlarıyla Hatay'da elde edebileceğiniz tahmini arama ve telefon trafiğini hesaplayın.
+                </p>
+
+                <div className="mt-6 space-y-3">
+                  <div className="flex justify-between text-sm font-bold">
+                    <span className="text-slate-300">Aylık Reklam Bütçesi:</span>
+                    <span className="text-[#38bdf8] text-lg font-black">₺{budgetSlider.toLocaleString("tr-TR")}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="5000"
+                    max="60000"
+                    step="2500"
+                    value={budgetSlider}
+                    onChange={(e) => setBudgetSlider(Number(e.target.value))}
+                    className="w-full h-2.5 rounded-lg bg-slate-700 appearance-none cursor-pointer accent-[#00a8c4]"
+                  />
+                  <div className="flex justify-between text-[11px] text-slate-400">
+                    <span>₺5.000 / Ay</span>
+                    <span>₺30.000 / Ay</span>
+                    <span>₺60.000 / Ay</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-6 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left">
+                  <span className="text-xs font-bold text-slate-400">Tahmini Ziyaretçi & Yol Tarifi</span>
+                  <p className="mt-2 text-3xl font-black text-white">~{estimatedCustomerGrowth.trafficMultiplier.toLocaleString("tr-TR")}</p>
+                  <p className="mt-1 text-[11px] text-cyan-300">Harita pini ve arama tıklaması</p>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left">
+                  <span className="text-xs font-bold text-slate-400">Tahmini Yeni Müşteri Çağrısı</span>
+                  <p className="mt-2 text-3xl font-black text-emerald-400">~{estimatedCustomerGrowth.estimatedCalls} Adet</p>
+                  <p className="mt-1 text-[11px] text-emerald-300">Doğrudan telefon & WhatsApp formu</p>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left sm:col-span-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-bold text-slate-400">Tahmini Yatırım Getirisi (ROAS)</span>
+                      <p className="text-2xl font-black text-amber-400">{estimatedCustomerGrowth.estimatedRoas}x Kat Ciro Artışı</p>
+                    </div>
+                    <Link
+                      to="/iletisim"
+                      className="rounded-xl bg-[#00a8c4] px-5 py-2.5 text-xs font-extrabold text-white hover:bg-[#0891b2] transition"
+                    >
+                      Planı Başlat
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-8 lg:grid-cols-12 items-center">
+              <div className="lg:col-span-6 text-left">
+                <div className="inline-flex items-center gap-2 rounded-lg bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-400 mb-3">
+                  <Wallet className="h-3.5 w-3.5" />
+                  <span>Bayi Kazanç Simülatörü</span>
+                </div>
+                <h3 className="text-2xl font-black text-white sm:text-3xl">
+                  Aylık Bayilik Gelirinizi Hesaplayın
+                </h3>
+                <p className="mt-3 text-sm text-slate-300 leading-relaxed">
+                  Bölgenizde kaç esnafa web sitesi ve Google Haritalar paketi satabileceğinizi seçin; hakediş ve yenileme komisyonunuzu canlı görün.
+                </p>
+
+                <div className="mt-6 space-y-3">
+                  <div className="flex justify-between text-sm font-bold">
+                    <span className="text-slate-300">Aylık Bağlanan Yeni Esnaf / İşletme:</span>
+                    <span className="text-emerald-400 text-lg font-black">{clientCountSlider} Firma</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="2"
+                    max="30"
+                    step="1"
+                    value={clientCountSlider}
+                    onChange={(e) => setClientCountSlider(Number(e.target.value))}
+                    className="w-full h-2.5 rounded-lg bg-slate-700 appearance-none cursor-pointer accent-emerald-400"
+                  />
+                  <div className="flex justify-between text-[11px] text-slate-400">
+                    <span>2 Firma</span>
+                    <span>15 Firma</span>
+                    <span>30 Firma</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-6 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left">
+                  <span className="text-xs font-bold text-slate-400">Aylık Net Komisyon Hakedişiniz</span>
+                  <p className="mt-2 text-3xl font-black text-emerald-400">₺{estimatedPartnerEarning.toLocaleString("tr-TR")}</p>
+                  <p className="mt-1 text-[11px] text-emerald-300 font-semibold">%30 Kurulum + Yıllık Yenileme Payı</p>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left">
+                  <span className="text-xs font-bold text-slate-400">Yıllık Kümülatif Kazanç</span>
+                  <p className="mt-2 text-3xl font-black text-white">₺{(estimatedPartnerEarning * 12).toLocaleString("tr-TR")}</p>
+                  <p className="mt-1 text-[11px] text-slate-400">Sürekli büyüyen müşteri portföyüyle</p>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left sm:col-span-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-bold text-slate-400">Yetkili Bölge Temsilciliği</span>
+                      <p className="text-sm font-bold text-white">Hemen başvurun, ilçenizde bayiliği kilitleyin.</p>
+                    </div>
+                    <Link
+                      to="/firma/kayit"
+                      className="rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition"
+                    >
+                      Bayilik Başvurusu Yap
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ─── 8 MODÜL BENTO GRID (HER İKİ PANEL İÇİN ZENGİN DETAY) ── */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center">
           <p className="text-xs font-extrabold uppercase tracking-widest text-[#00a8c4]">
-            {activeTab === "musteri" ? "MÜŞTERİ PANELİ ÖZELLİKLERİ" : "BAYİ & PARTNER PANELİ ÖZELLİKLERİ"}
+            {activeTab === "musteri" ? "MÜŞTERİ PANELİ DERİNLEMESİNE MODÜLLERİ" : "BAYİ PANELİ DERİNLEMESİNE MODÜLLERİ"}
           </p>
-          <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl lg:text-4xl">
+          <h2 className="mt-3 text-3xl font-black text-white sm:text-4xl">
             {activeTab === "musteri"
-              ? "İşletmenizi Büyüten 8 Akıllı Modül"
-              : "Ajansınızı ve Kazancınızı Büyüten 8 Bayilik Modülü"}
+              ? "İşletmenizi Kontrol Altına Alan 8 Güçlü Merkez"
+              : "Ajansınızı Otomatikleştiren 8 Bayilik Modülü"}
           </h2>
-          <p className="mt-2 text-sm text-slate-300">
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-300">
             {activeTab === "musteri"
-              ? "Web siteniz, harita kaydınız, reklam bütçeleriniz ve faturalandırmanız tek ekranda."
-              : "White-label altyapı, düzenli komisyonlar, otomatik kurulum ve müşteri yönetim sistemi."}
+              ? "Her modül, Hatay'daki esnaf ve şirketlerin dijital büyümesini şeffaf, hızlı ve güvenli kılmak için özel olarak kodlandı."
+              : "White-label mimari, otomatik altyapı provisioning ve düzenli hakediş sistemiyle ajans operasyonunuzu sıfır zahmetle yönetin."}
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 text-left">
           {(activeTab === "musteri"
             ? [
                 {
                   icon: Globe,
-                  title: "Web & Domain Takibi",
-                  desc: "Alan adı süreniz, 256-bit SSL sertifikanız ve bulut sunucu durumunuz anlık izlenir.",
+                  title: "1. Web & Domain Monitörü",
+                  desc: "Alan adı yenileme tarihiniz, 256-Bit SSL güvenlik sertifikanız ve bulut hosting çalışma süreniz 7/24 otomatik izlenir.",
+                  tag: "Bulut & SSL",
                 },
                 {
                   icon: MapPin,
-                  title: "Google Haritalar Yönetimi",
-                  desc: "Yol tarifi istekleri, gelen telefon aramaları ve işletme fotoğrafları senkronize edilir.",
+                  title: "2. Google Haritalar & SEO",
+                  desc: "Yol tarifi istekleri, doğrudan arama buton tıklamaları ve müşteri fotoğrafları Google Maps ile tam senkronize edilir.",
+                  tag: "Yerel SEO",
                 },
                 {
                   icon: TrendingUp,
-                  title: "Şeffaf Reklam Raporu",
-                  desc: "Google Ads ve Meta bütçeniz, tıklama maliyeti ve dönüşüm adetleri kuruşu kuruşuna listelenir.",
+                  title: "3. Şeffaf Reklam Raporu",
+                  desc: "Google Ads ve Meta reklam bütçenizin nereye harcandığı, tıklama maliyeti ve kaç form geldiği kuruşu kuruşuna listelenir.",
+                  tag: "Google & Meta",
                 },
                 {
                   icon: FileCheck,
-                  title: "Dijital E-İmza Sözleşme",
-                  desc: "Sözleşmelerinizi cep telefonunuzdan ekrana imza atarak anında onaylayabilir, PDF indirebilirsiniz.",
+                  title: "4. Dijital E-İmza Sözleşme",
+                  desc: "Islak imza beklemeye son. Sözleşmelerinizi cep telefonunuzdan ekrana imza atarak onaylayabilir ve PDF olarak indirebilirsiniz.",
+                  tag: "E-İmza Arşivi",
                 },
                 {
                   icon: CreditCard,
-                  title: "Online Ödeme & Fatura",
-                  desc: "Kredi kartı ile taksitli veya tek çekim ödeme, bakiye takibi ve resmi e-fatura arşivi.",
+                  title: "5. Online Ödeme & E-Fatura",
+                  desc: "Kredi kartı ile taksitli veya tek çekim güvenli ödeme, bakiye takibi ve mali onaylı resmi e-fatura arşivi.",
+                  tag: "Taksit & Havale",
                 },
                 {
                   icon: Search,
-                  title: "SEO Kelime Sıralaması",
-                  desc: "Hatay'da sektörünüze ait hedef arama kelimelerinizin Google sıralama geçmişi raporlanır.",
+                  title: "6. SEO Sıralama Takip Radarı",
+                  desc: "Hatay'da sektörünüze ait anahtar kelimelerinizin (örn: 'Antakya künefe') Google'daki 1. sayfa sıralama geçmişi raporlanır.",
+                  tag: "Sıralama Radarı",
                 },
                 {
                   icon: MessageSquare,
-                  title: "Bilet Destek & WhatsApp",
-                  desc: "Panelden tek tıkla canlı destek bileti açabilir veya doğrudan Hatay360 ekibine WhatsApp'tan yazabilirsiniz.",
+                  title: "7. Sıra Numaralı Destek & Bilet",
+                  desc: "Panelden tek tıkla destek bileti açabilir, kuyruk sıranızı canlı izleyebilir ve doğrudan WhatsApp hızlı hattımıza bağlanabilirsiniz.",
+                  tag: "15 Dk Yanıt",
                 },
                 {
                   icon: ShieldCheck,
-                  title: "2FA İki Adımlı Güvenlik",
-                  desc: "SMS ve e-posta doğrulama ile hesabınız yetkisiz erişimlere karşı üst düzey korunur.",
+                  title: "8. 2FA Biyometrik & SMS Güvenliği",
+                  desc: "Hesabınıza yapılan tüm girişler SMS ve e-posta onayıyla denetlenir. Muhasebe ve yöneticiniz için ayrı alt kullanıcı rolleri açabilirsiniz.",
+                  tag: "2FA Koruması",
                 },
               ]
             : [
                 {
                   icon: Wallet,
-                  title: "Düzenli Hakediş Geliri",
-                  desc: "Her satıştan ve yıllık yenilemelerden %20 ile %40 arasında düzenli komisyon kazanın.",
+                  title: "1. Düzenli Hakediş & Komisyon",
+                  desc: "Her yeni satıştan %30 peşin, her yıllık domain/hosting/reklam yenilemesinden %20 sürekli nakit komisyon kazanın.",
+                  tag: "Nakit Hakediş",
                 },
                 {
                   icon: Building2,
-                  title: "White-Label Altyapı",
-                  desc: "Müşterilerinize kendi ajansınızın logosu ve unvanıyla kurumsal web ve reklam çözümleri sunun.",
+                  title: "2. Tam White-Label Mimari",
+                  desc: "Müşterilerinize kendi ajansınızın logosu, favicon'u ve şirket unvanıyla kurumsal bir panel sunun.",
+                  tag: "Kendi Markanızla",
                 },
                 {
                   icon: Zap,
-                  title: "5 Dakikada Hızlı Kurulum",
-                  desc: "Panel üzerinden işletme bilgilerini girerek alan adı, hosting ve harita kaydını hemen başlatın.",
+                  title: "3. 5 Dakikada Hızlı Kurulum",
+                  desc: "Müşteriniz için alan adı, hosting, demo tasarım ve Google Harita başvurusunu panelden tek tıkla otomatik başlatın.",
+                  tag: "Otomatik Provisioning",
                 },
                 {
                   icon: Users,
-                  title: "Müşteri Pipeline (Mini CRM)",
-                  desc: "Aday müşterilerinizi arandı, teklif verildi ve sözleşme imzalandı aşamalarıyla takip edin.",
+                  title: "4. Aday Müşteri Pipeline (CRM)",
+                  desc: "Sahada görüştüğünüz esnafları; Arandı, Teklif Verildi, E-İmzalandı ve Yayında aşamalarıyla Kanban panosunda yönetin.",
+                  tag: "Mini CRM Panosu",
                 },
                 {
                   icon: FileText,
-                  title: "Hazır Satış Materyalleri",
-                  desc: "Esnafa gösterebileceğiniz hazır sektörel broşürler, PDF teklif taslakları ve sözleşmeler.",
+                  title: "5. Hazır Satış Kitleri & Sunumlar",
+                  desc: "Esnafa gösterebileceğiniz sektörel broşürler, PDF teklif şablonları, demo siteler ve hazır sözleşme metinleri elinizin altında.",
+                  tag: "Satış Materyalleri",
                 },
                 {
                   icon: Award,
-                  title: "İlçe Yetkili Temsilciliği",
-                  desc: "Kendi ilçenizde (Antakya, İskenderun, Dörtyol vb.) Hatay360 resmi yetkili bayisi olma ayrıcalığı.",
+                  title: "6. İlçe Yetkili Temsilciliği",
+                  desc: "Kendi ilçenizde (Antakya, İskenderun, Samandağ, Dörtyol vb.) resmi Hatay360 bayisi olma ve bölgeyi kapatma imkanı.",
+                  tag: "Bölge Tekeli",
                 },
                 {
                   icon: MessageSquare,
-                  title: "Öncelikli Bayi Destek Hattı",
-                  desc: "Teknik veya ticari konularda doğrudan uzman mühendis ekibimize ulaşabileceğiniz VIP kanal.",
+                  title: "7. VIP Mühendis Destek Kanalı",
+                  desc: "Teknik sorunlarda beklemeden doğrudan kıdemli yazılım ve reklam mühendislerimize bağlanabileceğiniz özel hat.",
+                  tag: "Öncelikli VIP",
                 },
                 {
                   icon: Clock,
-                  title: "Yıllık Yenileme Komisyonu",
-                  desc: "Müşteriniz her yıl hosting ve reklam yenilemesi yaptıkça komisyon kazanmaya devam edersiniz.",
+                  title: "8. Yıllık Yenileme Pasif Geliri",
+                  desc: "Bağladığınız esnaf sistemde kaldığı sürece her yıl yenileme bedellerinden düzenli pasif gelir elde etmeye devam edersiniz.",
+                  tag: "Pasif Gelir Modeli",
                 },
               ]
-          ).map((feat, i) => (
+          ).map((item, idx) => (
             <div
-              key={i}
-              className="group rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-[#00a8c4]/40 hover:bg-white/[0.06] hover:shadow-xl hover:shadow-[#00a8c4]/10"
+              key={idx}
+              className="group relative flex flex-col justify-between rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-6 backdrop-blur-xl transition duration-300 hover:-translate-y-1.5 hover:border-[#00a8c4]/50 hover:bg-white/[0.09] hover:shadow-[0_20px_45px_rgba(0,168,196,0.15)]"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#00a8c4]/15 text-[#38bdf8] border border-[#00a8c4]/20 group-hover:scale-110 transition">
-                <feat.icon className="h-6 w-6" />
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#00a8c4]/15 text-[#38bdf8] border border-[#00a8c4]/25 group-hover:scale-110 transition">
+                    <item.icon className="h-6 w-6" />
+                  </div>
+                  <span className="rounded-lg bg-white/10 px-2.5 py-1 text-[11px] font-bold text-slate-300">
+                    {item.tag}
+                  </span>
+                </div>
+
+                <h3 className="mt-5 text-[16px] font-bold text-white group-hover:text-cyan-200 transition">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-[13px] leading-relaxed text-slate-300">
+                  {item.desc}
+                </p>
               </div>
-              <h3 className="mt-4 text-[16px] font-bold text-white">{feat.title}</h3>
-              <p className="mt-2 text-[13px] leading-relaxed text-slate-300">{feat.desc}</p>
+
+              <div className="mt-6 flex items-center gap-1.5 text-xs font-bold text-[#00a8c4] group-hover:text-[#38bdf8]">
+                <span>Detayları İncele</span>
+                <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition" />
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ─── KARŞILAŞTIRMA VE SSS TABLOSU ────────────────────── */}
-      <section className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
-        <div className="overflow-hidden rounded-3xl border border-white/15 bg-white/[0.03] p-8 backdrop-blur-2xl">
-          <h3 className="text-xl font-bold text-white text-center sm:text-2xl">
-            Müşteri Paneli ve Bayi Paneli Karşılaştırması
-          </h3>
-          <p className="mt-1 text-center text-xs text-slate-400">
-            İhtiyacınıza en uygun paneli seçerek hemen kullanmaya başlayabilirsiniz.
-          </p>
+      {/* ─── 3 ADIMDA ÇALIŞMA SÜRECİ (3D STEP JOURNEY) ───────── */}
+      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
+        <div className="rounded-[32px] border border-white/15 bg-white/[0.02] p-8 sm:p-12 backdrop-blur-2xl">
+          <div className="text-center">
+            <h3 className="text-2xl font-black text-white sm:text-3xl">
+              3 Adımda Sisteme Dahil Olun
+            </h3>
+            <p className="mt-2 text-sm text-slate-400">
+              Dakikalar içinde hesabınızı açın ve dijital kontrolünüzü elinize alın.
+            </p>
+          </div>
 
-          <div className="mt-8 overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-white/10 text-xs font-bold uppercase tracking-wider text-slate-400">
-                  <th className="py-3 px-4">Özellik / Yetenek</th>
-                  <th className="py-3 px-4 text-[#38bdf8]">Müşteri Paneli</th>
-                  <th className="py-3 px-4 text-[#2dd4bf]">Bayi Paneli</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 text-slate-200 text-xs sm:text-sm">
-                {[
-                  { title: "Kullanıcı Kitlesi", c: "Yerel Esnaf & Şirketler", b: "Dijital Ajanslar & Satış Temsilcileri" },
-                  { title: "Web & Harita Yönetimi", c: "Kendi işletmesi için", b: "Portföyündeki tüm müşteriler için" },
-                  { title: "Google Ads & Meta Raporu", c: "Kendi harcamaları", b: "Tüm müşterilerin toplam özeti" },
-                  { title: "Komisyon & Hakediş Kazancı", c: "—", b: "%20 - %40 Nakit Komisyon" },
-                  { title: "White-Label Kendi Logosuyla", c: "—", b: "Tam White-Label Panel" },
-                  { title: "Dijital E-İmza & Sözleşme", c: "Onaylama Yetkisi", b: "Gönderme & Takip Yetkisi" },
-                  { title: "Yeni Müşteri Ekleme", c: "—", b: "Sınırsız İşletme Kurulumu" },
-                ].map((row, idx) => (
-                  <tr key={idx} className="hover:bg-white/[0.02]">
-                    <td className="py-3.5 px-4 font-bold text-white">{row.title}</td>
-                    <td className="py-3.5 px-4 text-slate-300">{row.c}</td>
-                    <td className="py-3.5 px-4 text-cyan-200 font-semibold">{row.b}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="mt-12 grid gap-6 sm:grid-cols-3 text-left">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a8c4]/20 text-[#38bdf8] font-black text-base mb-4">
+                01
+              </span>
+              <h4 className="text-base font-bold text-white">Hesap Oluşturun & Giriş Yapın</h4>
+              <p className="mt-2 text-xs leading-relaxed text-slate-300">
+                {activeTab === "musteri"
+                  ? "İşletme adı, telefon ve yetkili bilgilerinizle saniyeler içinde panelinize giriş yapın."
+                  : "Bayilik formunu doldurun, bölge yetkilinizle anında iletişime geçip yetki panelinizi açın."}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a8c4]/20 text-[#38bdf8] font-black text-base mb-4">
+                02
+              </span>
+              <h4 className="text-base font-bold text-white">Canlı Kurulum & Harita Bağlantısı</h4>
+              <p className="mt-2 text-xs leading-relaxed text-slate-300">
+                {activeTab === "musteri"
+                  ? "Web siteniz, Google Maps pini ve reklam kampanyalarınız uzman ekibimizce panele bağlanır."
+                  : "Müşterilerinizi ekleyin, white-label panelinizden tek tıkla kurulumları tamamlayın."}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a8c4]/20 text-[#38bdf8] font-black text-base mb-4">
+                03
+              </span>
+              <h4 className="text-base font-bold text-white">Şeffaf Takip & Düzenli Kazanç</h4>
+              <p className="mt-2 text-xs leading-relaxed text-slate-300">
+                {activeTab === "musteri"
+                  ? "Tüm aramaları, formları ve ciro artışını 3D canlı panellerden 7/24 izleyin."
+                  : "Her satış ve yenilemeden komisyonunuzu doğrudan banka hesabınıza aktarın."}
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ─── ALT ÇAĞRI (CTA) ────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#0891b2] via-[#00a8c4] to-[#0f766e] p-8 text-center sm:p-12 shadow-2xl">
-          <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl" />
+        <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-r from-[#0891b2] via-[#00a8c4] to-[#0f766e] p-8 text-center sm:p-14 shadow-2xl shadow-[#00a8c4]/25">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/15 blur-3xl" />
 
-          <h2 className="text-[28px] font-black text-white sm:text-[38px]">
+          <h2 className="text-[30px] font-black text-white sm:text-[42px] leading-tight">
             {activeTab === "musteri"
-              ? "İşletmenizi Hatay360 Paneli ile Dijitale Taşıyın"
-              : "Hatay360 Yetkili Bayisi Olarak Düzenli Kazanç Sağlayın"}
+              ? "İşletmenizi Hatay360 Paneli ile Zirveye Taşıyın"
+              : "Hatay360 Yetkili Bayisi Olarak Düzenli Gelir Elde Edin"}
           </h2>
 
-          <p className="mx-auto mt-3 max-w-2xl text-[15px] text-cyan-100 sm:text-[17px]">
+          <p className="mx-auto mt-4 max-w-2xl text-[16px] text-cyan-100 sm:text-[18px]">
             {activeTab === "musteri"
-              ? "Domain, hosting, Google Haritalar, kurumsal web ve reklam yönetimi tek bir modern panelde."
-              : "Bölgenizdeki yüzlerce esnafa kurumsal çözümler sunun, yüksek komisyon ve yıllık yenileme geliri elde edin."}
+              ? "Alan adı, hosting, Google Haritalar, kurumsal web ve reklam yönetimi tek bir modern 3D panelde."
+              : "Bölgenizdeki esnafa hazır çözümler sunun, yüksek komisyon ve yıllık yenileme kazancı elde edin."}
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
             {activeTab === "musteri" ? (
               <>
                 <Link
                   to="/musteri/giris"
-                  className="rounded-xl bg-white px-8 py-3.5 text-sm font-black text-[#0891b2] shadow-xl hover:bg-cyan-50 transition"
+                  className="rounded-2xl bg-white px-8 py-4 text-sm font-black text-[#0891b2] shadow-2xl hover:bg-cyan-50 transition hover:scale-105"
                 >
                   Müşteri Girişi Yap
                 </Link>
                 <Link
                   to="/iletisim"
-                  className="rounded-xl border border-white/40 bg-black/20 px-8 py-3.5 text-sm font-bold text-white backdrop-blur-md hover:bg-black/30 transition"
+                  className="rounded-2xl border border-white/40 bg-black/20 px-8 py-4 text-sm font-bold text-white backdrop-blur-md hover:bg-black/30 transition"
                 >
                   Bizi Arayın / Keşif İste
                 </Link>
@@ -602,13 +869,13 @@ export function PanelsOverviewPage() {
               <>
                 <Link
                   to="/firma/kayit"
-                  className="rounded-xl bg-white px-8 py-3.5 text-sm font-black text-[#0891b2] shadow-xl hover:bg-cyan-50 transition"
+                  className="rounded-2xl bg-white px-8 py-4 text-sm font-black text-[#0891b2] shadow-2xl hover:bg-cyan-50 transition hover:scale-105"
                 >
                   Hemen Bayilik Başvurusu Yap
                 </Link>
                 <Link
                   to="/firma/giris"
-                  className="rounded-xl border border-white/40 bg-black/20 px-8 py-3.5 text-sm font-bold text-white backdrop-blur-md hover:bg-black/30 transition"
+                  className="rounded-2xl border border-white/40 bg-black/20 px-8 py-4 text-sm font-bold text-white backdrop-blur-md hover:bg-black/30 transition"
                 >
                   Bayi Girişi Yap
                 </Link>
