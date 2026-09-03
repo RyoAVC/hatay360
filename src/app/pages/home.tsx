@@ -8,6 +8,7 @@ import { HowItWorks } from "../components/how-it-works";
 import { Features } from "../components/features";
 import { SpecialDesign } from "../components/special-design";
 import { IntegrationsShowcase } from "../components/integrations-showcase";
+import { CustomerReviews } from "../components/customer-reviews";
 import { Pricing } from "../components/pricing";
 import { ServiceAreas } from "../components/service-areas";
 import { CallbackForm } from "../components/callback-form";
@@ -34,6 +35,7 @@ export function HomePage() {
         </BelowHeroReveal>
       )}
       {on("sectors") && <SectorSolutions />}
+      <CustomerReviews />
       {on("howItWorks") && <HowItWorks />}
       {on("features") && <Features />}
       {on("specialDesign") && <SpecialDesign />}

@@ -5,6 +5,7 @@ import { ArrowRight, ExternalLink, Search, ShieldCheck, Sparkles } from "lucide-
 import { EmptyRow } from "../components/empty-row";
 import { PageCrumbs } from "../components/page-crumbs";
 import { PageHero } from "../components/page-hero";
+import { CustomerReviews } from "../components/customer-reviews";
 import { INITIAL_REFERENCES, useContent, type ReferenceItem } from "../context/content-context";
 import kuyumcuDoganImage from "../../assets/references/kuyumcu-dogan.webp";
 import ceptematbaaImage from "../../assets/references/ceptematbaa.webp";
@@ -256,7 +257,7 @@ export function ReferanslarPage() {
                     <p className="mt-4 text-[8px] font-black uppercase tracking-[0.17em] text-[#00a8c4]">Projenin amacı</p>
                     <p className="mt-1.5 text-[11px] leading-relaxed text-[#526477]">{meta.purpose}</p>
                     <div className="mt-auto grid grid-cols-2 gap-2 border-t border-[#edf2f3] pt-3">
-                      <div><p className="text-[7px] font-black uppercase tracking-wide text-[#93a1aa]">Portföy kaydı</p><p className="mt-1 text-[9px] font-black text-[#263d4b]">Adana360</p></div>
+                      <div><p className="text-[7px] font-black uppercase tracking-wide text-[#93a1aa]">Portföy kaydı</p><p className="mt-1 text-[9px] font-black text-[#263d4b]">Hatay360</p></div>
                       <div><p className="text-[7px] font-black uppercase tracking-wide text-[#93a1aa]">Güvence</p><p className="mt-1 inline-flex items-center gap-1 text-[9px] font-black text-[#263d4b]"><ShieldCheck className="h-3 w-3 text-[#00a8c4]" /> AVC doğrulandı</p></div>
                     </div>
                   </div>
@@ -272,6 +273,8 @@ export function ReferanslarPage() {
           )}
         </div>
       </section>
+
+      <CustomerReviews />
 
       <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
         <div className="flex flex-col items-center justify-between gap-5 rounded-[28px] bg-[#082430] p-8 text-center text-white md:flex-row md:text-left">
