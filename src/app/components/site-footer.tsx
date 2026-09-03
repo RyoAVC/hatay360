@@ -23,6 +23,7 @@ const GOOGLE_MAPS_URL =
   "https://www.google.com/maps/search/?api=1&query=Hatay%20Web%20Tasar%C4%B1m%20ve%20Reklam%20Yaz%C4%B1l%C4%B1m%20Ajans%C4%B1";
 
 const SERVICE_LINKS = [
+  { label: "Müşteri & Bayi Panelleri", to: "/paneller" },
   { label: "Web tasarım", to: buildIletisimQuotePath({ needs: ["site"] }) },
   { label: "Google & Meta reklam", to: buildIletisimQuotePath({ needs: ["ads"] }) },
   { label: "Google Maps", to: "/google-maps-harita-kaydi" },

@@ -10,6 +10,7 @@ import { HeaderCallCta } from "./header-call-cta";
 
 const NAV = [
   { label: "Ana Sayfa", to: "/" },
+  { label: "Paneller", to: "/paneller" },
   { label: "Demolar", to: "/demolar" },
   { label: "Araçlar", to: "/araclar" },
   { label: "Harita", to: "/google-maps-harita-kaydi" },

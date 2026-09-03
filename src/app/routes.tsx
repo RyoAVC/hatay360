@@ -57,6 +57,7 @@ const PartnerSignupPage = lazy(() => import("./pages/partner-signup-page").then(
 const RequireCustomer = lazy(() => import("./components/require-customer").then((module) => ({ default: module.RequireCustomer })));
 const RequirePartner = lazy(() => import("./components/require-partner").then((module) => ({ default: module.RequirePartner })));
 const MicrositePage = lazy(() => import("./pages/microsite-page").then((module) => ({ default: module.MicrositePage })));
+const PanelsOverviewPage = lazy(() => import("./pages/panels-overview-page").then((module) => ({ default: module.PanelsOverviewPage })));
 
 export const router = createBrowserRouter([
   {
@@ -64,6 +65,9 @@ export const router = createBrowserRouter([
     Component: Root,
     children: [
       { index: true, Component: DomainGatewayPage },
+      { path: "paneller", Component: PanelsOverviewPage },
+      { path: "musteri-paneli", Component: PanelsOverviewPage },
+      { path: "bayi-paneli", Component: PanelsOverviewPage },
       { path: "ozellikler", Component: FeaturesPage },
       { path: "pazarla", Component: PazarlaPage },
       { path: "paketler", Component: PaketlerPage },
