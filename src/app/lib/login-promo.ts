@@ -36,7 +36,8 @@ export const DEFAULT_CUSTOMER_LOGIN_BANNERS: LoginPromoBanner[] = [
     label: "Web + reklam",
     title: "Tek panelde site ve kampanya",
     gradient: "linear-gradient(135deg, #064e56 0%, #00a8c4 48%, #7ee0ec 100%)",
-    mediaType: "none",
+    mediaType: "image",
+    mediaUrl: "/banners/banner-web-ads.svg",
     effectId: "none",
   },
   {
@@ -44,7 +45,8 @@ export const DEFAULT_CUSTOMER_LOGIN_BANNERS: LoginPromoBanner[] = [
     label: "Harita kaydı",
     title: "Google Maps görünürlüğü",
     gradient: "linear-gradient(135deg, #0b3d4a 0%, #0891b2 45%, #67e8f9 100%)",
-    mediaType: "none",
+    mediaType: "image",
+    mediaUrl: "/banners/banner-maps.svg",
     effectId: "none",
   },
   {
@@ -52,7 +54,8 @@ export const DEFAULT_CUSTOMER_LOGIN_BANNERS: LoginPromoBanner[] = [
     label: "Canlı destek",
     title: "Ticket ve WhatsApp aynı yerde",
     gradient: "linear-gradient(145deg, #134e4a 0%, #0e7490 50%, #5eead4 100%)",
-    mediaType: "none",
+    mediaType: "image",
+    mediaUrl: "/banners/banner-support.svg",
     effectId: "none",
   },
   {
@@ -60,7 +63,8 @@ export const DEFAULT_CUSTOMER_LOGIN_BANNERS: LoginPromoBanner[] = [
     label: "AVC güvencesi",
     title: "Ölçülen sonuç, şeffaf rapor",
     gradient: "linear-gradient(125deg, #164e63 0%, #0284c7 42%, #22d3ee 100%)",
-    mediaType: "none",
+    mediaType: "image",
+    mediaUrl: "/banners/banner-security.svg",
     effectId: "none",
   },
 ];
@@ -71,7 +75,8 @@ export const DEFAULT_PARTNER_LOGIN_BANNERS: LoginPromoBanner[] = [
     label: "Bayilik ağı",
     title: "Firmanızla birlikte büyüyen satış",
     gradient: "linear-gradient(135deg, #1e1b4b 0%, #4f46e5 48%, #a5b4fc 100%)",
-    mediaType: "none",
+    mediaType: "image",
+    mediaUrl: "/banners/banner-partner-network.svg",
     effectId: "none",
   },
   {
@@ -79,7 +84,8 @@ export const DEFAULT_PARTNER_LOGIN_BANNERS: LoginPromoBanner[] = [
     label: "Komisyon",
     title: "Getirdiğiniz müşteriden kazanç",
     gradient: "linear-gradient(135deg, #312e81 0%, #6366f1 45%, #c4b5fd 100%)",
-    mediaType: "none",
+    mediaType: "image",
+    mediaUrl: "/banners/banner-partner-commission.svg",
     effectId: "none",
   },
   {
@@ -87,7 +93,8 @@ export const DEFAULT_PARTNER_LOGIN_BANNERS: LoginPromoBanner[] = [
     label: "Referans linki",
     title: "Tek link, ölçülen dönüşüm",
     gradient: "linear-gradient(145deg, #2e1065 0%, #7c3aed 50%, #ddd6fe 100%)",
-    mediaType: "none",
+    mediaType: "image",
+    mediaUrl: "/banners/banner-web-ads.svg",
     effectId: "none",
   },
   {
@@ -95,7 +102,8 @@ export const DEFAULT_PARTNER_LOGIN_BANNERS: LoginPromoBanner[] = [
     label: "Panel",
     title: "Kazanç ve ödeme takibi",
     gradient: "linear-gradient(125deg, #1e1b4b 0%, #4338ca 42%, #818cf8 100%)",
-    mediaType: "none",
+    mediaType: "image",
+    mediaUrl: "/banners/banner-security.svg",
     effectId: "none",
   },
 ];

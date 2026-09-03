@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-maps" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#05161f" />
+      <stop offset="50%" stop-color="#082938" />
+      <stop offset="100%" stop-color="#030c12" />
+    </linearGradient>
+    <linearGradient id="pin-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#be123c" />
+    </linearGradient>
+    <filter id="radar-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#bg-maps)" />
+
+  <!-- Road Grid Map Simulation -->
+  <g stroke="#ffffff" stroke-opacity="0.06" stroke-width="6" stroke-linecap="round">
+    <!-- Highways -->
+    <path d="M 0 180 Q 250 160, 480 220 T 800 240" fill="none" stroke="#00a8c4" stroke-opacity="0.2" stroke-width="12" />
+    <path d="M 220 0 Q 300 200, 480 220 T 650 450" fill="none" stroke="#38bdf8" stroke-opacity="0.15" stroke-width="8" />
+    <path d="M 0 320 Q 380 340, 480 220 T 800 120" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="4" />
+  </g>
+
+  <!-- Concentric Radar Rings Centered on Pin -->
+  <circle cx="480" cy="220" r="220" fill="none" stroke="#00a8c4" stroke-opacity="0.1" stroke-width="1.5" />
+  <circle cx="480" cy="220" r="160" fill="none" stroke="#00a8c4" stroke-opacity="0.2" stroke-width="2" />
+  <circle cx="480" cy="220" r="100" fill="#00a8c4" fill-opacity="0.08" stroke="#38bdf8" stroke-opacity="0.35" stroke-width="2.5" />
+  <circle cx="480" cy="220" r="45" fill="#00a8c4" fill-opacity="0.2" stroke="#38bdf8" stroke-opacity="0.6" stroke-width="3" filter="url(#radar-glow)" />
+
+  <!-- Radar Scan Sweep Line -->
+  <line x1="480" y1="220" x2="680" y2="120" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" opacity="0.8" filter="url(#radar-glow)" />
+
+  <!-- 3D Large Location Pin -->
+  <g transform="translate(480, 220)">
+    <!-- Shadow -->
+    <ellipse cx="0" cy="6" rx="20" ry="8" fill="#000000" fill-opacity="0.6" />
+    <!-- Pin Head -->
+    <path d="M 0 0 C -22 -24, -22 -52, 0 -68 C 22 -52, 22 -24, 0 0 Z" fill="url(#pin-grad)" stroke="#ffffff" stroke-width="2.5" filter="url(#radar-glow)" />
+    <!-- Inner Circle -->
+    <circle cx="0" cy="-44" r="9" fill="#ffffff" />
+    <circle cx="0" cy="-44" r="5" fill="#be123c" />
+  </g>
+
+  <!-- Floating Info Card Left -->
+  <g transform="translate(70, 70)">
+    <rect width="320" height="290" rx="20" fill="#000000" fill-opacity="0.65" stroke="#ffffff" stroke-opacity="0.15" stroke-width="1.5" />
+    
+    <g transform="translate(24, 28)">
+      <rect width="110" height="24" rx="8" fill="#f43f5e" fill-opacity="0.2" stroke="#f43f5e" stroke-opacity="0.4" />
+      <text x="12" y="16" fill="#fb7185" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">📍 Canlı Harita</text>
+
+      <text x="0" y="58" fill="#ffffff" font-family="system-ui, sans-serif" font-size="18" font-weight="900">Tarihi Antakya Künefecisi</text>
+      <text x="0" y="78" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="11" font-weight="500">Uzun Çarşı İçi No:44 • Antakya/Hatay</text>
+
+      <!-- Rating -->
+      <g transform="translate(0, 95)">
+        <rect width="272" height="38" rx="10" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.08" />
+        <text x="14" y="24" fill="#fbbf24" font-family="system-ui, sans-serif" font-size="13" font-weight="900">4.9 ★★★★★</text>
+        <text x="125" y="24" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="11" font-weight="600">(1.420 Google Yorumu)</text>
+      </g>
+
+      <!-- Stats Grid -->
+      <g transform="translate(0, 148)">
+        <rect width="130" height="60" rx="12" fill="#00a8c4" fill-opacity="0.12" stroke="#00a8c4" stroke-opacity="0.3" />
+        <text x="12" y="22" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="10" font-weight="bold">Yol Tarifi İsteği</text>
+        <text x="12" y="46" fill="#ffffff" font-family="system-ui, sans-serif" font-size="16" font-weight="900">412 / Hafta</text>
+
+        <rect x="142" width="130" height="60" rx="12" fill="#10b981" fill-opacity="0.12" stroke="#10b981" stroke-opacity="0.3" />
+        <text x="154" y="22" fill="#34d399" font-family="system-ui, sans-serif" font-size="10" font-weight="bold">Doğrudan Arama</text>
+        <text x="154" y="46" fill="#ffffff" font-family="system-ui, sans-serif" font-size="16" font-weight="900">89 Arama</text>
+      </g>
+    </g>
+  </g>
+</svg>

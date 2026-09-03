@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-supp" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#051a17" />
+      <stop offset="50%" stop-color="#0a2e28" />
+      <stop offset="100%" stop-color="#041210" />
+    </linearGradient>
+    <filter id="green-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <rect width="800" height="450" fill="url(#bg-supp)" />
+  <circle cx="650" cy="150" r="160" fill="#10b981" fill-opacity="0.2" filter="url(#green-glow)" />
+  <circle cx="150" cy="350" r="120" fill="#00a8c4" fill-opacity="0.15" filter="url(#green-glow)" />
+
+  <!-- Chat Messages Center Stage -->
+  <g transform="translate(100, 50)">
+    <!-- Header Card -->
+    <rect width="600" height="350" rx="24" fill="#000000" fill-opacity="0.5" stroke="#ffffff" stroke-opacity="0.12" stroke-width="1.5" />
+    
+    <!-- Top Bar -->
+    <rect width="600" height="52" rx="24" fill="#ffffff" fill-opacity="0.04" />
+    <circle cx="32" cy="26" r="10" fill="#10b981" fill-opacity="0.2" />
+    <circle cx="32" cy="26" r="5" fill="#10b981" />
+    <text x="54" y="31" fill="#ffffff" font-family="system-ui, sans-serif" font-size="13" font-weight="bold">Hatay360 Canlı Destek &amp; Mühendis Hattı</text>
+    
+    <rect x="440" y="14" width="136" height="24" rx="8" fill="#10b981" fill-opacity="0.2" stroke="#10b981" stroke-opacity="0.4" />
+    <text x="456" y="30" fill="#34d399" font-family="system-ui, sans-serif" font-size="11" font-weight="900">Sıra No: #1 (Aktif)</text>
+
+    <!-- Chat Bubbles -->
+    <g transform="translate(30, 80)">
+      <!-- Client Message (Left) -->
+      <g transform="translate(0, 0)">
+        <rect width="380" height="68" rx="16" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.1" />
+        <text x="16" y="24" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">Tarihi Antakya Künefecisi (İşletme)</text>
+        <text x="16" y="44" fill="#ffffff" font-family="system-ui, sans-serif" font-size="13" font-weight="500">Yeni ramazan tatlı menüsü ve fiyatları güncellensin.</text>
+        <text x="16" y="58" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="10">Talep #401 • 10:14</text>
+      </g>
+
+      <!-- Support Reply (Right) -->
+      <g transform="translate(160, 90)">
+        <rect width="380" height="78" rx="16" fill="#10b981" fill-opacity="0.2" stroke="#10b981" stroke-opacity="0.4" />
+        <text x="16" y="24" fill="#34d399" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">Hatay360 Kıdemli Web Mühendisi</text>
+        <text x="16" y="46" fill="#ffffff" font-family="system-ui, sans-serif" font-size="13" font-weight="600">✓ Menü tasarımı güncellendi ve sitede yayına alındı!</text>
+        <text x="16" y="66" fill="#a7f3d0" font-family="system-ui, sans-serif" font-size="10" font-weight="bold">⚡ Yanıt ve Çözüm Süresi: 12 Dakika</text>
+      </g>
+
+      <!-- Bottom Badge -->
+      <g transform="translate(0, 195)">
+        <rect width="540" height="42" rx="12" fill="#000000" fill-opacity="0.3" stroke="#ffffff" stroke-opacity="0.08" />
+        <text x="16" y="26" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="11" font-weight="600">💬 Panel İçi Bilet veya Doğrudan WhatsApp Öncelikli Bağlantı</text>
+        <text x="420" y="26" fill="#34d399" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">7/24 Kesintisiz</text>
+      </g>
+    </g>
+  </g>
+</svg>
