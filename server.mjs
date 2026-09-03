@@ -5150,6 +5150,39 @@ async function handleApi(req, res, url) {
     return issueCustomerSession(res, { account, role: "full", skipAudit: true });
   }
 
+  if (req.method === "POST" && (url.pathname === "/api/customer/demo-login" || url.pathname === "/api/customer/demo")) {
+    let account = db.prepare("SELECT * FROM customer_accounts WHERE email = 'demo@hatay360.com'").get();
+    const now = nowIso();
+    if (!account) {
+      const credentials = hashPassword("Hatay360Demo2026!");
+      const insert = db.prepare(
+        `INSERT INTO customer_accounts (
+          company_name, contact_name, email, phone, password_hash, password_salt,
+          status, package_id, website_url, ssl_status, site_status,
+          site_phone, site_address, site_hours, referral_code, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, 'active', 'pro', 'https://antakyakunefecisi.hatay360.com', 'active', 'live', '0326 214 36 00', 'Tarihi Uzun Çarşı No:44 Antakya / Hatay', '09:00 - 23:30', 'DEMO360', ?, ?)`
+      ).run(
+        "Tarihi Antakya Künefecisi & Medeniyetler Sofrası",
+        "Mehmet Usta (Demo Giriş)",
+        "demo@hatay360.com",
+        "0532 999 36 00",
+        credentials.hash,
+        credentials.salt,
+        now,
+        now
+      );
+      account = db.prepare("SELECT * FROM customer_accounts WHERE id = ?").get(Number(insert.lastInsertRowid));
+      try {
+        db.prepare(`INSERT OR IGNORE INTO customer_maps (customer_id, place_name, address, rating, reviews_count, status, created_at, updated_at) VALUES (?, ?, ?, 4.9, 1420, 'active', ?, ?)`).run(account.id, "Tarihi Antakya Künefecisi", "Uzun Çarşı İçi No:44, Antakya/Hatay", now, now);
+        const camp = db.prepare(`INSERT OR IGNORE INTO ad_campaigns (customer_id, name, platform, status, monthly_budget, management_fee, start_date, created_at, updated_at) VALUES (?, 'Antakya Künefe & Tatlı Google Arama', 'google', 'active', 15000, 2500, ?, ?, ?)`).run(account.id, now.slice(0, 10), now, now);
+        db.prepare(`INSERT OR IGNORE INTO campaign_stats (campaign_id, period_start, period_end, spend, impressions, clicks, leads, conversions, revenue, updated_at) VALUES (?, ?, ?, 14200, 48200, 4820, 194, 182, 68400, ?)`).run(Number(camp.lastInsertRowid), now.slice(0, 10), now.slice(0, 10), now);
+      } catch {
+        /* seed tables */
+      }
+    }
+    return issueCustomerSession(res, { account, role: "full", skipAudit: true });
+  }
+
   if (req.method === "POST" && url.pathname === "/api/customer/celebration/seen") {
     const customer = requireCustomer(req, res);
     if (!customer) return;
@@ -5382,6 +5415,71 @@ async function handleApi(req, res, url) {
           website: account.website,
           commission_rate: account.commission_rate,
           status: account.status,
+        },
+      },
+      { "Set-Cookie": cookie },
+    );
+  }
+
+  if (req.method === "POST" && (url.pathname === "/api/partners/demo-login" || url.pathname === "/api/partners/demo")) {
+    let partner = db.prepare("SELECT * FROM partner_accounts WHERE email = 'demo-bayi@hatay360.com'").get();
+    const now = nowIso();
+    if (!partner) {
+      const credentials = hashPassword("Hatay360Bayi2026!");
+      const insert = db.prepare(
+        `INSERT INTO partner_accounts (
+          company_name, contact_name, email, phone, city, website, notes,
+          commission_rate, password_hash, password_salt, status, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, 'https://iskenderunmedya.com', 'Hatay360 Resmi İskenderun & Antakya Bölge Bayisi', 30, ?, ?, 'active', ?, ?)`
+      ).run(
+        "İskenderun & Antakya Medya ve Dijital Ajans",
+        "Kaan Yıldız (Yetkili Bayi)",
+        "demo-bayi@hatay360.com",
+        "0532 888 36 00",
+        "İskenderun",
+        credentials.hash,
+        credentials.salt,
+        now,
+        now
+      );
+      partner = db.prepare("SELECT * FROM partner_accounts WHERE id = ?").get(Number(insert.lastInsertRowid));
+      try {
+        db.prepare(`INSERT OR IGNORE INTO partner_deals (partner_id, company_name, contact_name, phone, email, service, value, stage, probability, next_action, follow_up_at, notes, created_at, updated_at) VALUES (?, 'Körfez Lojistik Ltd.', 'Ali Bey', '0533 111 22 33', 'info@korfezlojistik.com', 'Web + Google Ads', 35000, 'won', 100, 'Sözleşme tamam', ?, 'Yayına alındı', ?, ?)`).run(partner.id, now.slice(0, 10), now, now);
+        db.prepare(`INSERT OR IGNORE INTO partner_deals (partner_id, company_name, contact_name, phone, email, service, value, stage, probability, next_action, follow_up_at, notes, created_at, updated_at) VALUES (?, 'Antakya Şah Kebap', 'Ahmet Usta', '0532 222 33 44', 'sahkebap@gmail.com', 'Harita + Yerel SEO', 18000, 'proposal', 60, 'Fiyat teklifi sunuldu', ?, 'Sözleşme bekleniyor', ?, ?)`).run(partner.id, now.slice(0, 10), now, now);
+        db.prepare(`INSERT OR IGNORE INTO partner_referrals (partner_id, name, phone, email, service, sector, district, notes, status, created_at, updated_at) VALUES (?, 'Defne Doğal Zeytinyağı', '0532 444 55 66', 'zeytin@defne.com', 'E-Ticaret + Reklam', 'Gastronomi', 'Defne', 'Ödeme alındı, yayında', 'won', ?, ?)`).run(partner.id, now, now);
+      } catch {
+        /* seed tables */
+      }
+    }
+    const token = randomBytes(32).toString("base64url");
+    const ip = requestIp(req);
+    const ua = String(req.headers["user-agent"] || "").slice(0, 240);
+    const sessionMs = 30 * 24 * 60 * 60 * 1000;
+    const expiresAt = new Date(Date.now() + sessionMs).toISOString();
+    db.prepare("INSERT INTO partner_sessions (token_hash, partner_id, expires_at, created_at, ip, user_agent, trusted) VALUES (?, ?, ?, ?, ?, ?, 1)").run(
+      sha256(token),
+      partner.id,
+      expiresAt,
+      now,
+      ip,
+      ua,
+    );
+    const cookie = cookieHeader(PARTNER_SESSION_COOKIE, token, Math.floor(sessionMs / 1000));
+    return json(
+      res,
+      200,
+      {
+        ok: true,
+        partner: {
+          id: partner.id,
+          company_name: partner.company_name,
+          contact_name: partner.contact_name,
+          email: partner.email,
+          phone: partner.phone,
+          city: partner.city,
+          website: partner.website,
+          commission_rate: partner.commission_rate,
+          status: partner.status,
         },
       },
       { "Set-Cookie": cookie },

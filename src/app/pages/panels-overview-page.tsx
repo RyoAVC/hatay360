@@ -1,5 +1,5 @@
-import { useState, useMemo, type CSSProperties } from "react";
-import { Link, useSearchParams } from "react-router";
+import { useState, useMemo } from "react";
+import { Link, useSearchParams, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Store,
@@ -46,22 +46,67 @@ import {
   Database,
   Terminal,
   Fingerprint,
+  ExternalLink,
+  ChevronDown,
+  CheckCircle,
+  AlertCircle,
+  Radio,
+  FileCode2,
 } from "lucide-react";
-import { SiteLogo } from "../components/site-logo";
+import { apiRequest } from "../lib/api";
 
 export function PanelsOverviewPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const initialTab = searchParams.get("tab") === "bayi" ? "bayi" : "musteri";
   const [activeTab, setActiveTab] = useState<"musteri" | "bayi">(initialTab);
 
-  // 3D İnteraktif Simülatör State'leri
-  const [activeModulePreview, setActiveModulePreview] = useState<number>(0);
+  // İnteraktif Laboratuvar / Canlı Widget Sekmesi
+  const [activeSandboxTab, setActiveSandboxTab] = useState<number>(0);
+
+  // Demo Giriş Yükleniyor Durumları
+  const [isCustomerDemoLoading, setIsCustomerDemoLoading] = useState(false);
+  const [isPartnerDemoLoading, setIsPartnerDemoLoading] = useState(false);
+
+  // 3D Hesaplayıcı Slider State'leri
   const [clientCountSlider, setClientCountSlider] = useState<number>(8);
   const [budgetSlider, setBudgetSlider] = useState<number>(15000);
+
+  // E-İmza Simülasyon State'i
+  const [signedSimulated, setSignedSimulated] = useState<boolean>(false);
+
+  // SSS Accordion State'i
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const handleTabChange = (tab: "musteri" | "bayi") => {
     setActiveTab(tab);
     setSearchParams({ tab });
+  };
+
+  // Demo Müşteri Girişi Tetikleme
+  const handleCustomerDemoLogin = async () => {
+    setIsCustomerDemoLoading(true);
+    try {
+      await apiRequest("/api/customer/demo-login", { method: "POST" });
+      window.location.href = "/musteri";
+    } catch {
+      window.location.href = "/musteri/giris";
+    } finally {
+      setIsCustomerDemoLoading(false);
+    }
+  };
+
+  // Demo Bayi Girişi Tetikleme
+  const handlePartnerDemoLogin = async () => {
+    setIsPartnerDemoLoading(true);
+    try {
+      await apiRequest("/api/partners/demo-login", { method: "POST" });
+      window.location.href = "/firma";
+    } catch {
+      window.location.href = "/firma/giris";
+    } finally {
+      setIsPartnerDemoLoading(false);
+    }
   };
 
   // Bayi Kazanç Hesaplama Mantığı (%30 komisyon + aylık düzenli getiri)
@@ -86,78 +131,60 @@ export function PanelsOverviewPage() {
     <div className="min-h-screen bg-[#061017] text-white selection:bg-[#00a8c4] selection:text-white">
       {/* ─── 3D PERSPEKTİF & GLOW STİLLERİ ──────────────────── */}
       <style>{`
-        .perspective-1200 {
-          perspective: 1200px;
-        }
-        .perspective-1600 {
-          perspective: 1600px;
-        }
-        .preserve-3d {
-          transform-style: preserve-3d;
-        }
+        .perspective-1200 { perspective: 1200px; }
+        .perspective-1600 { perspective: 1600px; }
+        .preserve-3d { transform-style: preserve-3d; }
         .tilt-card-3d {
-          transform: rotateX(8deg) rotateY(-10deg) rotateZ(1.5deg);
+          transform: rotateX(7deg) rotateY(-8deg) rotateZ(1deg);
           transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s ease;
         }
         .tilt-card-3d:hover {
-          transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) translateY(-8px);
+          transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) translateY(-6px);
         }
-        .floating-badge-3d {
-          transform: translateZ(45px);
-        }
-        .floating-badge-3d-deep {
-          transform: translateZ(65px);
-        }
+        .floating-badge-3d { transform: translateZ(45px); }
+        .floating-badge-3d-deep { transform: translateZ(65px); }
         @keyframes floatSlow {
           0%, 100% { transform: translateY(0px) translateZ(40px); }
           50% { transform: translateY(-10px) translateZ(40px); }
         }
-        @keyframes pulseGlow {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 0.8; }
-        }
-        .animate-float-3d {
-          animation: floatSlow 6s ease-in-out infinite;
-        }
-        .animate-float-3d-delayed {
-          animation: floatSlow 7s ease-in-out 2.5s infinite;
-        }
+        .animate-float-3d { animation: floatSlow 6s ease-in-out infinite; }
+        .animate-float-3d-delayed { animation: floatSlow 7s ease-in-out 2.5s infinite; }
       `}</style>
 
-      {/* ─── ARKA PLAN DOKUSU ───────────────────────────────── */}
+      {/* ─── ARKA PLAN DOKUSU & IŞIKLAR ─────────────────────── */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-48 left-1/2 h-[700px] w-[1300px] -translate-x-1/2 rounded-full bg-gradient-to-b from-[#00a8c4]/25 via-[#0891b2]/12 to-transparent blur-[150px]" />
-        <div className="absolute top-1/3 -left-48 h-[600px] w-[600px] rounded-full bg-[#00a8c4]/15 blur-[140px]" />
-        <div className="absolute bottom-20 -right-48 h-[700px] w-[700px] rounded-full bg-[#0891b2]/18 blur-[160px]" />
+        <div className="absolute -top-48 left-1/2 h-[750px] w-[1400px] -translate-x-1/2 rounded-full bg-gradient-to-b from-[#00a8c4]/25 via-[#0891b2]/12 to-transparent blur-[150px]" />
+        <div className="absolute top-1/3 -left-48 h-[650px] w-[650px] rounded-full bg-[#00a8c4]/15 blur-[140px]" />
+        <div className="absolute bottom-20 -right-48 h-[750px] w-[750px] rounded-full bg-[#0891b2]/18 blur-[160px]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
       </div>
 
       {/* ─── HERO & 3D SWITCHER ─────────────────────────────── */}
-      <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 overflow-hidden">
+      <section className="relative pt-12 pb-14 sm:pt-20 sm:pb-20 overflow-hidden">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2.5 rounded-full border border-[#00a8c4]/40 bg-[#00a8c4]/10 px-5 py-2 text-[12px] font-bold tracking-wider text-[#38bdf8] backdrop-blur-2xl shadow-[0_0_35px_rgba(0,168,196,0.35)]">
-            <span className="relative flex h-2 w-2">
+            <span className="relative flex h-2.5 w-2.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#38bdf8] opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#00a8c4]" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#00a8c4]" />
             </span>
-            <span className="uppercase tracking-[0.18em]">3D Yeni Nesil Kontrol & Büyüme Ekosistemi</span>
+            <span className="uppercase tracking-[0.18em]">3D Yeni Nesil Canlı Yönetim Ekosistemi</span>
           </div>
 
-          <h1 className="mt-6 text-[36px] font-black tracking-tight text-white sm:text-[54px] lg:text-[66px] leading-[1.1]">
+          <h1 className="mt-6 text-[36px] font-black tracking-tight text-white sm:text-[54px] lg:text-[66px] leading-[1.08]">
             İşletmeniz ve Ajansınız İçin{" "}
             <span className="bg-gradient-to-r from-[#38bdf8] via-[#00a8c4] to-[#2dd4bf] bg-clip-text text-transparent drop-shadow-[0_10px_30px_rgba(0,168,196,0.3)]">
-              3D Akıllı Panel
+              3D Akıllı Kontrol
             </span>{" "}
-            Teknolojisi
+            Merkezleri
           </h1>
 
           <p className="mx-auto mt-5 max-w-3xl text-[16px] font-medium leading-relaxed text-slate-300 sm:text-[19px]">
-            Hatay'daki yerel işletmelere şeffaf reklam, harita ve e-imza denetimi sağlayan <strong>Müşteri Yönetim Portalı</strong>; dijital ajanslara yüksek komisyon ve white-label güç sunan <strong>Bayi & Partner Hub</strong>.
+            Hatay'daki yerel esnafa şeffaf reklam, harita ve e-imza denetimi sağlayan <strong>Müşteri Yönetim Portalı</strong>; bölgedeki dijital ajanslara %30 komisyon ve white-label güç sunan <strong>Bayi & Partner Hub</strong>.
           </p>
 
           {/* 3D Segmented Switcher */}
-          <div className="mx-auto mt-10 flex max-w-md rounded-2xl border border-white/20 bg-white/[0.06] p-1.5 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.7)]">
+          <div className="mx-auto mt-9 flex max-w-md rounded-2xl border border-white/20 bg-white/[0.06] p-1.5 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.7)]">
             <button
               onClick={() => handleTabChange("musteri")}
               className={`relative flex flex-1 items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-black transition-all duration-300 ${
@@ -182,38 +209,52 @@ export function PanelsOverviewPage() {
             </button>
           </div>
 
-          {/* Aksiyon Butonları */}
+          {/* ⚡ CANLI DEMO GİRİŞİ VURGULU AKSİYONLARI ─── */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             {activeTab === "musteri" ? (
               <>
+                <button
+                  onClick={handleCustomerDemoLogin}
+                  disabled={isCustomerDemoLoading}
+                  className="inline-flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-[#00a8c4] to-[#38bdf8] px-8 py-4 text-[15px] font-black text-white shadow-[0_15px_40px_rgba(0,168,196,0.45)] transition hover:scale-105 active:scale-95 cursor-pointer"
+                >
+                  <Sparkles className="h-4.5 w-4.5 text-yellow-300" />
+                  <span>{isCustomerDemoLoading ? "Demo Giriş Yapılıyor..." : "⚡ Canlı Müşteri Panelini Demo Olarak Aç"}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
                 <Link
                   to="/musteri/giris"
-                  className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#0891b2] via-[#00a8c4] to-[#2dd4bf] px-7 py-4 text-[14.5px] font-extrabold text-white shadow-[0_15px_35px_rgba(0,168,196,0.4)] transition hover:scale-105"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/[0.08] px-7 py-4 text-[14.5px] font-bold text-white backdrop-blur-2xl transition hover:bg-white/15"
                 >
-                  <Store className="h-4 w-4" />
-                  <span>Müşteri Paneline Giriş Yap</span>
-                  <ArrowRight className="h-4 w-4" />
+                  <span>Gerçek Müşteri Girişi</span>
                 </Link>
                 <Link
                   to="/musteri/kayit"
-                  className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/[0.08] px-7 py-4 text-[14.5px] font-bold text-white backdrop-blur-2xl transition hover:bg-white/15"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-[#00a8c4]/40 bg-[#00a8c4]/15 px-7 py-4 text-[14.5px] font-bold text-cyan-200 backdrop-blur-2xl transition hover:bg-[#00a8c4]/25"
                 >
                   <span>Ücretsiz İşletme Hesabı Aç</span>
                 </Link>
               </>
             ) : (
               <>
+                <button
+                  onClick={handlePartnerDemoLogin}
+                  disabled={isPartnerDemoLoading}
+                  className="inline-flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-[#00a8c4] to-[#38bdf8] px-8 py-4 text-[15px] font-black text-white shadow-[0_15px_40px_rgba(0,168,196,0.45)] transition hover:scale-105 active:scale-95 cursor-pointer"
+                >
+                  <Sparkles className="h-4.5 w-4.5 text-yellow-300" />
+                  <span>{isPartnerDemoLoading ? "Bayi Girişi Yapılıyor..." : "⚡ Canlı Bayi Panelini Demo Olarak Aç"}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
                 <Link
                   to="/firma/giris"
-                  className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#0891b2] via-[#00a8c4] to-[#2dd4bf] px-7 py-4 text-[14.5px] font-extrabold text-white shadow-[0_15px_35px_rgba(0,168,196,0.4)] transition hover:scale-105"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/[0.08] px-7 py-4 text-[14.5px] font-bold text-white backdrop-blur-2xl transition hover:bg-white/15"
                 >
-                  <Briefcase className="h-4 w-4" />
-                  <span>Bayi Portalına Giriş Yap</span>
-                  <ArrowRight className="h-4 w-4" />
+                  <span>Gerçek Bayi Girişi</span>
                 </Link>
                 <Link
                   to="/firma/kayit"
-                  className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/[0.08] px-7 py-4 text-[14.5px] font-bold text-white backdrop-blur-2xl transition hover:bg-white/15"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/40 bg-emerald-500/15 px-7 py-4 text-[14.5px] font-bold text-emerald-300 backdrop-blur-2xl transition hover:bg-emerald-500/25"
                 >
                   <span>Bayilik Başvurusu Yap (%30 Komisyon)</span>
                 </Link>
@@ -224,9 +265,9 @@ export function PanelsOverviewPage() {
       </section>
 
       {/* ─── 3D PERSPEKTİF ISOMETRIC SAHNE (3D DEVICE SHOWCASE) ── */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-24 perspective-1600">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-20 perspective-1600">
         <div className="relative preserve-3d">
-          {/* 3D Floating Badges (Arka Plana / Yanlara Yansıtılan Katmanlar) */}
+          {/* 3D Floating Badges */}
           <div className="hidden lg:block">
             {activeTab === "musteri" ? (
               <>
@@ -309,24 +350,28 @@ export function PanelsOverviewPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3 py-1 text-xs font-bold text-white border border-white/15">
-                  <Activity className="h-3.5 w-3.5 text-emerald-400" />
-                  <span>3D Ultra Live v4.8</span>
-                </span>
+                <button
+                  onClick={activeTab === "musteri" ? handleCustomerDemoLogin : handlePartnerDemoLogin}
+                  className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 px-3.5 py-1 text-xs font-bold text-cyan-300 border border-cyan-400/30 hover:scale-105 transition cursor-pointer"
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-yellow-300" />
+                  <span>Canlı Panele Git</span>
+                  <ExternalLink className="h-3 w-3" />
+                </button>
               </div>
             </div>
 
             {/* İçerik Düzeni */}
             <div className="mt-7 grid gap-6 lg:grid-cols-12">
               {/* Sol Sidebar Mockup */}
-              <div className="space-y-2 rounded-2xl border border-white/10 bg-black/30 p-4 lg:col-span-3">
+              <div className="space-y-2 rounded-2xl border border-white/10 bg-black/30 p-4 lg:col-span-3 text-left">
                 <div className="flex items-center gap-2 pb-3 border-b border-white/10">
                   <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-[#0891b2] to-[#00a8c4] flex items-center justify-center text-white font-black text-xs">
                     H360
                   </div>
                   <div>
                     <p className="text-xs font-bold text-white">Hatay360 {activeTab === "musteri" ? "Müşteri" : "Bayi"}</p>
-                    <p className="text-[10px] text-emerald-400 font-semibold">● Aktif Oturum</p>
+                    <p className="text-[10px] text-emerald-400 font-semibold">● Canlı Demo Aktif</p>
                   </div>
                 </div>
 
@@ -365,12 +410,12 @@ export function PanelsOverviewPage() {
               </div>
 
               {/* Sağ Dashboard Ana Sahne Mockup */}
-              <div className="space-y-6 lg:col-span-9">
+              <div className="space-y-6 lg:col-span-9 text-left">
                 {/* 3'lü Bento Metrik Kartları */}
                 <div className="grid gap-4 sm:grid-cols-3">
                   {activeTab === "musteri" ? (
                     <>
-                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5 text-left">
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-semibold text-slate-400">Harita & Web Ziyareti</span>
                           <span className="rounded-lg bg-emerald-500/20 px-2 py-0.5 text-[10px] font-extrabold text-emerald-400">+%240</span>
@@ -379,7 +424,7 @@ export function PanelsOverviewPage() {
                         <p className="mt-0.5 text-[11px] text-slate-400">Google Haritalar ve Aramalardan</p>
                       </div>
 
-                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5 text-left">
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-semibold text-slate-400">Telefon & Randevu</span>
                           <Smartphone className="h-4 w-4 text-[#38bdf8]" />
@@ -388,7 +433,7 @@ export function PanelsOverviewPage() {
                         <p className="mt-0.5 text-[11px] text-slate-400">Doğrudan arama ve WhatsApp formu</p>
                       </div>
 
-                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5 text-left">
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-semibold text-slate-400">Google Ads ROAS</span>
                           <Zap className="h-4 w-4 text-amber-400" />
@@ -399,7 +444,7 @@ export function PanelsOverviewPage() {
                     </>
                   ) : (
                     <>
-                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5 text-left">
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-semibold text-slate-400">Toplam Hakediş Kazancı</span>
                           <span className="rounded-lg bg-emerald-500/20 px-2 py-0.5 text-[10px] font-extrabold text-emerald-400">Onaylandı</span>
@@ -408,7 +453,7 @@ export function PanelsOverviewPage() {
                         <p className="mt-0.5 text-[11px] text-emerald-300 font-semibold">Bu ayki net bayi komisyonu</p>
                       </div>
 
-                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5 text-left">
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-semibold text-slate-400">Kayıtlı İşletmeler</span>
                           <Building2 className="h-4 w-4 text-[#38bdf8]" />
@@ -417,7 +462,7 @@ export function PanelsOverviewPage() {
                         <p className="mt-0.5 text-[11px] text-slate-400">İskenderun & Antakya Bölgesi</p>
                       </div>
 
-                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5 text-left">
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4.5">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-semibold text-slate-400">Komisyon Oranınız</span>
                           <Award className="h-4 w-4 text-amber-400" />
@@ -430,7 +475,7 @@ export function PanelsOverviewPage() {
                 </div>
 
                 {/* İnteraktif Proje Takip & Durum Çubuğu */}
-                <div className="rounded-2xl border border-[#00a8c4]/30 bg-gradient-to-r from-[#00a8c4]/15 to-[#0891b2]/10 p-5 text-left">
+                <div className="rounded-2xl border border-[#00a8c4]/30 bg-gradient-to-r from-[#00a8c4]/15 to-[#0891b2]/10 p-5">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a8c4] text-white shadow-lg shadow-[#00a8c4]/40">
@@ -456,7 +501,7 @@ export function PanelsOverviewPage() {
                 </div>
 
                 {/* Alt 2 Kolon: Detaylı Analitik & E-İmza Önizlemesi */}
-                <div className="grid gap-4 sm:grid-cols-2 text-left">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div className="rounded-2xl border border-white/10 bg-black/25 p-4.5">
                     <div className="flex items-center justify-between border-b border-white/10 pb-3">
                       <div className="flex items-center gap-2">
@@ -486,6 +531,292 @@ export function PanelsOverviewPage() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ─── CANLI İNTERAKTİF LABORATUVAR & WIDGET DENEYİMİ ─── */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-bold text-emerald-400 mb-3">
+            <Radio className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
+            <span>Canlı Panel Özelliklerini Şimdi Test Edin</span>
+          </div>
+          <h2 className="text-3xl font-black text-white sm:text-4xl">
+            İnteraktif Modül Laboratuvarı
+          </h2>
+          <p className="mt-2 text-sm text-slate-300">
+            Aşağıdaki sekmelere tıklayarak sistemin gerçek çalışma mekaniklerini ve canlı ekranlarını anında deneyimleyin.
+          </p>
+        </div>
+
+        {/* Laboratuvar Sekmeleri */}
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-2 border-b border-white/10 pb-4">
+          {[
+            { id: 0, title: "Google Haritalar Radarı", icon: MapPin },
+            { id: 1, title: "Reklam Bütçe & ROAS", icon: TrendingUp },
+            { id: 2, title: "Dijital E-İmza Pad", icon: FileCheck },
+            { id: 3, title: "Kredi Kartı & E-Fatura", icon: CreditCard },
+            { id: 4, title: "Bayi Aday CRM (Kanban)", icon: Users },
+            { id: 5, title: "5 Dk Hızlı Kurulum Sihirbazı", icon: Zap },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveSandboxTab(tab.id)}
+              className={`flex items-center gap-2 rounded-2xl px-5 py-3 text-xs font-bold transition duration-200 cursor-pointer ${
+                activeSandboxTab === tab.id
+                  ? "bg-[#00a8c4] text-white shadow-lg shadow-[#00a8c4]/30 scale-105"
+                  : "bg-white/[0.04] text-slate-300 hover:bg-white/[0.08] hover:text-white"
+              }`}
+            >
+              <tab.icon className="h-4 w-4" />
+              <span>{tab.title}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Laboratuvar İçerik Vitrini */}
+        <div className="mt-8 rounded-3xl border border-white/15 bg-gradient-to-b from-white/[0.07] to-white/[0.02] p-6 sm:p-10 backdrop-blur-2xl">
+          {activeSandboxTab === 0 && (
+            <div className="grid gap-8 lg:grid-cols-12 items-center text-left">
+              <div className="lg:col-span-6 space-y-4">
+                <span className="rounded-lg bg-cyan-500/20 px-3 py-1 text-xs font-bold text-cyan-300">
+                  Yerel Harita & Arama Trafiği
+                </span>
+                <h3 className="text-2xl font-black text-white">Google Haritalar Canlı Takip Paneli</h3>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  İşletmenizin Google Haritalar profili Hatay360 paneline bağlanır. Yol tarifi isteyenler, tek tıkla arayanlar ve arama kelimeleriniz anlık olarak grafiklere dökülür.
+                </p>
+                <div className="space-y-2 pt-2 text-xs">
+                  <div className="flex items-center gap-2 text-slate-200">
+                    <CheckCircle className="h-4 w-4 text-emerald-400" />
+                    <span>Yol tarifi istekleri: <strong>412 adet / hafta</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-200">
+                    <CheckCircle className="h-4 w-4 text-emerald-400" />
+                    <span>Telefon arama butonu tıklaması: <strong>89 arama</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-200">
+                    <CheckCircle className="h-4 w-4 text-emerald-400" />
+                    <span>Google 1. Sayfa yerel sıralama: <strong>1. Sıra (#1)</strong></span>
+                  </div>
+                </div>
+              </div>
+              <div className="lg:col-span-6 rounded-2xl border border-white/10 bg-black/40 p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <span className="text-xs font-bold text-white">📍 Tarihi Antakya Künefecisi (Canlı Profil)</span>
+                  <span className="text-xs font-bold text-emerald-400">4.9 ★★★★★ (1.420 Yorum)</span>
+                </div>
+                <div className="h-28 w-full rounded-xl bg-gradient-to-r from-[#00a8c4]/20 via-[#0891b2]/10 to-transparent p-4 flex flex-col justify-end">
+                  <p className="text-xs text-slate-400">Haftalık Arama Trafik Dağılımı</p>
+                  <p className="text-2xl font-black text-white">+%310 Ziyaretçi Artışı</p>
+                </div>
+                <p className="text-[11px] text-slate-400 italic">Google Business Profile API v4 üzerinden 15 dakikada bir otomatik yenilenir.</p>
+              </div>
+            </div>
+          )}
+
+          {activeSandboxTab === 1 && (
+            <div className="grid gap-8 lg:grid-cols-12 items-center text-left">
+              <div className="lg:col-span-6 space-y-4">
+                <span className="rounded-lg bg-amber-500/20 px-3 py-1 text-xs font-bold text-amber-300">
+                  Google Ads & Meta Şeffaf Bütçe
+                </span>
+                <h3 className="text-2xl font-black text-white">Kuruşu Kuruşuna Reklam Raporu</h3>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  Reklam bütçeniz nereye gitti, kaç kişi tıkladı, kaç kişi telefon açtı? Gizli komisyonlar yok; doğrudan Google faturanız ve paneliniz eşzamanlı çalışır.
+                </p>
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <div className="rounded-xl bg-white/5 p-3">
+                    <span className="text-[11px] text-slate-400">Aylık Harcanan</span>
+                    <p className="text-lg font-black text-white">₺14.200</p>
+                  </div>
+                  <div className="rounded-xl bg-white/5 p-3">
+                    <span className="text-[11px] text-slate-400">Gelen Form & Telefon</span>
+                    <p className="text-lg font-black text-emerald-400">194 Talep</p>
+                  </div>
+                </div>
+              </div>
+              <div className="lg:col-span-6 rounded-2xl border border-white/10 bg-black/40 p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <span className="text-xs font-bold text-white">Google Arama Kampanyası</span>
+                  <span className="rounded-lg bg-emerald-500/20 px-2 py-0.5 text-xs font-bold text-emerald-400">Aktif Yayın</span>
+                </div>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between py-1 border-b border-white/5">
+                    <span className="text-slate-400">Tıklama Başına Maliyet (TBM):</span>
+                    <span className="font-bold text-white">₺2.94</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-white/5">
+                    <span className="text-slate-400">Dönüşüm Oranı:</span>
+                    <span className="font-bold text-emerald-400">%4.02</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-white/5">
+                    <span className="text-slate-400">ROAS (Ciro Getiri Oranı):</span>
+                    <span className="font-bold text-amber-400">4.8x</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSandboxTab === 2 && (
+            <div className="grid gap-8 lg:grid-cols-12 items-center text-left">
+              <div className="lg:col-span-6 space-y-4">
+                <span className="rounded-lg bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-300">
+                  Yasal & Resmi E-İmza
+                </span>
+                <h3 className="text-2xl font-black text-white">Telefondan Islak İmzasız Sözleşme Onayı</h3>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  Müşterileriniz kargo veya ıslak imza beklemeden, cep telefonu ekranından parmağıyla imzasını atar. Sistem anında 256-Bit mühürlü PDF üretir.
+                </p>
+                <div className="pt-2">
+                  <button
+                    onClick={() => setSignedSimulated(true)}
+                    className="rounded-xl bg-gradient-to-r from-emerald-500 to-[#00a8c4] px-6 py-3 text-xs font-black text-white shadow-lg cursor-pointer"
+                  >
+                    {signedSimulated ? "✓ E-İmza Başarıyla Kaydedildi" : "Ekrana Dokunarak İmzala (Simülasyon)"}
+                  </button>
+                </div>
+              </div>
+              <div className="lg:col-span-6 rounded-2xl border border-white/10 bg-black/40 p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <span className="text-xs font-bold text-white">Hatay360 Hizmet ve Bakım Sözleşmesi v2.4</span>
+                  <span className={`text-xs font-bold ${signedSimulated ? "text-emerald-400" : "text-amber-400"}`}>
+                    {signedSimulated ? "✓ Onaylandı" : "İmza Bekleniyor"}
+                  </span>
+                </div>
+                <div className="h-32 rounded-xl border border-dashed border-white/20 bg-white/[0.02] flex items-center justify-center p-4">
+                  {signedSimulated ? (
+                    <div className="text-center">
+                      <p className="font-serif text-2xl italic text-emerald-400 tracking-wider">Mehmet Usta</p>
+                      <p className="text-[10px] text-slate-400 mt-1">Dijital İmza Zaman Damgası: {new Date().toLocaleDateString("tr-TR")}</p>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-slate-400">İmza atmak için sol taraftaki butona basın</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSandboxTab === 3 && (
+            <div className="grid gap-8 lg:grid-cols-12 items-center text-left">
+              <div className="lg:col-span-6 space-y-4">
+                <span className="rounded-lg bg-cyan-500/20 px-3 py-1 text-xs font-bold text-cyan-300">
+                  Online Ödeme & Mali Onay
+                </span>
+                <h3 className="text-2xl font-black text-white">Kredi Kartı, Taksit & E-Fatura</h3>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  3D Secure korumalı kredi kartı çekimi, taksit imkanı veya havale bildirimi. Ödeme yapıldığı an resmi e-fatura PDF olarak arşivinize düşer.
+                </p>
+                <div className="flex gap-3 pt-2 text-xs">
+                  <span className="rounded-lg bg-white/10 px-3 py-1.5 font-bold">💳 Tüm Banka Kartları</span>
+                  <span className="rounded-lg bg-white/10 px-3 py-1.5 font-bold">🔒 256-Bit SSL 3D Secure</span>
+                </div>
+              </div>
+              <div className="lg:col-span-6 rounded-2xl border border-white/10 bg-black/40 p-6 space-y-3">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <span className="text-xs font-bold text-white">Son Faturalar</span>
+                  <span className="text-xs font-bold text-cyan-300">PDF İndir</span>
+                </div>
+                {[
+                  { no: "FAT-2026-084", desc: "Web Tasarım & Harita Kurulum Paketi", amount: "₺12.500", status: "Ödendi" },
+                  { no: "FAT-2026-099", desc: "Aylık Google Ads Yönetim Bedeli", amount: "₺2.500", status: "Ödendi" },
+                ].map((inv, idx) => (
+                  <div key={idx} className="flex justify-between items-center rounded-xl bg-white/[0.03] p-3 text-xs">
+                    <div>
+                      <p className="font-bold text-white">{inv.no}</p>
+                      <p className="text-[11px] text-slate-400">{inv.desc}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-white">{inv.amount}</p>
+                      <span className="text-[10px] text-emerald-400 font-bold">{inv.status}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeSandboxTab === 4 && (
+            <div className="grid gap-8 lg:grid-cols-12 items-center text-left">
+              <div className="lg:col-span-6 space-y-4">
+                <span className="rounded-lg bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-300">
+                  Bayi Satış CRM Panosu
+                </span>
+                <h3 className="text-2xl font-black text-white">Aday Müşteri Kanban Pipeline</h3>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  Sahada görüştüğünüz esnafları aşama aşama takip edin: Aday Eklendi &rarr; Teklif Verildi &rarr; Sözleşme İmzalandı &rarr; Müşteri Yayında & Komisyon Hesaba Yattı!
+                </p>
+                <Link
+                  to="/firma/kayit"
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-6 py-3 text-xs font-black text-black hover:bg-emerald-400 transition"
+                >
+                  <span>Bayilik Başvurusu Yap</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+              <div className="lg:col-span-6 rounded-2xl border border-white/10 bg-black/40 p-6 space-y-3">
+                <p className="text-xs font-bold text-white border-b border-white/10 pb-3">Canlı Aday Takip Panosu</p>
+                <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="rounded-xl bg-sky-500/10 border border-sky-500/20 p-2.5">
+                    <p className="font-bold text-sky-300 text-[11px]">Teklif Aşaması</p>
+                    <p className="text-lg font-black text-white mt-1">4 Firma</p>
+                  </div>
+                  <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-2.5">
+                    <p className="font-bold text-amber-300 text-[11px]">İmzada</p>
+                    <p className="text-lg font-black text-white mt-1">2 Firma</p>
+                  </div>
+                  <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-2.5">
+                    <p className="font-bold text-emerald-300 text-[11px]">Yayında (Won)</p>
+                    <p className="text-lg font-black text-emerald-400 mt-1">38 Firma</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSandboxTab === 5 && (
+            <div className="grid gap-8 lg:grid-cols-12 items-center text-left">
+              <div className="lg:col-span-6 space-y-4">
+                <span className="rounded-lg bg-cyan-500/20 px-3 py-1 text-xs font-bold text-cyan-300">
+                  Otomatik Provisioning
+                </span>
+                <h3 className="text-2xl font-black text-white">5 Dakikada Yeni Müşteri Kurulumu</h3>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  Bayi paneli üzerinden işletme adı, telefon ve sektör seçildiğinde sistem alan adını bağlar, hazır sektörel temayı derler ve Google Harita başvurusunu otomatik iletir.
+                </p>
+                <div className="space-y-1.5 text-xs text-slate-300">
+                  <p>✓ 1. Adım: Sektörel Demo Şablon Seçimi</p>
+                  <p>✓ 2. Adım: Alan Adı ve SSL Sertifika Aktivasyonu</p>
+                  <p>✓ 3. Adım: Google Maps Pin ve Reklam Entegrasyonu</p>
+                </div>
+              </div>
+              <div className="lg:col-span-6 rounded-2xl border border-white/10 bg-black/40 p-6 space-y-3">
+                <div className="flex justify-between items-center border-b border-white/10 pb-3">
+                  <span className="text-xs font-bold text-white">Hızlı Müşteri Oluşturucu</span>
+                  <span className="text-xs text-emerald-400 font-bold">Hazır</span>
+                </div>
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    disabled
+                    value="Defne Doğal Zeytinyağı Ltd."
+                    className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-xs text-white"
+                  />
+                  <input
+                    type="text"
+                    disabled
+                    value="Gastronomi & E-Ticaret Paketi"
+                    className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-xs text-slate-300"
+                  />
+                  <div className="rounded-xl bg-[#00a8c4]/20 border border-[#00a8c4]/40 p-3 text-center">
+                    <p className="text-xs font-black text-cyan-200">Tek Tıkla Kurulumu Tamamla & Komisyonunu Al</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -530,31 +861,31 @@ export function PanelsOverviewPage() {
                 </div>
               </div>
 
-              <div className="lg:col-span-6 grid gap-4 sm:grid-cols-2">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left">
+              <div className="lg:col-span-6 grid gap-4 sm:grid-cols-2 text-left">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                   <span className="text-xs font-bold text-slate-400">Tahmini Ziyaretçi & Yol Tarifi</span>
                   <p className="mt-2 text-3xl font-black text-white">~{estimatedCustomerGrowth.trafficMultiplier.toLocaleString("tr-TR")}</p>
                   <p className="mt-1 text-[11px] text-cyan-300">Harita pini ve arama tıklaması</p>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                   <span className="text-xs font-bold text-slate-400">Tahmini Yeni Müşteri Çağrısı</span>
                   <p className="mt-2 text-3xl font-black text-emerald-400">~{estimatedCustomerGrowth.estimatedCalls} Adet</p>
                   <p className="mt-1 text-[11px] text-emerald-300">Doğrudan telefon & WhatsApp formu</p>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left sm:col-span-2">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:col-span-2">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-xs font-bold text-slate-400">Tahmini Yatırım Getirisi (ROAS)</span>
                       <p className="text-2xl font-black text-amber-400">{estimatedCustomerGrowth.estimatedRoas}x Kat Ciro Artışı</p>
                     </div>
-                    <Link
-                      to="/iletisim"
-                      className="rounded-xl bg-[#00a8c4] px-5 py-2.5 text-xs font-extrabold text-white hover:bg-[#0891b2] transition"
+                    <button
+                      onClick={handleCustomerDemoLogin}
+                      className="rounded-xl bg-[#00a8c4] px-5 py-2.5 text-xs font-extrabold text-white hover:bg-[#0891b2] transition cursor-pointer"
                     >
-                      Planı Başlat
-                    </Link>
+                      Demo İle İncele
+                    </button>
                   </div>
                 </div>
               </div>
@@ -595,31 +926,31 @@ export function PanelsOverviewPage() {
                 </div>
               </div>
 
-              <div className="lg:col-span-6 grid gap-4 sm:grid-cols-2">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left">
+              <div className="lg:col-span-6 grid gap-4 sm:grid-cols-2 text-left">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                   <span className="text-xs font-bold text-slate-400">Aylık Net Komisyon Hakedişiniz</span>
                   <p className="mt-2 text-3xl font-black text-emerald-400">₺{estimatedPartnerEarning.toLocaleString("tr-TR")}</p>
                   <p className="mt-1 text-[11px] text-emerald-300 font-semibold">%30 Kurulum + Yıllık Yenileme Payı</p>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                   <span className="text-xs font-bold text-slate-400">Yıllık Kümülatif Kazanç</span>
                   <p className="mt-2 text-3xl font-black text-white">₺{(estimatedPartnerEarning * 12).toLocaleString("tr-TR")}</p>
                   <p className="mt-1 text-[11px] text-slate-400">Sürekli büyüyen müşteri portföyüyle</p>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left sm:col-span-2">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:col-span-2">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-xs font-bold text-slate-400">Yetkili Bölge Temsilciliği</span>
                       <p className="text-sm font-bold text-white">Hemen başvurun, ilçenizde bayiliği kilitleyin.</p>
                     </div>
-                    <Link
-                      to="/firma/kayit"
-                      className="rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition"
+                    <button
+                      onClick={handlePartnerDemoLogin}
+                      className="rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition cursor-pointer"
                     >
-                      Bayilik Başvurusu Yap
-                    </Link>
+                      Demo Bayi Paneline Git
+                    </button>
                   </div>
                 </div>
               </div>
@@ -628,207 +959,54 @@ export function PanelsOverviewPage() {
         </div>
       </section>
 
-      {/* ─── 8 MODÜL BENTO GRID (HER İKİ PANEL İÇİN ZENGİN DETAY) ── */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center">
-          <p className="text-xs font-extrabold uppercase tracking-widest text-[#00a8c4]">
-            {activeTab === "musteri" ? "MÜŞTERİ PANELİ DERİNLEMESİNE MODÜLLERİ" : "BAYİ PANELİ DERİNLEMESİNE MODÜLLERİ"}
-          </p>
-          <h2 className="mt-3 text-3xl font-black text-white sm:text-4xl">
-            {activeTab === "musteri"
-              ? "İşletmenizi Kontrol Altına Alan 8 Güçlü Merkez"
-              : "Ajansınızı Otomatikleştiren 8 Bayilik Modülü"}
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-300">
-            {activeTab === "musteri"
-              ? "Her modül, Hatay'daki esnaf ve şirketlerin dijital büyümesini şeffaf, hızlı ve güvenli kılmak için özel olarak kodlandı."
-              : "White-label mimari, otomatik altyapı provisioning ve düzenli hakediş sistemiyle ajans operasyonunuzu sıfır zahmetle yönetin."}
-          </p>
+      {/* ─── SIK SORULAN SORULAR (FAQ ACCORDION) ─────────────── */}
+      <section className="mx-auto max-w-5xl px-5 py-16 sm:px-8">
+        <div className="text-center mb-10">
+          <h3 className="text-2xl font-black text-white sm:text-3xl">Sıkça Sorulan Sorular</h3>
+          <p className="mt-2 text-xs text-slate-400">Müşteri ve bayi panelleri hakkında merak edilen tüm detaylar.</p>
         </div>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 text-left">
-          {(activeTab === "musteri"
-            ? [
-                {
-                  icon: Globe,
-                  title: "1. Web & Domain Monitörü",
-                  desc: "Alan adı yenileme tarihiniz, 256-Bit SSL güvenlik sertifikanız ve bulut hosting çalışma süreniz 7/24 otomatik izlenir.",
-                  tag: "Bulut & SSL",
-                },
-                {
-                  icon: MapPin,
-                  title: "2. Google Haritalar & SEO",
-                  desc: "Yol tarifi istekleri, doğrudan arama buton tıklamaları ve müşteri fotoğrafları Google Maps ile tam senkronize edilir.",
-                  tag: "Yerel SEO",
-                },
-                {
-                  icon: TrendingUp,
-                  title: "3. Şeffaf Reklam Raporu",
-                  desc: "Google Ads ve Meta reklam bütçenizin nereye harcandığı, tıklama maliyeti ve kaç form geldiği kuruşu kuruşuna listelenir.",
-                  tag: "Google & Meta",
-                },
-                {
-                  icon: FileCheck,
-                  title: "4. Dijital E-İmza Sözleşme",
-                  desc: "Islak imza beklemeye son. Sözleşmelerinizi cep telefonunuzdan ekrana imza atarak onaylayabilir ve PDF olarak indirebilirsiniz.",
-                  tag: "E-İmza Arşivi",
-                },
-                {
-                  icon: CreditCard,
-                  title: "5. Online Ödeme & E-Fatura",
-                  desc: "Kredi kartı ile taksitli veya tek çekim güvenli ödeme, bakiye takibi ve mali onaylı resmi e-fatura arşivi.",
-                  tag: "Taksit & Havale",
-                },
-                {
-                  icon: Search,
-                  title: "6. SEO Sıralama Takip Radarı",
-                  desc: "Hatay'da sektörünüze ait anahtar kelimelerinizin (örn: 'Antakya künefe') Google'daki 1. sayfa sıralama geçmişi raporlanır.",
-                  tag: "Sıralama Radarı",
-                },
-                {
-                  icon: MessageSquare,
-                  title: "7. Sıra Numaralı Destek & Bilet",
-                  desc: "Panelden tek tıkla destek bileti açabilir, kuyruk sıranızı canlı izleyebilir ve doğrudan WhatsApp hızlı hattımıza bağlanabilirsiniz.",
-                  tag: "15 Dk Yanıt",
-                },
-                {
-                  icon: ShieldCheck,
-                  title: "8. 2FA Biyometrik & SMS Güvenliği",
-                  desc: "Hesabınıza yapılan tüm girişler SMS ve e-posta onayıyla denetlenir. Muhasebe ve yöneticiniz için ayrı alt kullanıcı rolleri açabilirsiniz.",
-                  tag: "2FA Koruması",
-                },
-              ]
-            : [
-                {
-                  icon: Wallet,
-                  title: "1. Düzenli Hakediş & Komisyon",
-                  desc: "Her yeni satıştan %30 peşin, her yıllık domain/hosting/reklam yenilemesinden %20 sürekli nakit komisyon kazanın.",
-                  tag: "Nakit Hakediş",
-                },
-                {
-                  icon: Building2,
-                  title: "2. Tam White-Label Mimari",
-                  desc: "Müşterilerinize kendi ajansınızın logosu, favicon'u ve şirket unvanıyla kurumsal bir panel sunun.",
-                  tag: "Kendi Markanızla",
-                },
-                {
-                  icon: Zap,
-                  title: "3. 5 Dakikada Hızlı Kurulum",
-                  desc: "Müşteriniz için alan adı, hosting, demo tasarım ve Google Harita başvurusunu panelden tek tıkla otomatik başlatın.",
-                  tag: "Otomatik Provisioning",
-                },
-                {
-                  icon: Users,
-                  title: "4. Aday Müşteri Pipeline (CRM)",
-                  desc: "Sahada görüştüğünüz esnafları; Arandı, Teklif Verildi, E-İmzalandı ve Yayında aşamalarıyla Kanban panosunda yönetin.",
-                  tag: "Mini CRM Panosu",
-                },
-                {
-                  icon: FileText,
-                  title: "5. Hazır Satış Kitleri & Sunumlar",
-                  desc: "Esnafa gösterebileceğiniz sektörel broşürler, PDF teklif şablonları, demo siteler ve hazır sözleşme metinleri elinizin altında.",
-                  tag: "Satış Materyalleri",
-                },
-                {
-                  icon: Award,
-                  title: "6. İlçe Yetkili Temsilciliği",
-                  desc: "Kendi ilçenizde (Antakya, İskenderun, Samandağ, Dörtyol vb.) resmi Hatay360 bayisi olma ve bölgeyi kapatma imkanı.",
-                  tag: "Bölge Tekeli",
-                },
-                {
-                  icon: MessageSquare,
-                  title: "7. VIP Mühendis Destek Kanalı",
-                  desc: "Teknik sorunlarda beklemeden doğrudan kıdemli yazılım ve reklam mühendislerimize bağlanabileceğiniz özel hat.",
-                  tag: "Öncelikli VIP",
-                },
-                {
-                  icon: Clock,
-                  title: "8. Yıllık Yenileme Pasif Geliri",
-                  desc: "Bağladığınız esnaf sistemde kaldığı sürece her yıl yenileme bedellerinden düzenli pasif gelir elde etmeye devam edersiniz.",
-                  tag: "Pasif Gelir Modeli",
-                },
-              ]
-          ).map((item, idx) => (
+        <div className="space-y-3 text-left">
+          {[
+            {
+              q: "Müşteri paneline girmek için kurulum şart mı?",
+              a: "Hayır. Yukarıdaki 'Canlı Müşteri Panelini Demo Olarak Aç' butonuna basarak örnek künefe & restoran işletmesi verileriyle paneli anında şifresiz test edebilirsiniz. Gerçek işletmeniz için kayıt olduğunuzda ise tüm alanlar sizin adınıza canlıya alınır.",
+            },
+            {
+              q: "Bayi paneli ile müşterilerime kendi markamla hizmet verebilir miyim?",
+              a: "Evet! Hatay360 Bayi altyapısı %100 White-Label desteklidir. Müşterileriniz sizin logonuzu ve ajans unvanınızı görür; teknik altyapı Hatay360 mühendisleri tarafından sıfır kesintiyle yürütülür.",
+            },
+            {
+              q: "Komisyon ödemeleri ne zaman ve nasıl yapılır?",
+              a: "Bayi panelinizde onaylanan tüm satış hakedişleri ve yıllık yenileme komisyonları her ayın 1'i ile 5'i arasında doğrudan belirttiğiniz banka IBAN hesabınıza nakit olarak transfer edilir.",
+            },
+            {
+              q: "E-İmza sözleşmeler hukuken geçerli midir?",
+              a: "Evet. 5070 Sayılı Elektronik İmza Kanunu ve Borçlar Kanunu standartlarına uygun olarak IP, zaman damgası ve ekran dokunmatik biyometrik koordinatlarıyla arşivlenmektedir.",
+            },
+          ].map((item, index) => (
             <div
-              key={idx}
-              className="group relative flex flex-col justify-between rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-6 backdrop-blur-xl transition duration-300 hover:-translate-y-1.5 hover:border-[#00a8c4]/50 hover:bg-white/[0.09] hover:shadow-[0_20px_45px_rgba(0,168,196,0.15)]"
+              key={index}
+              className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl"
             >
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#00a8c4]/15 text-[#38bdf8] border border-[#00a8c4]/25 group-hover:scale-110 transition">
-                    <item.icon className="h-6 w-6" />
-                  </div>
-                  <span className="rounded-lg bg-white/10 px-2.5 py-1 text-[11px] font-bold text-slate-300">
-                    {item.tag}
-                  </span>
+              <button
+                onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                className="flex w-full items-center justify-between p-5 text-left text-sm font-bold text-white transition hover:bg-white/[0.04] cursor-pointer"
+              >
+                <span>{item.q}</span>
+                <ChevronDown
+                  className={`h-4 w-4 text-cyan-300 transition-transform duration-300 ${
+                    openFaq === index ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {openFaq === index && (
+                <div className="border-t border-white/5 p-5 pt-0 text-xs text-slate-300 leading-relaxed">
+                  {item.a}
                 </div>
-
-                <h3 className="mt-5 text-[16px] font-bold text-white group-hover:text-cyan-200 transition">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-[13px] leading-relaxed text-slate-300">
-                  {item.desc}
-                </p>
-              </div>
-
-              <div className="mt-6 flex items-center gap-1.5 text-xs font-bold text-[#00a8c4] group-hover:text-[#38bdf8]">
-                <span>Detayları İncele</span>
-                <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition" />
-              </div>
+              )}
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* ─── 3 ADIMDA ÇALIŞMA SÜRECİ (3D STEP JOURNEY) ───────── */}
-      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
-        <div className="rounded-[32px] border border-white/15 bg-white/[0.02] p-8 sm:p-12 backdrop-blur-2xl">
-          <div className="text-center">
-            <h3 className="text-2xl font-black text-white sm:text-3xl">
-              3 Adımda Sisteme Dahil Olun
-            </h3>
-            <p className="mt-2 text-sm text-slate-400">
-              Dakikalar içinde hesabınızı açın ve dijital kontrolünüzü elinize alın.
-            </p>
-          </div>
-
-          <div className="mt-12 grid gap-6 sm:grid-cols-3 text-left">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a8c4]/20 text-[#38bdf8] font-black text-base mb-4">
-                01
-              </span>
-              <h4 className="text-base font-bold text-white">Hesap Oluşturun & Giriş Yapın</h4>
-              <p className="mt-2 text-xs leading-relaxed text-slate-300">
-                {activeTab === "musteri"
-                  ? "İşletme adı, telefon ve yetkili bilgilerinizle saniyeler içinde panelinize giriş yapın."
-                  : "Bayilik formunu doldurun, bölge yetkilinizle anında iletişime geçip yetki panelinizi açın."}
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a8c4]/20 text-[#38bdf8] font-black text-base mb-4">
-                02
-              </span>
-              <h4 className="text-base font-bold text-white">Canlı Kurulum & Harita Bağlantısı</h4>
-              <p className="mt-2 text-xs leading-relaxed text-slate-300">
-                {activeTab === "musteri"
-                  ? "Web siteniz, Google Maps pini ve reklam kampanyalarınız uzman ekibimizce panele bağlanır."
-                  : "Müşterilerinizi ekleyin, white-label panelinizden tek tıkla kurulumları tamamlayın."}
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a8c4]/20 text-[#38bdf8] font-black text-base mb-4">
-                03
-              </span>
-              <h4 className="text-base font-bold text-white">Şeffaf Takip & Düzenli Kazanç</h4>
-              <p className="mt-2 text-xs leading-relaxed text-slate-300">
-                {activeTab === "musteri"
-                  ? "Tüm aramaları, formları ve ciro artışını 3D canlı panellerden 7/24 izleyin."
-                  : "Her satış ve yenilemeden komisyonunuzu doğrudan banka hesabınıza aktarın."}
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -852,32 +1030,32 @@ export function PanelsOverviewPage() {
           <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
             {activeTab === "musteri" ? (
               <>
+                <button
+                  onClick={handleCustomerDemoLogin}
+                  className="rounded-2xl bg-white px-8 py-4 text-sm font-black text-[#0891b2] shadow-2xl hover:bg-cyan-50 transition hover:scale-105 cursor-pointer"
+                >
+                  ⚡ Demo Müşteri Paneline Git
+                </button>
                 <Link
                   to="/musteri/giris"
-                  className="rounded-2xl bg-white px-8 py-4 text-sm font-black text-[#0891b2] shadow-2xl hover:bg-cyan-50 transition hover:scale-105"
-                >
-                  Müşteri Girişi Yap
-                </Link>
-                <Link
-                  to="/iletisim"
                   className="rounded-2xl border border-white/40 bg-black/20 px-8 py-4 text-sm font-bold text-white backdrop-blur-md hover:bg-black/30 transition"
                 >
-                  Bizi Arayın / Keşif İste
+                  Gerçek Giriş Yap
                 </Link>
               </>
             ) : (
               <>
+                <button
+                  onClick={handlePartnerDemoLogin}
+                  className="rounded-2xl bg-white px-8 py-4 text-sm font-black text-[#0891b2] shadow-2xl hover:bg-cyan-50 transition hover:scale-105 cursor-pointer"
+                >
+                  ⚡ Demo Bayi Paneline Git
+                </button>
                 <Link
                   to="/firma/kayit"
-                  className="rounded-2xl bg-white px-8 py-4 text-sm font-black text-[#0891b2] shadow-2xl hover:bg-cyan-50 transition hover:scale-105"
-                >
-                  Hemen Bayilik Başvurusu Yap
-                </Link>
-                <Link
-                  to="/firma/giris"
                   className="rounded-2xl border border-white/40 bg-black/20 px-8 py-4 text-sm font-bold text-white backdrop-blur-md hover:bg-black/30 transition"
                 >
-                  Bayi Girişi Yap
+                  Bayilik Başvurusu Yap
                 </Link>
               </>
             )}
