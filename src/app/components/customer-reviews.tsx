@@ -17,8 +17,6 @@ import {
   Quote,
   TrendingUp,
   ShieldCheck,
-  Award,
-  Users,
   Building2,
   ChevronRight,
 } from "lucide-react";
@@ -414,24 +412,46 @@ export function CustomerReviews() {
     return BAYI_REVIEWS_DATA.filter((r) => r.district === selectedDistrict);
   }, [selectedDistrict]);
 
-  // Sonsuz akış için ikiye katlanmış liste
-  const track1Items = useMemo(
-    () => [...filteredCustomerReviews, ...filteredCustomerReviews],
-    [filteredCustomerReviews]
-  );
-  const track2Items = useMemo(
-    () => [...filteredBayiReviews, ...filteredBayiReviews],
-    [filteredBayiReviews]
-  );
-
   return (
     <section className="relative overflow-hidden py-20 sm:py-28 bg-[#0a1922] text-white">
+      {/* ─── ENTEGRE MARQUEE ANİMASYON STİLİ (CSS TRANSFORM) ─── */}
+      <style>{`
+        @keyframes hatayMarqueeFlow {
+          0% {
+            transform: translate3d(0, 0, 0);
+          }
+          100% {
+            transform: translate3d(calc(-50% - 10px), 0, 0);
+          }
+        }
+
+        .hatay-marquee {
+          position: relative;
+          width: 100%;
+          overflow: hidden;
+        }
+
+        .hatay-marquee__track {
+          display: flex;
+          width: max-content;
+          will-change: transform;
+          animation: hatayMarqueeFlow var(--marquee-speed, 42s) linear infinite;
+        }
+
+        .hatay-marquee--reverse .hatay-marquee__track {
+          animation-direction: reverse;
+        }
+
+        .hatay-marquee:hover .hatay-marquee__track {
+          animation-play-state: paused;
+        }
+      `}</style>
+
       {/* ─── RADYAL ARKA PLAN VE IŞIK HALKALARI ──────────────── */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -top-40 left-1/2 h-[550px] w-[1000px] -translate-x-1/2 rounded-full bg-gradient-to-b from-[#00a8c4]/20 via-[#0891b2]/10 to-transparent blur-[120px]" />
         <div className="absolute top-1/2 left-0 h-[400px] w-[400px] -translate-y-1/2 rounded-full bg-[#00a8c4]/10 blur-[100px]" />
         <div className="absolute bottom-0 right-0 h-[450px] w-[500px] rounded-full bg-[#0891b2]/15 blur-[120px]" />
-        {/* İnce ızgara dokusu */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
       </div>
 
@@ -542,7 +562,6 @@ export function CustomerReviews() {
               transition={{ duration: 0.25 }}
               className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.07] to-white/[0.02] p-7 backdrop-blur-xl shadow-2xl shadow-black/40 transition-all hover:border-[#00a8c4]/50 hover:shadow-[0_20px_50px_rgba(0,168,196,0.15)]"
             >
-              {/* Köşe Vurgusu */}
               <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-gradient-to-br from-[#00a8c4]/20 to-transparent blur-3xl transition duration-500 group-hover:scale-150" />
               
               <Quote className="absolute right-6 top-6 h-12 w-12 text-white/[0.03] transition duration-300 group-hover:text-[#00a8c4]/10" />
@@ -663,46 +682,30 @@ export function CustomerReviews() {
           </div>
         </div>
 
-        {/* ─── ÇİFT HATLI KESİNTİSİZ MARQUEE AKIŞI ─────────────── */}
+        {/* ─── KESİNTİSİZ AKAN ÇİFT HATLI MARQUEE ───────────────── */}
         <div className="mt-8 space-y-6">
           {/* TRACK 1: MÜŞTERİLER */}
           {(activeTab === "all" || activeTab === "customer") && (
-            <div className="relative overflow-hidden py-2">
-              <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-[#0a1922] to-transparent" />
-              <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-[#0a1922] to-transparent" />
-
-              <div className="flex w-max animate-marquee gap-5 hover:[animation-play-state:paused]">
-                {track1Items.map((item, idx) => (
-                  <ModernReviewCard
-                    key={`${item.id}-${idx}`}
-                    item={item}
-                    userLiked={!!userLikedMap[item.id]}
-                    likesCount={likesMap[item.id] ?? item.likes}
-                    onLike={() => handleLike(item.id, item.likes)}
-                  />
-                ))}
-              </div>
-            </div>
+            <ReviewMarqueeRow
+              reviews={filteredCustomerReviews}
+              reverse={false}
+              duration={40}
+              likesMap={likesMap}
+              userLikedMap={userLikedMap}
+              onLike={handleLike}
+            />
           )}
 
           {/* TRACK 2: BAYİLER & PARTNERLER */}
           {(activeTab === "all" || activeTab === "bayi") && (
-            <div className="relative overflow-hidden py-2">
-              <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-[#0a1922] to-transparent" />
-              <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-[#0a1922] to-transparent" />
-
-              <div className="flex w-max animate-marquee-reverse gap-5 hover:[animation-play-state:paused]">
-                {track2Items.map((item, idx) => (
-                  <ModernReviewCard
-                    key={`${item.id}-${idx}`}
-                    item={item}
-                    userLiked={!!userLikedMap[item.id]}
-                    likesCount={likesMap[item.id] ?? item.likes}
-                    onLike={() => handleLike(item.id, item.likes)}
-                  />
-                ))}
-              </div>
-            </div>
+            <ReviewMarqueeRow
+              reviews={filteredBayiReviews}
+              reverse={true}
+              duration={46}
+              likesMap={likesMap}
+              userLikedMap={userLikedMap}
+              onLike={handleLike}
+            />
           )}
         </div>
       </div>
@@ -898,6 +901,58 @@ export function CustomerReviews() {
         )}
       </AnimatePresence>
     </section>
+  );
+}
+
+// ─── MARQUEE SIRASI (KESİNTİSİZ 60FPS AKIŞ) ──────────────────
+function ReviewMarqueeRow({
+  reviews,
+  reverse = false,
+  duration = 42,
+  likesMap,
+  userLikedMap,
+  onLike,
+}: {
+  reviews: ReviewItem[];
+  reverse?: boolean;
+  duration?: number;
+  likesMap: Record<string, number>;
+  userLikedMap: Record<string, boolean>;
+  onLike: (id: string, initialLikes: number) => void;
+}) {
+  return (
+    <div
+      className={`hatay-marquee relative overflow-hidden py-2 ${
+        reverse ? "hatay-marquee--reverse" : ""
+      }`}
+    >
+      {/* Yan Geçiş Gradyanları */}
+      <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-[#0a1922] to-transparent sm:w-36" />
+      <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-[#0a1922] to-transparent sm:w-36" />
+
+      <div
+        className="hatay-marquee__track flex w-max items-stretch gap-5"
+        style={{ "--marquee-speed": `${duration}s` } as CSSProperties}
+      >
+        {[0, 1].map((copyIdx) => (
+          <div
+            key={copyIdx}
+            className="flex shrink-0 items-stretch gap-5"
+            aria-hidden={copyIdx === 1}
+          >
+            {reviews.map((item) => (
+              <ModernReviewCard
+                key={`${item.id}-copy${copyIdx}`}
+                item={item}
+                userLiked={!!userLikedMap[item.id]}
+                likesCount={likesMap[item.id] ?? item.likes}
+                onLike={() => onLike(item.id, item.likes)}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
