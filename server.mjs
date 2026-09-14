@@ -8459,11 +8459,12 @@ function escapeSeoHtml(value) {
   return String(value || "").replace(/[&<>\"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 
-function replaceMetaContent(html, selectorPattern, value) {
+function replaceMetaContent(html, attribute, key, value) {
   const escaped = escapeSeoHtml(value);
+  const selectorPattern = `${attribute}=[\"']${key}[\"']`;
   const matcher = new RegExp(`(<meta\\s+[^>]*${selectorPattern}[^>]*content=[\"'])[^\"']*([\"'][^>]*>)`, "i");
   if (matcher.test(html)) return html.replace(matcher, `$1${escaped}$2`);
-  return html.replace("</head>", `  <meta ${selectorPattern} content="${escaped}" />\n  </head>`);
+  return html.replace("</head>", `  <meta ${attribute}="${key}" content="${escaped}" />\n  </head>`);
 }
 
 function injectPublicSeoHtml(html, pathname) {
@@ -8484,13 +8485,13 @@ function injectPublicSeoHtml(html, pathname) {
     address: normalizedPath === "/" ? { "@type": "PostalAddress", streetAddress: "Güzelburç Mahallesi, Kıbrıs Caddesi No:13", addressLocality: "Antakya", addressRegion: "Hatay", postalCode: "31000", addressCountry: "TR" } : undefined,
   };
   html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeSeoHtml(page.title)}</title>`);
-  html = replaceMetaContent(html, 'name=["\']description["\']', page.description);
-  html = replaceMetaContent(html, 'name=["\']keywords["\']', page.keywords);
-  html = replaceMetaContent(html, 'property=["\']og:title["\']', page.title);
-  html = replaceMetaContent(html, 'property=["\']og:description["\']', page.description);
-  html = replaceMetaContent(html, 'property=["\']og:url["\']', canonical);
-  html = replaceMetaContent(html, 'name=["\']twitter:title["\']', page.title);
-  html = replaceMetaContent(html, 'name=["\']twitter:description["\']', page.description);
+  html = replaceMetaContent(html, "name", "description", page.description);
+  html = replaceMetaContent(html, "name", "keywords", page.keywords);
+  html = replaceMetaContent(html, "property", "og:title", page.title);
+  html = replaceMetaContent(html, "property", "og:description", page.description);
+  html = replaceMetaContent(html, "property", "og:url", canonical);
+  html = replaceMetaContent(html, "name", "twitter:title", page.title);
+  html = replaceMetaContent(html, "name", "twitter:description", page.description);
   html = html.replace(/<link\s+[^>]*rel=["']canonical["'][^>]*>/i, "");
   const structured = `<link rel="canonical" href="${escapeSeoHtml(canonical)}" />\n  <script id="hatay360-server-jsonld" type="application/ld+json">${JSON.stringify(schema)}</script>`;
   html = html.replace("</head>", `  ${structured}\n  </head>`);
