@@ -58,6 +58,7 @@ const RequireCustomer = lazy(() => import("./components/require-customer").then(
 const RequirePartner = lazy(() => import("./components/require-partner").then((module) => ({ default: module.RequirePartner })));
 const MicrositePage = lazy(() => import("./pages/microsite-page").then((module) => ({ default: module.MicrositePage })));
 const PanelsOverviewPage = lazy(() => import("./pages/panels-overview-page").then((module) => ({ default: module.PanelsOverviewPage })));
+const LocalServicePage = lazy(() => import("./pages/local-service-page").then((module) => ({ default: module.LocalServicePage })));
 
 export const router = createBrowserRouter([
   {
@@ -82,6 +83,10 @@ export const router = createBrowserRouter([
       { path: "mesafeli-satis", Component: MesafeliPage },
       { path: "kosullar", Component: KosullarPage },
       { path: "hatay", Component: HatayHubPage },
+      { path: "hatay-web-tasarim", Component: LocalServicePage },
+      { path: "hatay-reklam-ajansi", Component: LocalServicePage },
+      { path: "hatay-yazilim-firmasi", Component: LocalServicePage },
+      { path: "hatay-google-reklam-ajansi", Component: LocalServicePage },
       { path: "hatay/:slug", Component: DistrictPage },
       { path: "demolar", Component: DemoOverviewPage },
       { path: "demo/:slug/panel/giris", Component: DemoAdminLoginPage },

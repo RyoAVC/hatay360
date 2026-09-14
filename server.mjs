@@ -8403,15 +8403,100 @@ function serveStatic(req, res, url) {
     ...SECURITY_HEADERS,
   });
   if (req.method === "HEAD") return res.end();
-  if (managedSite && path.basename(file) === "index.html") {
-    const html = injectManagedSiteHtml(readFileSync(file, "utf8"), managedSite, origin);
+  if (path.basename(file) === "index.html") {
+    const sourceHtml = readFileSync(file, "utf8");
+    const html = managedSite
+      ? injectManagedSiteHtml(sourceHtml, managedSite, origin)
+      : injectPublicSeoHtml(sourceHtml, url.pathname);
     return res.end(html);
   }
   createReadStream(file).pipe(res);
 }
 
 const SITE_ORIGIN = String(process.env.HATAY360_SITE_ORIGIN || "https://hatay360.com").replace(/\/$/, "");
-const SITEMAP_LASTMOD = "2026-08-21";
+const SITEMAP_LASTMOD = (() => {
+  try {
+    return statSync(path.join(DIST, "index.html")).mtime.toISOString().slice(0, 10);
+  } catch {
+    return new Date().toISOString().slice(0, 10);
+  }
+})();
+
+const PUBLIC_SEO_PAGES = {
+  "/": {
+    title: "Hatay360 | Hatay Web Tasarım ve Reklam Ajansı",
+    description: "Hatay360; Hatay ve ilçelerinde kurumsal web tasarım, özel yazılım, Google Ads, Meta reklamları ve yerel SEO hizmetleri sunar.",
+    keywords: "hatay reklam ajansı, hatay web tasarım, hatay yazılım firması, hatay google reklam ajansı, antakya web tasarım",
+    heading: "Hatay web tasarım, reklam ve yazılım çözümleri",
+  },
+  "/hatay-web-tasarim": {
+    title: "Hatay Web Tasarım: Hızlı, Kurumsal ve Dönüşüm Odaklı Siteler",
+    description: "Hatay ve ilçelerinde mobil uyumlu kurumsal web tasarım, e-ticaret, teknik SEO ve sürekli bakım hizmeti. Hatay360 ile ölçülebilir bir dijital vitrin kurun.",
+    keywords: "hatay web tasarım, hatay web sitesi, antakya web tasarım, iskenderun web tasarım, hatay web tasarım firması",
+    heading: "Hatay web tasarım hizmeti",
+  },
+  "/hatay-reklam-ajansi": {
+    title: "Hatay Reklam Ajansı: Google Ads ve Meta Reklam Yönetimi",
+    description: "Hatay reklam ajansı Hatay360 ile Google Ads ve Meta kampanyalarınızı ölçülebilir hedefler, doğru açılış sayfaları ve düzenli raporlamayla yönetin.",
+    keywords: "hatay reklam ajansı, hatay reklam, antakya reklam ajansı, hatay google reklam, hatay dijital reklam ajansı",
+    heading: "Hatay dijital reklam ajansı",
+  },
+  "/hatay-yazilim-firmasi": {
+    title: "Hatay Yazılım Firması: Özel Web Yazılım ve İş Otomasyonu",
+    description: "Hatay yazılım firması Hatay360; özel web uygulaması, yönetim paneli, müşteri portalı, entegrasyon ve iş otomasyonu geliştirir.",
+    keywords: "hatay yazılım firması, hatay yazılım ajansı, antakya yazılım şirketi, özel yazılım hatay, web yazılım hatay",
+    heading: "Hatay özel yazılım geliştirme",
+  },
+  "/hatay-google-reklam-ajansi": {
+    title: "Hatay Google Reklam Ajansı: Arama Ağı Kampanya Yönetimi",
+    description: "Hatay Google reklam ajansı Hatay360 ile doğru kelimelerde görünür olun. Google Ads kurulumu, negatif kelimeler, dönüşüm ölçümü ve düzenli optimizasyon.",
+    keywords: "hatay google reklam ajansı, hatay google ads, antakya google reklam, iskenderun google ads, google reklam yönetimi hatay",
+    heading: "Hatay Google Ads yönetimi",
+  },
+};
+
+function escapeSeoHtml(value) {
+  return String(value || "").replace(/[&<>\"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+}
+
+function replaceMetaContent(html, selectorPattern, value) {
+  const escaped = escapeSeoHtml(value);
+  const matcher = new RegExp(`(<meta\\s+[^>]*${selectorPattern}[^>]*content=[\"'])[^\"']*([\"'][^>]*>)`, "i");
+  if (matcher.test(html)) return html.replace(matcher, `$1${escaped}$2`);
+  return html.replace("</head>", `  <meta ${selectorPattern} content="${escaped}" />\n  </head>`);
+}
+
+function injectPublicSeoHtml(html, pathname) {
+  const normalizedPath = pathname !== "/" ? pathname.replace(/\/$/, "") : "/";
+  const page = PUBLIC_SEO_PAGES[normalizedPath];
+  if (!page) return html;
+  const canonical = `${SITE_ORIGIN}${normalizedPath === "/" ? "" : normalizedPath}`;
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": normalizedPath === "/" ? "ProfessionalService" : "Service",
+    name: page.heading,
+    description: page.description,
+    url: canonical,
+    areaServed: ["Hatay", "Antakya", "İskenderun"],
+    provider: normalizedPath === "/" ? undefined : { "@type": "ProfessionalService", name: "Hatay360", url: SITE_ORIGIN },
+    telephone: normalizedPath === "/" ? "+90 850 308 68 37" : undefined,
+    email: normalizedPath === "/" ? "info@hatay360.com" : undefined,
+    address: normalizedPath === "/" ? { "@type": "PostalAddress", streetAddress: "Güzelburç Mahallesi, Kıbrıs Caddesi No:13", addressLocality: "Antakya", addressRegion: "Hatay", postalCode: "31000", addressCountry: "TR" } : undefined,
+  };
+  html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeSeoHtml(page.title)}</title>`);
+  html = replaceMetaContent(html, 'name=["\']description["\']', page.description);
+  html = replaceMetaContent(html, 'name=["\']keywords["\']', page.keywords);
+  html = replaceMetaContent(html, 'property=["\']og:title["\']', page.title);
+  html = replaceMetaContent(html, 'property=["\']og:description["\']', page.description);
+  html = replaceMetaContent(html, 'property=["\']og:url["\']', canonical);
+  html = replaceMetaContent(html, 'name=["\']twitter:title["\']', page.title);
+  html = replaceMetaContent(html, 'name=["\']twitter:description["\']', page.description);
+  html = html.replace(/<link\s+[^>]*rel=["']canonical["'][^>]*>/i, "");
+  const structured = `<link rel="canonical" href="${escapeSeoHtml(canonical)}" />\n  <script id="hatay360-server-jsonld" type="application/ld+json">${JSON.stringify(schema)}</script>`;
+  html = html.replace("</head>", `  ${structured}\n  </head>`);
+  const fallback = `<noscript><main><h1>${escapeSeoHtml(page.heading)}</h1><p>${escapeSeoHtml(page.description)}</p><nav><a href="/hatay-web-tasarim">Web tasarım</a> · <a href="/hatay-reklam-ajansi">Reklam ajansı</a> · <a href="/hatay-yazilim-firmasi">Yazılım</a> · <a href="/hatay-google-reklam-ajansi">Google Ads</a> · <a href="/iletisim">İletişim</a></nav></main></noscript>`;
+  return html.replace('<div id="root"></div>', `<div id="root"></div>${fallback}`);
+}
 
 function sitemapDistrictSlug(name) {
   return name
@@ -8447,6 +8532,10 @@ const HATAY_SITEMAP_DISTRICTS = [
 
 const PUBLIC_PATHS = [
   "/",
+  "/hatay-web-tasarim",
+  "/hatay-reklam-ajansi",
+  "/hatay-yazilim-firmasi",
+  "/hatay-google-reklam-ajansi",
   "/pazarla",
   "/ozellikler",
   "/paketler",

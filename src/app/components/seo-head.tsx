@@ -23,6 +23,7 @@ import {
 } from "../lib/seo";
 import { districtAngle } from "../lib/district-copy";
 import { supportOpeningHoursSchema } from "../lib/contact";
+import { getLocalServicePage } from "../lib/local-service-pages";
 
 function upsertMeta(attr: "name" | "property", key: string, content: string) {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
@@ -45,6 +46,7 @@ function upsertLink(rel: string, href: string) {
 }
 
 function isIndexedPublicPath(pathname: string) {
+  if (getLocalServicePage(pathname)) return true;
   if (SEO_PATH_MAP[pathname]) return true;
   if (pathname === "/hatay" || pathname.startsWith("/hatay/")) return true;
   if (pathname === "/demolar" || pathname.startsWith("/demo/")) return true;
@@ -251,8 +253,34 @@ export function SeoHead() {
         keywords: "hatay kahvaltı yerleri, antakya kahvaltı, arsuz kahvaltı, iskenderun kahvaltı, hatay serpme kahvaltı",
       },
     } as Record<string, { title: string; description: string; keywords: string }>)[pathname];
+    const localService = getLocalServicePage(pathname);
 
-    if (pathname === "/hatay") {
+    if (localService) {
+      title = localService.title;
+      description = localService.description;
+      keywords = localService.keywords;
+      json = {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        name: localService.serviceName,
+        description,
+        url,
+        areaServed,
+        provider: {
+          "@type": "ProfessionalService",
+          name: brand,
+          telephone: settings.phone,
+          email: settings.email,
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: settings.address,
+            addressLocality: "Antakya",
+            addressRegion: "Hatay",
+            addressCountry: "TR",
+          },
+        },
+      };
+    } else if (pathname === "/hatay") {
       title = `Hatay İlçeleri | Web Tasarım ve Reklam | ${brand}`;
       description =
         "Antakya, Defne, İskenderun ve tüm Hatay ilçelerinde web tasarım, reklam ve e-ticaret. İlçenizi seçin.";
@@ -430,7 +458,8 @@ export function SeoHead() {
     }
 
     const crumbs: { name: string; path: string }[] = [{ name: "Ana sayfa", path: "/" }];
-    if (pathname === "/hatay") crumbs.push({ name: "Hatay ilçeleri", path: "/hatay" });
+    if (localService) crumbs.push({ name: localService.eyebrow, path: pathname });
+    else if (pathname === "/hatay") crumbs.push({ name: "Hatay ilçeleri", path: "/hatay" });
     else if (district) crumbs.push({ name: "Hatay ilçeleri", path: "/hatay" }, { name: district.name, path: pathname });
     else if (pathname === "/araclar") crumbs.push({ name: "Araçlar", path: "/araclar" });
     else if (pathname.startsWith("/araclar/") && toolMeta) crumbs.push({ name: "Araçlar", path: "/araclar" }, { name: title.split("|")[0].trim(), path: pathname });
