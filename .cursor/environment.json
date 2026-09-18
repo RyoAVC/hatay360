@@ -1,0 +1,20 @@
+{
+  "name": "Hatay360",
+  "install": "npm install",
+  "terminals": [
+    {
+      "name": "api",
+      "command": "npm run dev:server",
+      "description": "Hatay360 SQLite API + admin/session backend on http://127.0.0.1:3601 (data in ./data/hatay360.sqlite)."
+    },
+    {
+      "name": "web",
+      "command": "npm run dev",
+      "description": "Vite dev server on http://127.0.0.1:3600 with live preview; proxies /api to the SQLite backend on 3601."
+    }
+  ],
+  "ports": [
+    { "name": "web", "port": 3600 },
+    { "name": "api", "port": 3601 }
+  ]
+}
